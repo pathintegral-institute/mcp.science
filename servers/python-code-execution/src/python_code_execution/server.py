@@ -24,8 +24,64 @@ def execute_code_in_process(code: str, result_queue: Queue):
     except Exception as e:
         result_queue.put(("error", str(e)))
 
-async def python_code_execution_tool(code: str) -> TextContent:
-    """Execute the generated python code in a sandboxed environment."""
+async def python_code_execution(code: str) -> TextContent:
+    """Execute the generated python code in a sandboxed environment.
+
+    This tool allows you to run Python code with certain restrictions for security.
+
+    IMPORTANT: Always use print() to show your results! Any values that aren't printed
+    will not be returned to the conversation.
+
+    Allowed imports (standard library only):
+    - collections
+    - datetime
+    - itertools
+    - math
+    - queue
+    - random
+    - re (regular expressions)
+    - stat
+    - statistics
+    - time
+    - unicodedata
+
+    Limitations:
+    - No file system access, network operations, or system calls
+    - Limited computation time and memory usage
+    - No dynamic code execution (no eval, exec, etc.)
+    - Custom imports beyond the allowed list will fail
+
+    Examples:
+
+    Basic calculations and printing:
+    ```python
+    x = 10
+    y = 20
+    result = x * y
+    print(f"The result is {result}")
+    ```
+
+    Working with lists and functions:
+    ```python
+    def square(n):
+        return n * n
+
+    numbers = [1, 2, 3, 4, 5]
+    squared = [square(n) for n in numbers]
+    print(f"Original: {numbers}")
+    print(f"Squared: {squared}")
+    ```
+
+    Data analysis with built-in tools:
+    ```python
+    import statistics
+
+    data = [12, 15, 18, 22, 13, 17, 16]
+    mean = statistics.mean(data)
+    median = statistics.median(data)
+    print(f"Mean: {mean}, Median: {median}")
+    ```
+    """
     # Clean the code by removing markdown code blocks if present
     cleaned_code = re.sub(r'```(?:python|py)?\s*\n|```\s*$', '', code)
     
