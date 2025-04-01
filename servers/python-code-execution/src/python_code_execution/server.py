@@ -24,7 +24,7 @@ def execute_code_in_process(code: str, result_queue: Queue):
     except Exception as e:
         result_queue.put(("error", str(e)))
 
-async def python_code_execution(code: str) -> TextContent:
+async def python_code_execution(code: str) -> list[TextContent]:
     """Execute the generated python code in a sandboxed environment.
 
     This tool allows you to run Python code with certain restrictions for security.
@@ -123,10 +123,10 @@ async def python_code_execution(code: str) -> TextContent:
             process.terminate()
             process.join()
 
-    return TextContent(
+    return [TextContent(
         text=result,
         type="text",
-    )
+    )]
 
 
 python_code_execution_tool = Tool(
