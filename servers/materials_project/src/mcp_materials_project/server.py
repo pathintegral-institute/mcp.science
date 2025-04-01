@@ -1,5 +1,5 @@
 import base64
-from typing import Literal
+from typing import Annotated, Literal
 
 from emmet.core.bonds import List
 from emmet.core.summary import SummaryDoc
@@ -21,8 +21,13 @@ from .moire_helper import homobilayer_twist
 mcp = FastMCP("mcp-materials-project")
 
 
-@mcp.tool()
-async def search_materials_by_formula(chemical_formula: str) -> list[str]:
+@mcp.tool(
+    name="search_materials_by_formula",
+    description="Search for materials in the MPRester database by chemical formula",
+)
+async def search_materials_by_formula(
+    chemical_formula: Annotated[str, "The chemical formula of the material"],
+) -> list[str]:
     """
     Search for materials in the MPRester database by chemical formula
 
@@ -44,8 +49,13 @@ async def search_materials_by_formula(chemical_formula: str) -> list[str]:
     return structure_description_list
 
 
-@mcp.tool()
-async def select_material_by_id(material_id: str) -> list[TextContent]:
+@mcp.tool(
+    name="select_material_by_id",
+    description="Select a material from a list of structure_info objects by material_id",
+)
+async def select_material_by_id(
+    material_id: Annotated[str, "The material id of the material"],
+) -> list[TextContent]:
     """
     Select a material from a list of structure_info objects by material_id
 
@@ -65,10 +75,14 @@ async def select_material_by_id(material_id: str) -> list[TextContent]:
     return response
 
 
-@mcp.tool()
+@mcp.tool(
+    name="get_structure_data",
+    description="Obtain the structure data (coordinates of atoms and other properties of the bulk or supercell crystal structure)",
+)
 async def get_structure_data(
-    structure_uri: str,
-    format: Literal["cif", "poscar"] = "poscar",
+    structure_uri: Annotated[str, "The uri of the structure"],
+    format: Annotated[Literal["cif", "poscar"],
+                      "The format of the structure file"] = "poscar",
 ) -> list[TextContent]:
     """
     Obtain the structure data (coordinates of atoms and other properties of the bulk or supercell crystal structure)
@@ -92,8 +106,13 @@ async def get_structure_data(
     return [TextContent(type="text", text=structure_str)]
 
 
-@mcp.tool()
-async def create_structure_from_poscar(poscar_str: str) -> list[TextContent]:
+@mcp.tool(
+    name="create_structure_from_poscar",
+    description="Create a new structure from a poscar string",
+)
+async def create_structure_from_poscar(
+    poscar_str: Annotated[str, "The poscar string of the structure"],
+) -> list[TextContent]:
     """
     Create a new structure from a poscar string
 
@@ -115,9 +134,14 @@ async def create_structure_from_poscar(poscar_str: str) -> list[TextContent]:
     return response
 
 
-@mcp.tool()
+@mcp.tool(
+    name="plot_structure",
+    description="Plot the structure of a material",
+)
 async def plot_structure(
-    structure_uri: str, duplication: list[int] = [1, 1, 1]
+    structure_uri: Annotated[str, "The uri of the structure"],
+    duplication: Annotated[list[int],
+                           "The duplication of the structure in the plot, specified by a list of three integers along a,b,c axis."] = [1, 1, 1]
 ) -> list[ImageContent | TextContent | EmbeddedResource]:
     """
     Plot the structure of a material
@@ -150,8 +174,15 @@ async def plot_structure(
     ]
 
 
-@mcp.tool()
-async def build_supercell(bulk_structure_uri: str, supercell_parameters: SupercellParameters) -> list[TextContent]:
+@mcp.tool(
+    name="build_supercell",
+    description="Starting from a bulk_structure in structure_info, build a supercell structure and store it into a new structure_info",
+)
+async def build_supercell(
+    bulk_structure_uri: Annotated[str, "The uri of the bulk structure"],
+    supercell_parameters: Annotated[SupercellParameters,
+                                    "A dictionary containing the supercell parameters"],
+) -> list[TextContent]:
     """
     Starting from a bulk_structure in structure_info, build a supercell structure and store it into a new structure_info
 
@@ -184,13 +215,19 @@ async def build_supercell(bulk_structure_uri: str, supercell_parameters: Superce
     ]
 
 
-@mcp.tool()
+@mcp.tool(
+    name="moire_homobilayer",
+    description="Generate a moire superstructure of a 2D homobilayer and save it to folder, retrievable by a structure_uri",
+)
 async def moire_homobilayer(
-    bulk_structure_uri: str,
-    interlayer_spacing: float,
-    max_num_atoms: int = 10,
-    twist_angle: float = 0.0,
-    vacuum_thickness: float = 15.0,
+    bulk_structure_uri: Annotated[str, "The uri of the bulk structure used to build the moire bilayer"],
+    interlayer_spacing: Annotated[float, "The interlayer spacing between the two layers, in angstrom"],
+    max_num_atoms: Annotated[int,
+                             "The maximum number of atoms in the moire superstructure"] = 10,
+    twist_angle: Annotated[float,
+                           "The twist angle of the moire superstructure, in degrees"] = 0.0,
+    vacuum_thickness: Annotated[float,
+                                "The vacuum thickness in the z direction, in angstrom"] = 15.0,
 ) -> List[TextContent]:
     """
     Generate a moire superstructure of a 2D homobilayer and save it to folder, retrievable by a structure_uri
