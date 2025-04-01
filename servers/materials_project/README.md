@@ -25,7 +25,7 @@ Search for materials in the Materials Project database by chemical formula.
 
 ### `select_material_by_id`
 
-Select a specific material by its Materials Project ID.
+Select a specific material by its material ID.
 
 **Parameters:**
 - `material_id` (string): The ID of the material
@@ -105,6 +105,8 @@ To use this server, you need to obtain an API key from the Materials Project:
 This server is designed to be used with the MCP (Model Context Protocol) framework, which allows Large Language Models to interact with external tools.
 
 #### Installation
+
+(Navigate to the root folder of your local clone before taking the following steps.)
 
 ##### Using `uv` (Recommended)
 
