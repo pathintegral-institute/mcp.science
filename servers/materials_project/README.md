@@ -1,6 +1,6 @@
 # Materials Project MCP Server
 
-A server for Materials Computation Platform (MCP) that interacts with the Materials Project database, allowing for material search, structure visualization, and manipulation.
+A MCP (Model Context Protocol) server that interacts with the Materials Project database, allowing for material search, structure visualization, and manipulation.
 
 ## Overview
 
@@ -174,13 +174,3 @@ In the future, if/when a PyPI package becomes available, you can simplify instal
 
 For other MCP clients like MCP CLI or custom implementations, refer to their specific documentation for how to register an MCP server. You'll always need to ensure the `MP_API_KEY` environment variable is properly set for the server process.
 
-## Usage
-
-This server is designed to be used with the MCP infrastructure, which enables AI agents to interact with materials science tools and data.
-
-## Dependencies
-
-- pymatgen: For crystal structure manipulation
-- emmet-core: For Materials Project data structures
-- mcp: For MCP server implementation
-- ASE: For atomic simulation environment
