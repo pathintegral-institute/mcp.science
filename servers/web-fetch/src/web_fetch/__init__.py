@@ -1,6 +1,6 @@
 import argparse
 
-from mcp_web_fetch.fetch import serve
+from web_fetch.fetch import serve
 
 DEFAULT_USER_AGENT = "ModelContextProtocol/1.0 (User-Specified; +https://github.com/modelcontextprotocol/servers)"
 

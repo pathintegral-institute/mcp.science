@@ -1,5 +1,5 @@
 [project]
-name = "mcp-txyz-search"
+name = "txyz-search"
 version = "0.1.0"
 description = "TXYZ Search MCP Server"
 readme = "README.md"
@@ -11,7 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-txyz-search = "mcp_txyz_search:main"
+mcp-txyz-search = "txyz_search:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -19,6 +19,3 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/mcp_txyz_search"]

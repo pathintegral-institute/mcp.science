@@ -1,5 +1,5 @@
 [project]
-name = "mcp-web-fetch"
+name = "web-fetch"
 version = "0.1.0"
 description = "Fetch data from ANY website"
 readme = "README.md"
@@ -15,7 +15,7 @@ dependencies = [
 
 
 [project.scripts]
-mcp-web-fetch = "mcp_web_fetch:main"
+mcp-web-fetch = "web_fetch:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -23,6 +23,3 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3"]
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/mcp_web_fetch"]

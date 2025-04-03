@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-python-code-execution = "python_code_execution:main"
+mcp-python-code-execution = "python_code_execution:main"
 safe-execute = "python_code_execution.safe_execute:main"
 
 [build-system]
