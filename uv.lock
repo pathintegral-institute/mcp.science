@@ -1370,18 +1370,14 @@ name = "mcp-servers"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
-    { name = "materials-project" },
     { name = "python-code-execution" },
     { name = "txyz-search" },
-    { name = "web-fetch" },
 ]
 
 [package.metadata]
 requires-dist = [
-    { name = "materials-project", editable = "servers/materials-project" },
     { name = "python-code-execution", editable = "servers/python-code-execution" },
     { name = "txyz-search", editable = "servers/txyz-search" },
-    { name = "web-fetch", editable = "servers/web-fetch" },
 ]
 
 [[package]]
