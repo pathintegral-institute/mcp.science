@@ -11,6 +11,7 @@ dependencies = [
     "mcp[cli]>=1.6.0",
     "mp-api>=0.45.3",
     "pymatgen>=2025.3.10",
+    "kaleido==0.2.1",
 ]
 
 [project.scripts]
