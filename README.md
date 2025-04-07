@@ -112,6 +112,21 @@ Upon successful startup, you should see output similar to:
 2025-04-01 10:22:36,402 - INFO - your_new_server - Starting your-new-server
 ```
 
+### Naming Conventions
+there are 3 different names for each MCP server:
+1. the name of the code directory (the folder name and also the name defined in `project.name` of `pyproject.toml` in your server directory): use hyphen, e.g.:
+```toml
+# servers/your-server/pyproject.toml
+[project]
+name = "your-server"
+```
+2. the name of the python package (the name of the directory in `servers/your-server/src`): use snake_case, e.g.: `servers/your-server/src/your_server`
+3. the name of the script (defined in `[project.scripts]` section of `servers/your-server/pyproject.toml`): use snake_case and prefix with `mcp-`, e.g.:
+```toml
+[project.scripts]
+mcp-your-server = "your_server:main"
+```
+
 ## Contributing
 
 We welcome contributions to MCP Servers! Here's how you can help:
