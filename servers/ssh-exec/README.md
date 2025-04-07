@@ -80,9 +80,9 @@ Add to your local client configuration:
       "command": "uv",
       "args": [
         "--directory",
-        "/path/to/mcp-servers/src/ssh-exec",
+        "/path/to/mcp-servers",
         "run",
-        "src/mcp_ssh_exec/server.py"
+        "mcp-ssh-exec"
       ]
     }
   }

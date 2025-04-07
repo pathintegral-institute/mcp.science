@@ -1,5 +1,5 @@
 [project]
-name = "mcp-ssh-exec"
+name = "ssh-exec"
 version = "0.1.0"
 description = "MCP server for executing command-line operations on remote Linux systems via SSH"
 readme = "README.md"
@@ -15,19 +15,11 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = [
-    "pyright>=1.1.389", 
-    "ruff>=0.7.3",
-    "black>=23.9.1",
-    "isort>=5.12.0"
-]
+dev = ["pyright>=1.1.389", "ruff>=0.7.3", "black>=23.9.1", "isort>=5.12.0"]
 
 [project.scripts]
-mcp-ssh-exec = "mcp_ssh_exec:main"
+mcp-ssh-exec = "ssh_exec:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.hatch.build.targets.wheel]
-packages = ["src/mcp_ssh_exec"]

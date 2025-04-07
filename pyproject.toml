@@ -9,6 +9,7 @@ dependencies = [
     "txyz-search",
     "python-code-execution",
     # "materials-project",
+    # "ssh-exec",
 ]
 
 [project.scripts]
@@ -23,8 +24,7 @@ web-fetch = { workspace = true }
 txyz-search = { workspace = true }
 python-code-execution = { workspace = true }
 materials-project = { workspace = true }
+ssh-exec = { workspace = true }
 
 [tool.uv.workspace]
-members = [
-    "servers/*",
-]
+members = ["servers/*"]

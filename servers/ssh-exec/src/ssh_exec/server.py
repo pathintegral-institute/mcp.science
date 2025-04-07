@@ -8,8 +8,8 @@ import paramiko
 from fastapi import HTTPException
 from mcp.server.fastmcp import FastMCP
 from mcp.types import TextContent
-from mcp_ssh_exec.ssh_client import SSHClient
-from mcp_ssh_exec.utils import validate_command
+from .ssh_client import SSHClient
+from .utils import validate_command
 from pydantic import BaseModel, Field
 import json
 
