@@ -113,7 +113,7 @@ Upon successful startup, you should see output similar to:
 ```
 
 ### Naming Conventions
-there are 3 different names for each MCP server:
+There are 3 different names for each MCP server:
 1. the name of the code directory (the folder name and also the name defined in `project.name` of `pyproject.toml` in your server directory): use hyphen, e.g.:
 ```toml
 # servers/your-server/pyproject.toml
