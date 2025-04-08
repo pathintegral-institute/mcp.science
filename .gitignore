@@ -177,3 +177,5 @@ cython_debug/
 .windsurfrules
 
 working/
+# claude code
+CLAUDE.md
