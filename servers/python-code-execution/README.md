@@ -30,7 +30,7 @@ This server provides a tool called `python_code_execution` that can be used by L
         "args": [
             "--from",
             "git+https://github.com/pathintegral-institute/mcp.science@main#subdirectory=servers/python-code-execution",
-            "mcp-python-code-execution",
+            "mcp-python-code-execution"
         ],
         "env": {}
     }
