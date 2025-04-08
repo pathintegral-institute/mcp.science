@@ -1396,17 +1396,27 @@ def matplotlib_show_handler(state: Dict[str, Any]):
     import matplotlib.pyplot as plt
 
     def custom_show(*args, **kwargs):
-        for fig_num in plt.get_fignums():
-            fig = plt.figure(fig_num)
-            buf = io.BytesIO()
-            fig.savefig(buf, format='png')
-            buf.seek(0)
-            img_data = base64.b64encode(buf.getvalue()).decode('utf-8')
-            state["_image_outputs"].append(img_data, "image/png")
-            buf.close()
-
-        # Clear the figures so they don't accumulate
-        plt.close('all')
+        try:
+            for fig_num in plt.get_fignums():
+                fig = plt.figure(fig_num)
+                buf = io.BytesIO()
+                fig.savefig(buf, format='png')
+                buf.seek(0)
+                img_data = base64.b64encode(buf.getvalue()).decode('utf-8')
+                
+                # Add to state's image outputs
+                state["_image_outputs"].append(img_data, "image/png")
+                
+                # Also add a message to the print output for debugging
+                state["_print_outputs"] += "[Image data captured but not displayed in text output]\n"
+                
+                buf.close()
+            
+            # Clear the figures so they don't accumulate
+            plt.close('all')
+        except Exception as e:
+            # Add error information to the print output
+            state["_print_outputs"] += f"\nError capturing matplotlib figure: {type(e).__name__}: {str(e)}\n"
 
     return custom_show
 

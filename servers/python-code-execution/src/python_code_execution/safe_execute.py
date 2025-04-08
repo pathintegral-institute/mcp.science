@@ -34,9 +34,30 @@ def main():
             max_cpu_time_sec=args.max_cpu_time_sec
         )
         
-        # Convert pydantic models to dict for JSON serialization
-        if "images" in result and result["images"]:
-            result["images"] = [img.model_dump() for img in result["images"]]
+        # Convert image objects to dictionaries for JSON serialization
+        if "images" in result and result["images"] and hasattr(result["images"], "images") and len(result["images"].images) > 0:
+            try:
+                # Convert each ImageContent object to a dictionary with the required fields
+                serialized_images = []
+                for img in result["images"].images:
+                    serialized_images.append({
+                        "data": img.data,
+                        "mimeType": img.mimeType
+                    })
+                result["images"] = serialized_images
+                
+                # Add info about images to text result
+                if result["text"]:
+                    result["text"] += f"\n[Found {len(serialized_images)} image(s)]"
+            except Exception as e:
+                # Add error to text output
+                if result["text"]:
+                    result["text"] += f"\nError serializing images: {type(e).__name__}: {e}"
+                # Fallback to empty images
+                result["images"] = []
+        else:
+            # No images found
+            result["images"] = []
         
         # Always output as JSON
         print(json.dumps(result))
