@@ -113,6 +113,6 @@ async def python_code_execution(code: str) -> list[TextContent]:
     ]
 
 
-async def serve():
+def serve():
     logger.info("Starting LocalPython Code Execution Server...")
     mcp.run("stdio")
