@@ -20,6 +20,7 @@ BASE_BUILTIN_MODULES = [
     "time",
     "unicodedata",
     "numpy",
+    "matplotlib"
 ]
 
 BASE_PYTHON_TOOLS = {
