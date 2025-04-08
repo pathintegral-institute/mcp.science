@@ -72,7 +72,12 @@ export SSH_ARGUMENTS_BLACKLIST=-rf,-fr,--force
 
 ### Configuration for MCP Client
 
-Add to your local client configuration:
+Add the SSH execution server to your MCP client configuration file. There are two main ways to configure the server:
+
+#### Option 1: Run from local repository
+
+Use this option if you have the code checked out locally and want to run it directly:
+
 ```json
 {
   "mcpServers": {
@@ -80,14 +85,52 @@ Add to your local client configuration:
       "command": "uv",
       "args": [
         "--directory",
-        "/path/to/mcp-servers",
+        "/path/to/mcp-servers",  // Replace with actual path to your local repository
         "run",
         "mcp-ssh-exec"
-      ]
+      ],
+      "env": {
+        "SSH_HOST": "example.com",
+        "SSH_PORT": "22",
+        "SSH_USERNAME": "user",
+        "SSH_PRIVATE_KEY": "$(cat ~/.ssh/id_rsa)",
+        "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
+        "SSH_ALLOWED_PATHS": "/tmp,/home",
+        "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
+        "SSH_ARGUMENTS_BLACKLIST": "-rf,-fr,--force"
+      }
     }
   }
 }
 ```
+
+#### Option 2: Fetch and run from remote repository
+
+Use this option to automatically fetch and run the latest version from GitHub:
+
+```json
+{
+  "mcpServers": {
+    "mcp-ssh-exec": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/pathintegral-institute/mcp.science#subdirectory=servers/ssh-exec",
+        "mcp-ssh-exec",
+      ],
+      "env": {
+        "SSH_HOST": "example.com",
+        "SSH_PORT": "22",
+        "SSH_USERNAME": "user",
+        "SSH_PRIVATE_KEY": "$(cat ~/.ssh/id_rsa)",
+        "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
+        "SSH_ALLOWED_PATHS": "/tmp,/home",
+        "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
+        "SSH_ARGUMENTS_BLACKLIST": "-rf,-fr,--force"
+      }
+    }
+  }
+}
 
 ## MCP Tools
 
