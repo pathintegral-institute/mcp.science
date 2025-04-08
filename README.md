@@ -1,146 +1,54 @@
-# MCP Servers
-Open Source MCP (Message Control Protocol) Servers for Scientific Research
+<p align="center">
+<img src="assets/logo_landscape.png" width="400" />
+</p>
 
-## Installation Options
+<div align="center">
 
-### Option 1: Using PyPI Version
-Install the latest stable version from PyPI using the following configuration:
+# MCP.science: Open Source MCP Servers for Scientific Research 🔍📚
 
-```json
-{
-  "mcpServers": {
-    "mcp-txyz-search": {
-      "command": "uvx",
-      "args": ["mcp-txyz-search"],
-      "env": {
-        "TXYZ_API_KEY": "YOUR_TXYZ_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-### Option 2: Using Latest Main Branch
-For the most recent development version, use this configuration:
+*Join us in accelerating scientific discovery with AI and open-source tools!*
+</div>
 
-```json
-{
-  "mcpServers": {
-    "mcp-txyz-search": {
-      "command": "uvx",
-      "args": [
-        "--from", 
-        "git+https://github.com/pathintegral-institute/mcp-servers#subdirectory=servers/txyz-search", 
-        "mcp-txyz-search"
-      ],
-      "env": {
-        "TXYZ_API_KEY": "YOUR_TXYZ_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
 
-### Option 3: Using Specific Branch
-To use a specific branch, modify the configuration as follows:
 
-```json
-{
-  "mcpServers": {
-    "mcp-txyz-search": {
-      "command": "uvx",
-      "args": [
-        "--from", 
-        "git+https://github.com/pathintegral-institute/mcp-servers@branch_name#subdirectory=servers/txyz-search", 
-        "mcp-txyz-search"
-      ],
-      "env": {
-        "TXYZ_API_KEY": "YOUR_TXYZ_API_KEY_HERE"
-      }
-    }
-  }
-}
-```
 
-## Creating a New Server
 
-### 1. Initialize Server Package
-Create a new server package using UV:
+## Table of Contents
 
-```sh
-uv init --package --no-workspace servers/your-new-server
-uv add --directory servers/your-new-server mcp
-```
+- [About](#about)
+- [What is MCP?](#what-is-mcp)
+- [Available Servers](#available-servers)
+- [How to integrate MCP servers into your client](#how-to-integrate-mcp-servers-into-your-client)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
-### 2. Configure Server
-Create or update `servers/your-new-server/src/your_new_server/__init__.py`:
+## About
+This repository contains a collection of open source [MCP](https://modelcontextprotocol.io/introduction) servers specifically designed for scientific research applications. These servers enable Al models (like Claude) to interact with scientific data, tools, and resources through a standardized protocol.
 
-```python
-def main():
-    from mcp.server.fastmcp import FastMCP
-    import logging
+## What is MCP?
+> MCP is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
+> 
+> MCP helps you build agents and complex workflows on top of LLMs. LLMs frequently need to integrate with data and tools, and MCP provides:
+>
+> - A growing list of pre-built integrations that your LLM can directly plug into
+> - The flexibility to switch between LLM providers and vendors
+> - Best practices for securing your data within your infrastructure
+> 
+> Source: [https://modelcontextprotocol.io/introduction](https://modelcontextprotocol.io/introduction)
 
-    # Configure logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
+## Available Servers
+Please check [Available Servers](docs/available_servers.md) for more details.
 
-    # Initialize MCP server
-    mcp = FastMCP()
+## How to integrate MCP servers into your client
+Please check [Quickstart](docs/quickstart.md) for more details.
 
-    # Define your tools
-    @mcp.tool()
-    async def add(a: int, b: int) -> str:
-        return str(a + b)
-
-    # Start server
-    logger.info('Starting your-new-server')
-    mcp.run('stdio')
-```
-
-### 3. Launch Server
-Run your server using:
-
-```sh
-uv run --directory servers/your-new-server your-new-server
-```
-
-Upon successful startup, you should see output similar to:
-```text
-2025-04-01 10:22:36,402 - INFO - your_new_server - Starting your-new-server
-```
-
-### Naming Conventions
-There are 3 different names for each MCP server:
-1. the name of the code directory (the folder name and also the name defined in `project.name` of `pyproject.toml` in your server directory): use hyphen, e.g.:
-```toml
-# servers/your-server/pyproject.toml
-[project]
-name = "your-server"
-```
-2. the name of the python package (the name of the directory in `servers/your-server/src`): use snake_case, e.g.: `servers/your-server/src/your_server`
-3. the name of the script (defined in `[project.scripts]` section of `servers/your-server/pyproject.toml`): use snake_case and prefix with `mcp-`, e.g.:
-```toml
-[project.scripts]
-mcp-your-server = "your_server:main"
-```
 
 ## Contributing
 
-We welcome contributions to MCP Servers! Here's how you can help:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure your PR adheres to:
-- Clear commit messages
-- Proper documentation updates
-- Test coverage for new features
+We enthusiastically welcome contributions to MCP.science! Whether you're adding a new server, improving documentation, fixing bugs, or suggesting features - your help makes this project better. See our [Contributing Guide](docs/contributing.md) for guidelines and best practices.
 
 ## License
 
@@ -148,4 +56,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Thanks to all contributors
+Thanks to all contributors!
