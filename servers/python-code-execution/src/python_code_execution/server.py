@@ -13,10 +13,14 @@ from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, ImageContent, Tool
 from pydantic import BaseModel, ValidationError
 from python_code_execution.schemas import BASE_BUILTIN_MODULES
 logger = logging.getLogger(__name__)
+
+
 class PythonCodeExecutionArgs(BaseModel):
     code: str
 
 # General Search Function
+
+
 async def python_code_execution(code: str) -> list[Union[TextContent, ImageContent]]:
     """Execute the generated python code in a sandboxed environment.
 
@@ -25,23 +29,23 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
     IMPORTANT: 
     - Use print() to show text results
     - Use plt.show() to display matplotlib visualizations
-    
+
     Allowed imports (standard library only):
     {}
-    
+
     Matplotlib support:
     - Import matplotlib.pyplot as plt
     - Create your plots with standard matplotlib commands
     - Call plt.show() to display the visualization
-    
+
     Example with matplotlib:
     ```python
     import matplotlib.pyplot as plt
     import numpy as np
-    
+
     x = np.linspace(0, 10, 100)
     y = np.sin(x)
-    
+
     plt.plot(x, y)
     plt.title('Sine Wave')
     plt.xlabel('x')
@@ -87,10 +91,10 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
     print(f"Mean: {{mean}}, Median: {{median}}")
     ```
     """.format("\n".join(f"- {module}" for module in BASE_BUILTIN_MODULES))
-    
+
     # Clean the code by removing markdown code blocks if present
     cleaned_code = re.sub(r'```(?:python|py)?\s*\n|```\s*$', '', code)
-    
+
     # Run the code evaluation by calling safe_execute.py with a subprocess
     try:
         # Construct the command with proper escaping
@@ -115,14 +119,14 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
         if process.returncode == 0:
             try:
                 output = json.loads(process.stdout)
-                
+                logger.info("Code execution output: %s", output)
                 # Add text content if present
                 if "text" in output and output["text"]:
                     results.append(TextContent(
                         type="text",
                         text=output["text"]
                     ))
-                
+
                 # Add image content if present
                 if "images" in output and output["images"]:
                     for img in output["images"]:
@@ -141,7 +145,7 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
             error_text = process.stdout
             if process.stderr:
                 error_text += f"\nError: {process.stderr}"
-            
+
             results.append(TextContent(
                 type="text",
                 text=error_text
@@ -165,6 +169,7 @@ python_code_execution_tool = Tool(
     description=python_code_execution.__doc__,
     inputSchema=PythonCodeExecutionArgs.model_json_schema()
 )
+
 
 async def serve():
     server = McpServer(name="mcp-python_code_execution")
@@ -190,7 +195,6 @@ async def serve():
                     code=INTERNAL_ERROR,
                     message=f"Invalid tool name: {tool_name}"
                 ))
-
 
     async with stdio_server() as (read_stream, write_stream):
         logger.info("Starting LocalPython Code Execution Server...")
