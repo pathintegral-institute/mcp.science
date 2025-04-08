@@ -179,3 +179,5 @@ cython_debug/
 working/
 # claude code
 CLAUDE.md
+
+.DS_Store
