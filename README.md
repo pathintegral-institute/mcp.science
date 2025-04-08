@@ -149,3 +149,28 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 - Thanks to all contributors
+
+## GitHub Pages Deployment
+
+This repository includes a GitHub Actions workflow that automatically deploys the landing page to GitHub Pages whenever changes are pushed to the main branch.
+
+### Setup Instructions
+
+1. Go to your repository settings
+2. Navigate to "Pages" in the sidebar
+3. Under "Build and deployment", select "GitHub Actions" as the source
+4. The site will be published at `https://pathintegral-institute.github.io/mcp.science/`
+
+### Custom Domain
+
+To use a custom domain (mcp.science):
+
+1. Go to your repository settings
+2. Navigate to "Pages" in the sidebar
+3. Under "Custom domain", enter your domain name (mcp.science)
+4. Click "Save"
+5. Add a CNAME file to your repository with the following content:
+   ```
+   mcp.science
+   ```
+6. Configure your DNS settings to point to GitHub Pages
