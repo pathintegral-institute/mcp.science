@@ -22,7 +22,73 @@ class PythonCodeExecutionArgs(BaseModel):
 
 
 async def python_code_execution(code: str) -> list[Union[TextContent, ImageContent]]:
-    """Execute the generated python code in a sandboxed environment.
+    # Clean the code by removing markdown code blocks if present
+    cleaned_code = re.sub(r'```(?:python|py)?\s*\n|```\s*$', '', code)
+
+    # Run the code evaluation by calling safe_execute.py with a subprocess
+    try:
+        # Construct the command with proper escaping
+        cmd = [
+            "uv",
+            "run",
+            "safe-execute",
+            "--code", cleaned_code
+        ]
+
+        process = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=20
+        )
+
+        # Get the output
+        if process.returncode == 0:
+            output = process.stdout
+        else:
+            output = process.stdout
+            if process.stderr:
+                output += f"\nError: {process.stderr}"
+
+    except subprocess.TimeoutExpired:
+        output = "Execution timed out. The code took too long to run."
+        return [TextContent(text=output, type="text")]
+    except Exception as e:
+        output = f"An error occurred while executing the code: {str(e)}"
+        return [TextContent(text=output, type="text")]
+
+    # Try to parse the output as JSON (for image content)
+    try:
+        # Check if the output is in JSON format (from images)
+        json_output = json.loads(output)
+
+        result = []
+
+        # Add text content
+        if "text" in json_output:
+            result.append(TextContent(
+                text=json_output["text"],
+                type="text"
+            ))
+
+        # Add image content
+        if "images" in json_output:
+            for img in json_output["images"]:
+                result.append(ImageContent(
+                    type="image",
+                    data=img["data"],
+                    mimeType=img["mimeType"]
+                ))
+
+        return result
+    except (json.JSONDecodeError, KeyError):
+        # If not JSON or missing required keys, just return as text
+        return [TextContent(
+            text=output,
+            type="text",
+        )]
+
+python_code_execution.__doc__ = """Execute the generated python code in a sandboxed environment.
 
     This tool allows you to run Python code with certain restrictions for security.
 
@@ -97,71 +163,6 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
     send_image_to_client(gcf())
     ```
     """.format("\n".join(f"- {module}" for module in BASE_BUILTIN_MODULES))
-    # Clean the code by removing markdown code blocks if present
-    cleaned_code = re.sub(r'```(?:python|py)?\s*\n|```\s*$', '', code)
-
-    # Run the code evaluation by calling safe_execute.py with a subprocess
-    try:
-        # Construct the command with proper escaping
-        cmd = [
-            "uv",
-            "run",
-            "safe-execute",
-            "--code", cleaned_code
-        ]
-
-        process = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=20
-        )
-
-        # Get the output
-        if process.returncode == 0:
-            output = process.stdout
-        else:
-            output = process.stdout
-            if process.stderr:
-                output += f"\nError: {process.stderr}"
-
-    except subprocess.TimeoutExpired:
-        output = "Execution timed out. The code took too long to run."
-        return [TextContent(text=output, type="text")]
-    except Exception as e:
-        output = f"An error occurred while executing the code: {str(e)}"
-        return [TextContent(text=output, type="text")]
-
-    # Try to parse the output as JSON (for image content)
-    try:
-        # Check if the output is in JSON format (from images)
-        json_output = json.loads(output)
-
-        result = []
-
-        # Add text content
-        if "text" in json_output:
-            result.append(TextContent(
-                text=json_output["text"],
-                type="text"
-            ))
-
-        # Add image content
-        if "images" in json_output:
-            for img in json_output["images"]:
-                result.append(ImageContent(
-                    type="image",
-                    data=img["data"],
-                    mimeType=img["mimeType"]
-                ))
-
-        return result
-    except (json.JSONDecodeError, KeyError):
-        # If not JSON or missing required keys, just return as text
-        return [TextContent(
-            text=output,
-            type="text",
-        )]
 
 python_code_execution_tool = Tool(
     name="python_code_execution",
