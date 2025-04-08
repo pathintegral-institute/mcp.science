@@ -158,11 +158,11 @@ def safer_eval(func: Callable):
                       custom_tools, authorized_imports=authorized_imports)
         if "*" not in authorized_imports:
             if isinstance(result, ModuleType):
-                if result.__name__ not in authorized_imports:
+                if not check_module_authorized(result.__name__, authorized_imports):
                     raise InterpreterError(
                         f"Forbidden access to module: {result.__name__}")
             elif isinstance(result, dict) and result.get("__spec__"):
-                if result["__name__"] not in authorized_imports:
+                if not check_module_authorized(result["__name__"], authorized_imports):
                     raise InterpreterError(
                         f"Forbidden access to module: {result['__name__']}")
             elif isinstance(result, (FunctionType, BuiltinFunctionType)):
