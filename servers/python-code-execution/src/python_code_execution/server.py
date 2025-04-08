@@ -40,7 +40,7 @@ async def python_code_execution(code: str) -> list[TextContent]:
     x = 10
     y = 20
     result = x * y
-    print(f"The result is {result}")
+    print(f"The result is {{result}}")
     ```
 
     Working with lists and functions:
@@ -50,8 +50,8 @@ async def python_code_execution(code: str) -> list[TextContent]:
 
     numbers = [1, 2, 3, 4, 5]
     squared = [square(n) for n in numbers]
-    print(f"Original: {numbers}")
-    print(f"Squared: {squared}")
+    print(f"Original: {{numbers}}")
+    print(f"Squared: {{squared}}")
     ```
 
     Data analysis with built-in tools:
@@ -61,7 +61,7 @@ async def python_code_execution(code: str) -> list[TextContent]:
     data = [12, 15, 18, 22, 13, 17, 16]
     mean = statistics.mean(data)
     median = statistics.median(data)
-    print(f"Mean: {mean}, Median: {median}")
+    print(f"Mean: {{mean}}, Median: {{median}}")
     ```
     """.format("\n".join(f"- {module}" for module in BASE_BUILTIN_MODULES))
     # Clean the code by removing markdown code blocks if present
