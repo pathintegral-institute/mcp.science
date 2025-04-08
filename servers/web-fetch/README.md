@@ -48,6 +48,23 @@ or using docker(after publish done)
 }
 ```
 
+or Fetch and run from remote repository
+
+```json
+{
+  "mcpServers": {
+    "mcp-web-fetch": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/pathintegral-institute/mcp.science#subdirectory=servers/web-fetch",
+        "mcp-web-fetch"
+      ]
+    }
+  }
+}
+```
+
 ## Customization
 By default, the server will use a default user-agent for fetching web content. You can customize the user-agent by setting the `user_agent` in args
 ```

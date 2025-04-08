@@ -96,5 +96,25 @@ or Locally
 }
 ```
 
+or Fetch and run from remote repository
+
+```json
+{
+  "mcpServers": {
+    "mcp-txyz-search": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/pathintegral-institute/mcp.science#subdirectory=servers/txyz-search",
+        "mcp-txyz-search" 
+      ],
+      "env": {
+        "TXYZ_API_KEY": "YOUR_TXYZ_API_KEY_HERE"
+      }
+    }
+  }
+}
+```
+
 ## License
 MIT

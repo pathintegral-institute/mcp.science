@@ -170,6 +170,26 @@ In the future, if/when a PyPI package becomes available, you can simplify instal
 }
 ```
 
+or Fetch and run from remote repository
+
+```json
+{
+  "mcpServers": {
+    "materials_project": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/pathintegral-institute/mcp.science#subdirectory=servers/materials-project",
+        "mcp-materials-project"
+      ],
+      "env": {
+        "MP_API_KEY": "YOUR_MP_API_KEY"
+      }
+    }
+  }
+}
+```
+
 **For Other MCP Clients:**
 
 For other MCP clients like MCP CLI or custom implementations, refer to their specific documentation for how to register an MCP server. You'll always need to ensure the `MP_API_KEY` environment variable is properly set for the server process.
