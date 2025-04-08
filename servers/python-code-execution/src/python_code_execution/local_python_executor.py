@@ -1417,7 +1417,7 @@ def evaluate_python_code(
     state["_print_outputs"] = PrintContainer()
     state["_operations_count"] = {"counter": 0}
 
-    # only for linux
+    # only for linux, this will cause a bug on Mac
     if sys.platform == "linux":
         resource.setrlimit(resource.RLIMIT_CPU,
                            (max_cpu_time_sec, max_cpu_time_sec))
@@ -1448,13 +1448,8 @@ def evaluate_python_code(
             evaluate_ast(node, state, static_tools,
                          custom_tools, authorized_imports)
 
-
-<< << << < HEAD
-   return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length), state["_print_outputs"].images
-== == == =
-   return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length)
->>>>>> > 39f967dc6459ddd7ce5256821544a7e95c32ad20
-   except (MemoryError, OSError, BlockingIOError) as e:
+        return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length), state["_print_outputs"].images
+    except (MemoryError, OSError, BlockingIOError) as e:
         # These exceptions are likely due to resource limits being hit
         current_output = str(state["_print_outputs"])
         resource_error_msg = (
@@ -1467,8 +1462,4 @@ def evaluate_python_code(
     except Exception as e:
         current_output = str(state["_print_outputs"])
         error_msg = f"\nCode execution failed at line '{ast.get_source_segment(code, node)}' due to: {type(e).__name__}: {e}"
-<<<<<< < HEAD
-   return truncate_content(current_output + error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images
-== =====
-   return truncate_content(current_output + error_msg, max_length=max_print_outputs_length)
->>>>>> > 39f967dc6459ddd7ce5256821544a7e95c32ad20
+    return truncate_content(current_output + error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images
