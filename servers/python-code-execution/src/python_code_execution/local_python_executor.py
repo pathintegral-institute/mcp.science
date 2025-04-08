@@ -1440,7 +1440,7 @@ def evaluate_python_code(
             f"{' ' * (e.offset or 0)}^\n"
             f"Error: {str(e)}"
         )
-        return error_msg
+        return error_msg, []
 
     try:
         # Use context manager to limit resources only during AST evaluation
@@ -1448,7 +1448,7 @@ def evaluate_python_code(
             evaluate_ast(node, state, static_tools,
                          custom_tools, authorized_imports)
 
-        return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length)
+        return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length), state["_print_outputs"].images
     except (MemoryError, OSError, BlockingIOError) as e:
         # These exceptions are likely due to resource limits being hit
         current_output = str(state["_print_outputs"])
