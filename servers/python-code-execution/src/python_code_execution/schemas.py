@@ -20,6 +20,7 @@ BASE_BUILTIN_MODULES = [
     "time",
     "unicodedata",
     "numpy",
+    "scipy",
 ]
 
 BASE_PYTHON_TOOLS = {
@@ -88,4 +89,3 @@ DANGEROUS_FUNCTIONS = [
     "os.system",
     "posix.system",
 ]
-
