@@ -20,7 +20,6 @@ BASE_BUILTIN_MODULES = [
     "time",
     "unicodedata",
     "numpy",
-    "scipy",
 ]
 
 BASE_PYTHON_TOOLS = {
