@@ -1,5 +1,4 @@
 import argparse
-import json
 from .local_python_executor import evaluate_python_code
 from .schemas import BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT
 import resource
@@ -23,7 +22,7 @@ def main():
 
     args = parser.parse_args()
     
-    # Execute the evaluation and return the result
+    # Execute the evaluation and print the result directly
     try:
         result = evaluate_python_code(
             code=args.code,
@@ -33,35 +32,8 @@ def main():
             max_memory_mb=args.max_memory_mb,
             max_cpu_time_sec=args.max_cpu_time_sec
         )
-        
-        # Convert image objects to dictionaries for JSON serialization
-        if "images" in result and result["images"] and hasattr(result["images"], "images") and len(result["images"].images) > 0:
-            try:
-                # Convert each ImageContent object to a dictionary with the required fields
-                serialized_images = []
-                for img in result["images"].images:
-                    serialized_images.append({
-                        "data": img.data,
-                        "mimeType": img.mimeType
-                    })
-                result["images"] = serialized_images
-                
-                # Add info about images to text result
-                if result["text"]:
-                    result["text"] += f"\n[Found {len(serialized_images)} image(s)]"
-            except Exception as e:
-                # Add error to text output
-                if result["text"]:
-                    result["text"] += f"\nError serializing images: {type(e).__name__}: {e}"
-                # Fallback to empty images
-                result["images"] = []
-        else:
-            # No images found
-            result["images"] = []
-        
-        # Always output as JSON
-        print(json.dumps(result))
-            
+
+        print(result)
     except Exception as e:
         resource_error_msg = (
             f"\n⚠️ RESOURCE LIMIT EXCEEDED ⚠️\n"
@@ -69,9 +41,7 @@ def main():
             f"Attempting to bypass resource limits or execute malicious code may result in account termination.\n"
             f"Error: {type(e).__name__}: {e}"
         )
-        
-        # Always output as JSON
-        print(json.dumps({"text": resource_error_msg, "images": []}))
+        print(resource_error_msg)
 
 
 if __name__ == "__main__":
