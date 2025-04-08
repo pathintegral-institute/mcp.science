@@ -16,8 +16,8 @@ from functools import wraps
 from importlib import import_module
 from types import BuiltinFunctionType, FunctionType, ModuleType
 from typing import Any, Callable, Dict, List, Optional, Set
-from .schemas import MAX_LENGTH_TRUNCATE_CONTENT, MAX_OPERATIONS, MAX_WHILE_ITERATIONS, BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT, DANGEROUS_FUNCTIONS, BASE_PYTHON_TOOLS
-
+from .schemas import MAX_LENGTH_TRUNCATE_CONTENT, MAX_OPERATIONS, MAX_WHILE_ITERATIONS, BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT, DANGEROUS_FUNCTIONS, BASE_PYTHON_TOOLS, send_image_to_client
+from mcp.types import ImageContent
 logger = logging.getLogger(__name__)
 
 
@@ -51,6 +51,7 @@ def truncate_content(content: str, max_length: int = MAX_LENGTH_TRUNCATE_CONTENT
 class PrintContainer:
     def __init__(self):
         self.value = ""
+        self.images: list[ImageContent] = []
 
     def append(self, text):
         self.value += text
@@ -664,6 +665,10 @@ def evaluate_call(
             raise InterpreterError("super() takes at most 2 arguments")
     elif func_name == "print":
         state["_print_outputs"] += " ".join(map(str, args)) + "\n"
+        return None
+    elif func_name == "send_image_to_client":
+        image_content = send_image_to_client(args[0])
+        state["_print_outputs"].images.append(image_content)
         return None
     else:  # Assume it's a callable object
         if (inspect.getmodule(func) == builtins) and inspect.isbuiltin(func) and (func not in static_tools.values()):
@@ -1375,7 +1380,7 @@ def evaluate_python_code(
     # Resource limits
     max_memory_mb: int = 100,  # Maximum memory usage in MB
     max_cpu_time_sec: int = 15,  # Maximum CPU time in seconds
-) -> str:
+) -> tuple[str, list[ImageContent]]:
     """
     Evaluate a python expression using the content of the variables stored in a state and only evaluating a given set
     of functions.
@@ -1453,8 +1458,8 @@ def evaluate_python_code(
             f"Attempting to bypass resource limits or execute malicious code may result in account termination.\n"
             f"Error: {type(e).__name__}: {e}"
         )
-        return truncate_content(current_output + resource_error_msg, max_length=max_print_outputs_length)
+        return truncate_content(current_output + resource_error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images
     except Exception as e:
         current_output = str(state["_print_outputs"])
         error_msg = f"\nCode execution failed at line '{ast.get_source_segment(code, node)}' due to: {type(e).__name__}: {e}"
-        return truncate_content(current_output + error_msg, max_length=max_print_outputs_length)
+        return truncate_content(current_output + error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images

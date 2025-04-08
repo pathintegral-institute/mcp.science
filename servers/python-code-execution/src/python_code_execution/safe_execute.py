@@ -1,7 +1,9 @@
 import argparse
+import json
+import base64
 from .local_python_executor import evaluate_python_code
 from .schemas import BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT
-import resource
+
 
 def main():
     """
@@ -9,8 +11,10 @@ def main():
     This serves as an entry point for the code evaluation functionality.
     """
     # Set up argument parser
-    parser = argparse.ArgumentParser(description='Execute Python code in a sandboxed environment')
-    parser.add_argument('--code', type=str, required=True, help='Python code to evaluate')
+    parser = argparse.ArgumentParser(
+        description='Execute Python code in a sandboxed environment')
+    parser.add_argument('--code', type=str, required=True,
+                        help='Python code to evaluate')
     parser.add_argument('--authorized-imports', type=str, nargs='+', default=BASE_BUILTIN_MODULES,
                         help='List of authorized Python modules that can be imported')
     parser.add_argument('--max-print-length', type=int, default=DEFAULT_MAX_LEN_OUTPUT,
@@ -21,10 +25,10 @@ def main():
                         help='Maximum CPU time in seconds')
 
     args = parser.parse_args()
-    
+
     # Execute the evaluation and print the result directly
     try:
-        result = evaluate_python_code(
+        result, images = evaluate_python_code(
             code=args.code,
             state=None,  # No state file input
             authorized_imports=args.authorized_imports,
@@ -33,7 +37,23 @@ def main():
             max_cpu_time_sec=args.max_cpu_time_sec
         )
 
-        print(result)
+        # If there are images, format the output as JSON with text and images
+        if images:
+            output = {
+                "text": result,
+                "images": [
+                    {
+                        "type": "image",
+                        "data": img.data,
+                        "mimeType": img.mimeType
+                    } for img in images
+                ]
+            }
+            print(json.dumps(output))
+        else:
+            # If no images, just print the text result
+            print(result)
+            
     except Exception as e:
         resource_error_msg = (
             f"\n⚠️ RESOURCE LIMIT EXCEEDED ⚠️\n"
