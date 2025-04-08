@@ -1327,9 +1327,9 @@ def evaluate_python_code(
     state["_operations_count"] = {"counter": 0}
     
     # only for linux
-    # if sys.platform == "linux":
-    #     resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_time_sec, max_cpu_time_sec))
-    #     resource.setrlimit(resource.RLIMIT_AS, (max_memory_mb * 1024 * 1024, max_memory_mb * 2 * 1024 * 1024))
+    if sys.platform == "linux":
+        resource.setrlimit(resource.RLIMIT_CPU, (max_cpu_time_sec, max_cpu_time_sec))
+        resource.setrlimit(resource.RLIMIT_AS, (max_memory_mb * 1024 * 1024, max_memory_mb * 2 * 1024 * 1024))
         # Prevent file creation by setting file size limit to 0
         # resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
         # # Prevent file opening by setting open file limit to 0
