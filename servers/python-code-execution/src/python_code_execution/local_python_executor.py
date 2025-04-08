@@ -1448,8 +1448,13 @@ def evaluate_python_code(
             evaluate_ast(node, state, static_tools,
                          custom_tools, authorized_imports)
 
-        return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length), state["_print_outputs"].images
-    except (MemoryError, OSError, BlockingIOError) as e:
+
+<< << << < HEAD
+   return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length), state["_print_outputs"].images
+== == == =
+   return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length)
+>>>>>> > 39f967dc6459ddd7ce5256821544a7e95c32ad20
+   except (MemoryError, OSError, BlockingIOError) as e:
         # These exceptions are likely due to resource limits being hit
         current_output = str(state["_print_outputs"])
         resource_error_msg = (
@@ -1462,4 +1467,8 @@ def evaluate_python_code(
     except Exception as e:
         current_output = str(state["_print_outputs"])
         error_msg = f"\nCode execution failed at line '{ast.get_source_segment(code, node)}' due to: {type(e).__name__}: {e}"
-        return truncate_content(current_output + error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images
+<<<<<< < HEAD
+   return truncate_content(current_output + error_msg, max_length=max_print_outputs_length), state["_print_outputs"].images
+== =====
+   return truncate_content(current_output + error_msg, max_length=max_print_outputs_length)
+>>>>>> > 39f967dc6459ddd7ce5256821544a7e95c32ad20
