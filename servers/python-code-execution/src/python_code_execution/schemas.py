@@ -88,4 +88,3 @@ DANGEROUS_FUNCTIONS = [
     "os.system",
     "posix.system",
 ]
-
