@@ -1091,7 +1091,7 @@ def check_module_authorized(module_name, authorized_imports):
             if any(subpath == auth_import for subpath in module_subpaths):
                 return True
 
-            return False
+        return False
 
 
 def evaluate_import(expression, state, authorized_imports):
