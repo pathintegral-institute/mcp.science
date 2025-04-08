@@ -1,4 +1,5 @@
 import argparse
+import json
 from .local_python_executor import evaluate_python_code
 from .schemas import BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT
 import resource
@@ -22,7 +23,7 @@ def main():
 
     args = parser.parse_args()
     
-    # Execute the evaluation and print the result directly
+    # Execute the evaluation and return the result
     try:
         result = evaluate_python_code(
             code=args.code,
@@ -32,8 +33,14 @@ def main():
             max_memory_mb=args.max_memory_mb,
             max_cpu_time_sec=args.max_cpu_time_sec
         )
-
-        print(result)
+        
+        # Convert pydantic models to dict for JSON serialization
+        if "images" in result and result["images"]:
+            result["images"] = [img.model_dump() for img in result["images"]]
+        
+        # Always output as JSON
+        print(json.dumps(result))
+            
     except Exception as e:
         resource_error_msg = (
             f"\n⚠️ RESOURCE LIMIT EXCEEDED ⚠️\n"
@@ -41,7 +48,9 @@ def main():
             f"Attempting to bypass resource limits or execute malicious code may result in account termination.\n"
             f"Error: {type(e).__name__}: {e}"
         )
-        print(resource_error_msg)
+        
+        # Always output as JSON
+        print(json.dumps({"text": resource_error_msg, "images": []}))
 
 
 if __name__ == "__main__":

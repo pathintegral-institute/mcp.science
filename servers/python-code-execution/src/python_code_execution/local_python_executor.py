@@ -11,11 +11,15 @@ import logging
 import resource
 import sys
 import re
+import io
+import base64
 from collections.abc import Mapping
 from functools import wraps
 from importlib import import_module
 from types import BuiltinFunctionType, FunctionType, ModuleType
-from typing import Any, Callable, Dict, List, Optional, Set
+from mcp.types import ImageContent
+from typing import Any, Callable, Dict, List, Optional, Set, Literal
+from pydantic import BaseModel
 from .schemas import MAX_LENGTH_TRUNCATE_CONTENT, MAX_OPERATIONS, MAX_WHILE_ITERATIONS, BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT, DANGEROUS_FUNCTIONS, BASE_PYTHON_TOOLS
 
 logger = logging.getLogger(__name__)
@@ -72,6 +76,24 @@ class PrintContainer:
     def __len__(self):
         """Implements len() function support"""
         return len(self.value)
+
+
+class ImageContainer:
+    def __init__(self):
+        self.images: List[ImageContent] = []
+
+    def append(self, image_data: str, mime_type: str):
+        """Append a new image to the container"""
+        self.images.append(ImageContent(
+            type="image",
+            data=image_data,
+            mimeType=mime_type
+        ))
+        return self
+
+    def __len__(self):
+        """Implements len() function support"""
+        return len(self.images)
 
 
 class BreakException(Exception):
@@ -1365,6 +1387,29 @@ def evaluate_ast(
             f"{expression.__class__.__name__} is not supported.")
 
 
+def matplotlib_show_handler(state: Dict[str, Any]):
+    """
+    Custom handler for matplotlib's plt.show() to capture figures as base64 images
+    instead of displaying them in a window.
+    """
+    import matplotlib.pyplot as plt
+
+    def custom_show(*args, **kwargs):
+        for fig_num in plt.get_fignums():
+            fig = plt.figure(fig_num)
+            buf = io.BytesIO()
+            fig.savefig(buf, format='png')
+            buf.seek(0)
+            img_data = base64.b64encode(buf.getvalue()).decode('utf-8')
+            state["_image_outputs"].append(img_data, "image/png")
+            buf.close()
+
+        # Clear the figures so they don't accumulate
+        plt.close('all')
+
+    return custom_show
+
+
 def evaluate_python_code(
     code: str,
     static_tools: Optional[Dict[str, Callable]] = None,
@@ -1375,7 +1420,7 @@ def evaluate_python_code(
     # Resource limits
     max_memory_mb: int = 100,  # Maximum memory usage in MB
     max_cpu_time_sec: int = 15,  # Maximum CPU time in seconds
-) -> str:
+) -> Dict[str, Any]:
     """
     Evaluate a python expression using the content of the variables stored in a state and only evaluating a given set
     of functions.
@@ -1397,7 +1442,7 @@ def evaluate_python_code(
             The print outputs will be stored in the state under the key "_print_outputs".
 
     Returns:
-        str: Either the print outputs if successful, or print outputs + error message if failed
+        Dict[str, Any]: Contains the execution result with text output and any captured images
     """
     if state is None:
         state = {}
@@ -1410,6 +1455,7 @@ def evaluate_python_code(
 
     custom_tools = custom_tools if custom_tools is not None else {}
     state["_print_outputs"] = PrintContainer()
+    state["_image_outputs"] = ImageContainer()
     state["_operations_count"] = {"counter": 0}
 
     # only for linux
@@ -1421,10 +1467,11 @@ def evaluate_python_code(
         memory_limit = numpy_memory_mb if "numpy" in authorized_imports else max_memory_mb
         resource.setrlimit(resource.RLIMIT_AS, (memory_limit *
                            1024 * 1024, memory_limit * 2 * 1024 * 1024))
-        # Prevent file creation by setting file size limit to 0
-        # resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
-        # # Prevent file opening by setting open file limit to 0
-        # resource.setrlimit(resource.RLIMIT_NOFILE, (0, 0))
+
+    result = {
+        "text": "",
+        "images": []
+    }
 
     try:
         expression = ast.parse(code)
@@ -1435,15 +1482,50 @@ def evaluate_python_code(
             f"{' ' * (e.offset or 0)}^\n"
             f"Error: {str(e)}"
         )
-        return error_msg
+        result["text"] = error_msg
+        return result
 
     try:
+        # Override matplotlib.pyplot.show if matplotlib is imported
+        import sys
+        import importlib.util
+
+        # Check if matplotlib is available
+        if importlib.util.find_spec('matplotlib') is not None:
+            # Prepare matplotlib for non-interactive backend
+            import matplotlib
+            matplotlib.use('Agg')  # Non-interactive backend
+
+            # Add a post-import hook to override plt.show
+            original_import = __import__
+
+            def custom_import(name, *args, **kwargs):
+                module = original_import(name, *args, **kwargs)
+                if name == 'matplotlib.pyplot':
+                    module.show = matplotlib_show_handler(state)
+                return module
+
+            # Replace the built-in __import__ with our custom version
+            builtins.__import__ = custom_import
+
         # Use context manager to limit resources only during AST evaluation
         for node in expression.body:
             evaluate_ast(node, state, static_tools,
                          custom_tools, authorized_imports)
 
-        return truncate_content(str(state["_print_outputs"]), max_length=max_print_outputs_length)
+        # Restore the original import function
+        if importlib.util.find_spec('matplotlib') is not None:
+            builtins.__import__ = original_import
+
+        # Get the text output
+        result["text"] = truncate_content(
+            str(state["_print_outputs"]), max_length=max_print_outputs_length)
+        # Get any captured images
+        if hasattr(state["_image_outputs"], "images") and len(state["_image_outputs"].images) > 0:
+            result["images"] = state["_image_outputs"].images
+
+        return result
+
     except (MemoryError, OSError, BlockingIOError) as e:
         # These exceptions are likely due to resource limits being hit
         current_output = str(state["_print_outputs"])
@@ -1453,8 +1535,17 @@ def evaluate_python_code(
             f"Attempting to bypass resource limits or execute malicious code may result in account termination.\n"
             f"Error: {type(e).__name__}: {e}"
         )
-        return truncate_content(current_output + resource_error_msg, max_length=max_print_outputs_length)
+        result["text"] = truncate_content(
+            current_output + resource_error_msg, max_length=max_print_outputs_length)
+        if hasattr(state["_image_outputs"], "images"):
+            result["images"] = state["_image_outputs"].images
+        return result
+
     except Exception as e:
         current_output = str(state["_print_outputs"])
         error_msg = f"\nCode execution failed at line '{ast.get_source_segment(code, node)}' due to: {type(e).__name__}: {e}"
-        return truncate_content(current_output + error_msg, max_length=max_print_outputs_length)
+        result["text"] = truncate_content(
+            current_output + error_msg, max_length=max_print_outputs_length)
+        if hasattr(state["_image_outputs"], "images"):
+            result["images"] = state["_image_outputs"].images
+        return result
