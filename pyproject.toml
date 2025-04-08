@@ -5,11 +5,6 @@ description = "Open Source MCP Servers for Scientific Research"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    # "web-fetch",
-    "txyz-search",
-    "python-code-execution",
-    # "materials-project",
-    # "ssh-exec",
 ]
 
 [project.scripts]
@@ -18,13 +13,3 @@ mcp-servers = "mcp_servers:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
-
-[tool.uv.sources]
-web-fetch = { workspace = true }
-txyz-search = { workspace = true }
-python-code-execution = { workspace = true }
-materials-project = { workspace = true }
-ssh-exec = { workspace = true }
-
-[tool.uv.workspace]
-members = ["servers/*"]

@@ -5,7 +5,11 @@ description = "Add your description here"
 readme = "README.md"
 authors = [{ name = "rong-xyz", email = "rong@pathintegral.xyz" }]
 requires-python = ">=3.12"
-dependencies = ["mcp>=1.6.0", "numpy>=2.2.4"]
+dependencies = [
+    "mcp>=1.6.0",
+    "numpy>=2.2.4",
+    "scipy>=1.15.2",
+]
 
 [project.scripts]
 mcp-python-code-execution = "python_code_execution:main"

@@ -68,8 +68,8 @@ To use a specific branch, modify the configuration as follows:
 Create a new server package using UV:
 
 ```sh
-uv init servers/your-new-server --package
-uv --directory servers/your-new-server add mcp
+uv init --package --no-workspace servers/your-new-server
+uv add --directory servers/your-new-server mcp
 ```
 
 ### 2. Configure Server
@@ -104,7 +104,7 @@ def main():
 Run your server using:
 
 ```sh
-uv --directory servers/your-new-server run your-new-server
+uv run --directory servers/your-new-server your-new-server
 ```
 
 Upon successful startup, you should see output similar to:
