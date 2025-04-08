@@ -7,11 +7,12 @@ import ast
 import builtins
 import difflib
 import inspect
+import importlib.util
+import io
 import logging
+import re
 import resource
 import sys
-import re
-import io
 import base64
 from collections.abc import Mapping
 from functools import wraps
@@ -1486,19 +1487,17 @@ def evaluate_python_code(
         return result
 
     try:
-        # Override matplotlib.pyplot.show if matplotlib is imported
-        import sys
-        import importlib.util
+        # Check if matplotlib is available and prepare it
+        original_import = __import__
+        matplotlib_installed = importlib.util.find_spec('matplotlib') is not None
 
-        # Check if matplotlib is available
-        if importlib.util.find_spec('matplotlib') is not None:
+        if matplotlib_installed:
             # Prepare matplotlib for non-interactive backend
             import matplotlib
             matplotlib.use('Agg')  # Non-interactive backend
 
+            # Store a reference to the original __import__ function
             # Add a post-import hook to override plt.show
-            original_import = __import__
-
             def custom_import(name, *args, **kwargs):
                 module = original_import(name, *args, **kwargs)
                 if name == 'matplotlib.pyplot':
@@ -1514,7 +1513,7 @@ def evaluate_python_code(
                          custom_tools, authorized_imports)
 
         # Restore the original import function
-        if importlib.util.find_spec('matplotlib') is not None:
+        if matplotlib_installed:
             builtins.__import__ = original_import
 
         # Get the text output
