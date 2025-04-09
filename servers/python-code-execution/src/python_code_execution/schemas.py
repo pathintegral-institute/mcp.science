@@ -47,7 +47,7 @@ def send_image_to_client(fig: Figure | PlotlyFigure) -> list[ImageContent | Embe
     # Handle different figure types
     if isinstance(fig, PlotlyFigure):
         # For Plotly figures
-        img_data = plotly.io.to_image(fig, format="png", engine="orca")
+        img_data = plotly.io.to_image(fig, format="png")
         img_str = base64.b64encode(img_data).decode('utf-8')
         result.append(
             EmbeddedResource(
