@@ -3,6 +3,7 @@ import json
 import base64
 from .local_python_executor import evaluate_python_code
 from .schemas import BASE_BUILTIN_MODULES, DEFAULT_MAX_LEN_OUTPUT
+from mcp.types import ImageContent, EmbeddedResource
 
 
 def main():
@@ -28,7 +29,7 @@ def main():
 
     # Execute the evaluation and print the result directly
     try:
-        result, response_objects = evaluate_python_code(
+        result, images = evaluate_python_code(
             code=args.code,
             state=None,  # No state file input
             authorized_imports=args.authorized_imports,
@@ -38,26 +39,23 @@ def main():
         )
 
         # If there are response objects (images or embedded resources), format the output as JSON
-        if response_objects:
+        if images:
             output = {
                 "text": result,
                 "content": []
             }
-
-            # Process each response object based on its type
-            for obj in response_objects:
-                if hasattr(obj, 'type') and obj.type == "image":
-                    # Handle ImageContent
+            for obj in images:
+                if isinstance(obj, ImageContent):
                     output["content"].append({
                         "type": "image",
                         "data": obj.data,
                         "mimeType": obj.mimeType
                     })
-                elif hasattr(obj, 'type') and obj.type == "resource":
-                    # Handle EmbeddedResource
+                elif isinstance(obj, EmbeddedResource):
                     output["content"].append({
                         "type": "resource",
                         "resource": {
+                            "uri": str(obj.resource.uri),
                             "text": obj.resource.text,
                             "mimeType": obj.resource.mimeType
                         },
