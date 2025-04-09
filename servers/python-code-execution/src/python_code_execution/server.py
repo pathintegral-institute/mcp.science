@@ -9,7 +9,7 @@ import subprocess
 from mcp.server.lowlevel import Server as McpServer
 from mcp.server.stdio import stdio_server
 from mcp.shared.exceptions import McpError
-from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, ImageContent, Tool
+from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, ImageContent, Tool, EmbeddedResource, TextResourceContents
 from pydantic import BaseModel, ValidationError
 from python_code_execution.schemas import BASE_BUILTIN_MODULES
 logger = logging.getLogger(__name__)
@@ -71,14 +71,25 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
                 type="text"
             ))
 
-        # Add image content
-        if "images" in json_output:
-            for img in json_output["images"]:
-                result.append(ImageContent(
-                    type="image",
-                    data=img["data"],
-                    mimeType=img["mimeType"]
-                ))
+        # Add image and embedded resource content
+        if "content" in json_output:
+            for content_item in json_output["content"]:
+                if content_item["type"] == "image":
+                    result.append(ImageContent(
+                        type="image",
+                        data=content_item["data"],
+                        mimeType=content_item["mimeType"]
+                    ))
+                elif content_item["type"] == "resource":
+                    result.append(EmbeddedResource(
+                        type="resource",
+                        resource=TextResourceContents(
+                            uri=content_item["resource"]["uri"],
+                            text=content_item["resource"]["text"],
+                            mimeType=content_item["resource"]["mimeType"]
+                        ),
+                        extra_type=content_item.get("extra_type")
+                    ))
 
         return result
     except (json.JSONDecodeError, KeyError):
@@ -95,9 +106,9 @@ python_code_execution.__doc__ = """Execute the generated python code in a sandbo
     IMPORTANT: Always use print() to show your results! Any values that aren't printed
     will not be returned to the conversation.
 
-    You can use matplotlib to create images, However, you must use the send_image_to_client function to send the image to the client.
+    You can use matplotlib or plotly to create images, However, you must use the send_image_to_client function to send the image to the client.
 
-    def send_image_to_client(fig: matplotlib.figure.Figure) -> None:
+    def send_image_to_client(fig: matplotlib.figure.Figure | plotly.graph_objects.Figure) -> None:
     '''
     send the figure to the client
     '''

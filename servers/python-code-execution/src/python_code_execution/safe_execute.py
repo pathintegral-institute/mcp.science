@@ -28,7 +28,7 @@ def main():
 
     # Execute the evaluation and print the result directly
     try:
-        result, images = evaluate_python_code(
+        result, response_objects = evaluate_python_code(
             code=args.code,
             state=None,  # No state file input
             authorized_imports=args.authorized_imports,
@@ -37,23 +37,38 @@ def main():
             max_cpu_time_sec=args.max_cpu_time_sec
         )
 
-        # If there are images, format the output as JSON with text and images
-        if images:
+        # If there are response objects (images or embedded resources), format the output as JSON
+        if response_objects:
             output = {
                 "text": result,
-                "images": [
-                    {
-                        "type": "image",
-                        "data": img.data,
-                        "mimeType": img.mimeType
-                    } for img in images
-                ]
+                "content": []
             }
+
+            # Process each response object based on its type
+            for obj in response_objects:
+                if hasattr(obj, 'type') and obj.type == "image":
+                    # Handle ImageContent
+                    output["content"].append({
+                        "type": "image",
+                        "data": obj.data,
+                        "mimeType": obj.mimeType
+                    })
+                elif hasattr(obj, 'type') and obj.type == "resource":
+                    # Handle EmbeddedResource
+                    output["content"].append({
+                        "type": "resource",
+                        "resource": {
+                            "text": obj.resource.text,
+                            "mimeType": obj.resource.mimeType
+                        },
+                        "extra_type": obj.extra_type
+                    })
+
             print(json.dumps(output))
         else:
-            # If no images, just print the text result
+            # If no response objects, just print the text result
             print(result)
-            
+
     except Exception as e:
         resource_error_msg = (
             f"\n⚠️ RESOURCE LIMIT EXCEEDED ⚠️\n"

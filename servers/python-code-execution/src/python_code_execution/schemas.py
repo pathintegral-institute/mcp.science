@@ -1,10 +1,11 @@
 import math
 import io
 import base64
-from typing import List, Literal
-from mcp.types import ImageContent
+import uuid
+from typing import List, Literal, cast
+from mcp.types import ImageContent, EmbeddedResource, TextResourceContents
 from matplotlib.figure import Figure
-
+from plotly.graph_objects import Figure as PlotlyFigure
 DEFAULT_MAX_LEN_OUTPUT = 50000
 MAX_OPERATIONS = 10000
 MAX_WHILE_ITERATIONS = 10000
@@ -24,39 +25,56 @@ BASE_BUILTIN_MODULES = [
     "time",
     "unicodedata",
     "numpy",
-    "matplotlib"
+    "matplotlib",
+    "plotly"
 ]
 
 
-def send_image_to_client(fig: Figure) -> ImageContent:
+def send_image_to_client(fig: Figure | PlotlyFigure) -> list[ImageContent | EmbeddedResource]:
     """
-    Convert a matplotlib figure to a list of ImageContent objects.
+    Convert a matplotlib or plotly figure to an ImageContent object.
 
     Args:
-        fig (Figure): A matplotlib figure object
+        fig (Figure | PlotlyFigure): A matplotlib or plotly figure object
 
     Returns:
-        List[ImageContent]: A list containing one ImageContent object
+        ImageContent: An ImageContent object
     """
-    # Create a buffer and save the figure to it
+    # Create a buffer
     buf = io.BytesIO()
-    fig.savefig(buf, format='png')
-    buf.seek(0)
-
-    # Encode the image data as base64
-    img_data = base64.b64encode(buf.getvalue()).decode('utf-8')
+    result = []
+    # Handle different figure types
+    if isinstance(fig, PlotlyFigure):
+        # For Plotly figures
+        img_data = fig.to_image(format="png")
+        img_str = base64.b64encode(img_data).decode('utf-8')
+        result.append(
+            EmbeddedResource(
+                type="resource",
+                resource=TextResourceContents(
+                    text=cast(str, fig.to_json()), mimeType="application/json"
+                ),
+                # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
+                extra_type="plotly",
+            )
+        )
+    else:
+        # For Matplotlib figures
+        fig.savefig(buf, format='png')
+        buf.seek(0)
+        img_str = base64.b64encode(buf.getvalue()).decode('utf-8')
 
     # Create an ImageContent object
     image_content = ImageContent(
         type="image",
-        data=img_data,
+        data=img_str,
         mimeType="image/png"
     )
-
+    result.append(image_content)
     # Clean up
     buf.close()
 
-    return image_content
+    return result
 
 
 BASE_PYTHON_TOOLS = {
