@@ -11,6 +11,7 @@ dependencies = [
     "scipy>=1.12.0",
     "matplotlib>=3.8.0",
     "plotly>=6.0.1",
+    "psutil>=7.0.0",
 ]
 
 [project.scripts]
