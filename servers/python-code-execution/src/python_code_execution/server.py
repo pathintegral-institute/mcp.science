@@ -39,7 +39,7 @@ async def python_code_execution(code: str) -> list[Union[TextContent, ImageConte
             cmd,
             capture_output=True,
             text=True,
-            timeout=20
+            timeout=100
         )
 
         # Get the output
