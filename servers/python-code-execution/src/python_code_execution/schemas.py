@@ -27,7 +27,8 @@ BASE_BUILTIN_MODULES = [
     "unicodedata",
     "numpy",
     "matplotlib",
-    "plotly"
+    "plotly",
+    "pandas"
 ]
 
 
