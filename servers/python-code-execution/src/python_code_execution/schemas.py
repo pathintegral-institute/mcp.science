@@ -6,6 +6,7 @@ from typing import List, Literal, cast
 from mcp.types import ImageContent, EmbeddedResource, TextResourceContents
 from matplotlib.figure import Figure
 from plotly.graph_objects import Figure as PlotlyFigure
+import plotly
 DEFAULT_MAX_LEN_OUTPUT = 50000
 MAX_OPERATIONS = 10000
 MAX_WHILE_ITERATIONS = 10000
@@ -46,7 +47,7 @@ def send_image_to_client(fig: Figure | PlotlyFigure) -> list[ImageContent | Embe
     # Handle different figure types
     if isinstance(fig, PlotlyFigure):
         # For Plotly figures
-        img_data = fig.to_image(format="png")
+        img_data = plotly.io.to_image(fig, format="png")
         img_str = base64.b64encode(img_data).decode('utf-8')
         result.append(
             EmbeddedResource(
