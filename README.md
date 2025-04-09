@@ -28,13 +28,13 @@ This repository contains a collection of open source [MCP](https://modelcontextp
 
 ## What is MCP?
 > MCP is an open protocol that standardizes how applications provide context to LLMs. Think of MCP like a USB-C port for AI applications. Just as USB-C provides a standardized way to connect your devices to various peripherals and accessories, MCP provides a standardized way to connect AI models to different data sources and tools.
-> 
+>
 > MCP helps you build agents and complex workflows on top of LLMs. LLMs frequently need to integrate with data and tools, and MCP provides:
 >
 > - A growing list of pre-built integrations that your LLM can directly plug into
 > - The flexibility to switch between LLM providers and vendors
 > - Best practices for securing your data within your infrastructure
-> 
+>
 > Source: [https://modelcontextprotocol.io/introduction](https://modelcontextprotocol.io/introduction)
 
 ## Available servers in this repo
@@ -83,7 +83,7 @@ You might need to restart your client application for the changes to take effect
 Then you can verify that the integration is working by asking to fetch web content:
    - "Can you fetch and summarize the content from https://modelcontextprotocol.io/?"
    - The `web-fetch` tool should be called and the content should be retrieved.
-  
+
 
 #### Find other servers
 We would recommend you to check [Available Servers in this repo](#available-servers-in-this-repo) or [MCPM Registry](https://mcpm.sh/registry/) for more servers.
@@ -219,6 +219,8 @@ take Claude Desktop as an example:
     }
 }
 ```
+Alternatively, you can use `mcpm inspector` to check your MCP server implementation through [mcp inspector](https://github.com/modelcontextprotocol/inspector). The inspector will launch a web interface where you can test and debug MCP servers.
+
 
 #### 6. Finish the README.md, commit the changes and create a pull request
 Better README.md will make others easier to understand your server and use it.
