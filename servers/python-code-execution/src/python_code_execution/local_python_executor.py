@@ -1419,18 +1419,15 @@ def evaluate_python_code(
     state["_operations_count"] = {"counter": 0}
 
     # only for linux
-    # if sys.platform == "linux":
-    #     resource.setrlimit(resource.RLIMIT_CPU,
-    #                        (max_cpu_time_sec, max_cpu_time_sec))
-    #     # Increase memory limit to 500MB to accommodate numpy
-    #     numpy_memory_mb = 500  # Higher limit for numpy
-    #     memory_limit = numpy_memory_mb if "numpy" in authorized_imports else max_memory_mb
-    #     resource.setrlimit(resource.RLIMIT_AS, (memory_limit *
-    #                        1024 * 1024, memory_limit * 2 * 1024 * 1024))
-    # Prevent file creation by setting file size limit to 0
-    # resource.setrlimit(resource.RLIMIT_FSIZE, (0, 0))
-    # # Prevent file opening by setting open file limit to 0
-    # resource.setrlimit(resource.RLIMIT_NOFILE, (0, 0))
+    if sys.platform == "linux":
+        resource.setrlimit(resource.RLIMIT_CPU,
+                           (max_cpu_time_sec, max_cpu_time_sec))
+        # Increase memory limit to 500MB to accommodate numpy
+        if any(lib in authorized_imports for lib in ["numpy", "matplotlib", "plotly"]):
+            max_memory_mb = 1000
+        memory_limit = max_memory_mb * 1024 * 1024
+        resource.setrlimit(resource.RLIMIT_AS, (memory_limit *
+                           1024 * 1024, memory_limit * 2 * 1024 * 1024))
 
     try:
         expression = ast.parse(code)
