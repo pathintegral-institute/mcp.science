@@ -1,12 +1,14 @@
 import math
 import io
 import base64
+from typing import cast
 import uuid
-from typing import List, Literal, cast
-from mcp.types import ImageContent, EmbeddedResource, TextResourceContents
+from mcp.types import ImageContent
 from matplotlib.figure import Figure
 from plotly.graph_objects import Figure as PlotlyFigure
-import plotly
+from mcp.types import EmbeddedResource, TextResourceContents, ImageContent
+import plotly.io
+
 DEFAULT_MAX_LEN_OUTPUT = 50000
 MAX_OPERATIONS = 10000
 MAX_WHILE_ITERATIONS = 10000
@@ -27,8 +29,7 @@ BASE_BUILTIN_MODULES = [
     "unicodedata",
     "numpy",
     "matplotlib",
-    "plotly",
-    "pandas"
+    "plotly"
 ]
 
 
