@@ -53,7 +53,9 @@ def send_image_to_client(fig: Figure | PlotlyFigure) -> list[ImageContent | Embe
             EmbeddedResource(
                 type="resource",
                 resource=TextResourceContents(
-                    text=cast(str, fig.to_json()), mimeType="application/json"
+                    uri=f"project://{uuid.uuid4()}",
+                    text=cast(str, fig.to_json()),
+                    mimeType="application/json"
                 ),
                 # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
                 extra_type="plotly",
