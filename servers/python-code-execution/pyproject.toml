@@ -12,6 +12,7 @@ dependencies = [
     "matplotlib>=3.8.0",
     "plotly>=6.0.1",
     "psutil>=7.0.0",
+    "requests>=2.32.3",
 ]
 
 [project.scripts]
