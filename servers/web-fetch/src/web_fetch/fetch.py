@@ -1,4 +1,5 @@
 import json
+import os
 from enum import StrEnum
 from typing import Annotated
 
@@ -6,12 +7,15 @@ import httpx
 from mcp.shared.exceptions import McpError
 from mcp.types import INTERNAL_ERROR, ErrorData, TextContent
 from pydantic import AnyUrl, Field
+from mcp.server import FastMCP
 
 from .utils import (
     convert_html_to_markdown,
     convert_pdf_to_plain_text,
     extract_media_type,
 )
+
+DEFAULT_USER_AGENT = "ModelContextProtocol/1.0 (User-Specified; +https://github.com/modelcontextprotocol/servers)"
 
 
 class ResponseMediaType(StrEnum):
@@ -98,19 +102,15 @@ async def fetch(
             return [TextContent(text=response.text, type="text")]
 
 
-def serve(user_agent: str):
-    from mcp.server import FastMCP
+mcp = FastMCP("mcp-web-fetch")
 
-    mcp = FastMCP("mcp-web-fetch")
 
-    @mcp.tool(
-        name="fetch-web",
-        description="Fetch URL and return content according to its content type.",
-    )
-    async def fetch_web(
-        url: Annotated[AnyUrl, Field(description="URL to fetch")],
-        raw: Annotated[bool, Field(description="Return raw content", default=False)],
-    ):
-        return await fetch(str(url), user_agent, raw)
-
-    mcp.run(transport="stdio")
+@mcp.tool(
+    name="fetch-web",
+    description="Fetch URL and return content according to its content type.",
+)
+async def fetch_web(
+    url: Annotated[AnyUrl, Field(description="URL to fetch")],
+    raw: Annotated[bool, Field(description="Return raw content", default=False)],
+):
+    return await fetch(str(url), os.getenv("USER_AGENT", DEFAULT_USER_AGENT), raw)
