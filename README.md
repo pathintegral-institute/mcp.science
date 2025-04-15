@@ -41,6 +41,10 @@ This repository contains a collection of open source [MCP](https://modelcontextp
 
 ## Available servers in this repo
 
+#### [Example Server](./servers/example-server/)
+
+A example mcp server that help understand how mcp server works.
+
 #### [Materials Project](./servers/materials-project/)
 
 A specialized mcp server that enables Al assistants to search, visualize, and manipulate materials science data from the Materials Project database. A Materials Project API key is required.
