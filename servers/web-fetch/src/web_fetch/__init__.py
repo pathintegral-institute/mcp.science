@@ -1,5 +1,5 @@
 import click
-
+import os
 from web_fetch.fetch import mcp, DEFAULT_USER_AGENT
 
 
@@ -26,6 +26,7 @@ def main(transport: str, user_agent: str):
     logger.info(
         f"Starting server with transport: {transport} and user agent: {user_agent!r}"
     )
+    os.environ["USER_AGENT"] = user_agent
     mcp.run(transport)
 
 
