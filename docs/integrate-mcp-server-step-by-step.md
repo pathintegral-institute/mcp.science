@@ -1,6 +1,6 @@
-# Hand-over-hand guide to use MCP servers locally
+# Step-by-step guide to integrate an MCP server into a LLM client locally
 
-This guide provides step-by-step instructions to integrate an MCP server into a Large Language Model (LLM) client application.
+This guide provides step-by-step instructions to integrate an MCP server into a Large Language Model (LLM) client application and help you understand how MCP works.
 
 Let's use `example-server` defined in this repo as an example.
 

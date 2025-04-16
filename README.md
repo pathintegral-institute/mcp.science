@@ -67,7 +67,7 @@ A specialized mcp server that enables AI assistants to perform academic and scho
 
 ## How to integrate MCP servers into LLM
 
-If you're not familiar with these stuff, here is a hand over hand guide for you: [Hand-over-hand guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-hand-over-hand.md)
+If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-step-by-step.md)
 
 ### Prerequisites
 
