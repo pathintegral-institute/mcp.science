@@ -18,7 +18,10 @@ Let's make a quick summary of what you actually need to use MCP server locally:
   - [Claude Desktop](https://claude.ai/download) (Close source, by Claude, commercial)
 
 their relationship is like:
+
+<div align="center">
 <img src="assets/local_mcp_map.webp" width="800" />
+</div>
 
 inside our example servers. there are 3 tools:
 
@@ -81,16 +84,12 @@ We choose 3 commonly used clients here as an example. You can choose any one or 
 
 - Open Claude Desktop
 - Go to 'Settings'
-<div style="display: flex; justify-content: center; align-items: end">
-  <div style="text-align: center; margin: 20px">
-  <img src="assets/macos_claude_desktop_settings.webp" style="max-height: 200px;" />
-  <figcaption>macOS</figcaption>
-  </div>
-  <div style="text-align: center; margin: 20px">
-  <img src="assets/windows_claude_desktop_settings.webp" style="max-height: 200px;" />
-  <figcaption>Windows</figcaption>
-  </div>
-</div>
+<table style="width: 100%">
+  <tr>
+    <td style="text-align: center"><img src="assets/macos_claude_desktop_settings.webp" style="max-height: 200px;" /><br/><figcaption>macOS</figcaption></td>
+    <td style="text-align: center"><img src="assets/windows_claude_desktop_settings.webp" style="max-height: 200px;" /><br/><figcaption>Windows</figcaption></td>
+  </tr>
+</table>
 
 - Enter 'Developer' tab
 <div align="center">
@@ -98,16 +97,16 @@ We choose 3 commonly used clients here as an example. You can choose any one or 
 </div>
 
 - Click 'Edit Config', you'll see the file manager window pop up, navigate to the directory of config file:
-<div style="display: flex; justify-content: center; align-items: end">
-  <div style="text-align: center; margin: 20px">
-  <img src="assets/macos_claude_config_dir.webp" style="max-height: 200px;" />
-  <figcaption>macOS</figcaption>
-  </div>
-  <div style="text-align: center; margin: 20px">
-  <img src="assets/windows_claude_config_dir.webp" style="max-height: 200px;" />
-  <figcaption>Windows</figcaption>
-  </div>
-</div>
+<table style="width: 100%">
+  <tr>
+    <td style="text-align: center; vertical-align: bottom">
+      <img src="assets/macos_claude_config_dir.webp" style="max-height: 200px;" /><br/><figcaption>macOS</figcaption>
+    </td>
+    <td style="text-align: center; vertical-align: bottom">
+      <img src="assets/windows_claude_config_dir.webp" style="max-height: 200px;" /><br/><figcaption>Windows</figcaption>
+    </td>
+  </tr>
+</table>
 For macOS, you can open the config file in TextEdit.
 <img src="assets/textedit_icon.webp" height="35" />
 
@@ -135,10 +134,12 @@ and save save the changes.
 
 Restart Claude Desktop. There should be a hammer icon on the bottom of the input box, click it then you can see the tool list.
 
-<div style="display: flex; justify-content: center; align-items: center">
-  <img src="assets/mcp_loaded.webp" style="max-height: 150px; margin: 20px" />
-  <img src="assets/mcp_tool_list.webp" style="max-height: 150px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/mcp_loaded.webp" style="max-height: 150px; margin: 20px" /></td>
+    <td align="center"><img src="assets/mcp_tool_list.webp" style="max-height: 150px; margin: 20px" /></td>
+  </tr>
+</table>
 
 And now, you've successfully integrated the example server into Claude Desktop.
 
@@ -179,19 +180,33 @@ Enter Your API key of OpenRouter in the 'API Key' field, update the 'API Base' a
 
 The settings should be updated like this:
 
-<div style="display: flex; justify-content: center; align-items: center">
-  <img src="assets/5ire_settings_llm.webp" style="max-height: 200px; margin: 10px" />
-  <img src="assets/5ire_settings_llm_model.webp" style="max-height: 200px; margin: 10px" />
-</div>
+<table style="width: 100%">
+  <tr>
+    <td style="text-align: center; vertical-align: bottom">
+      <img src="assets/5ire_settings_llm.webp" style="max-height: 200px; margin: 20px" />
+      <figcaption>LLM settings</figcaption>
+    </td>
+    <td style="text-align: center; vertical-align: bottom">
+      <img src="assets/5ire_settings_llm_model.webp" style="max-height: 200px; margin: 20px" />
+      <figcaption>Model settings</figcaption>
+    </td>
+  </tr>
+</table>
 
 #### MCP server configuration
 
 Enter 'Tools' tab in the sidebar, then click 'New' button on the upper right:
 
-<div style="display: flex; justify-content: center; align-items: center">
-  <img src="assets/5ire_tools_entrance.webp" style="max-width: 200px; margin: 20px" />
-  <img src="assets/5ire_new_tool.webp" style="max-width: 200px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/5ire_tools_entrance.webp" /></td>
+    <td align="center"><img src="assets/5ire_new_tool.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">5ire Tools tab</td>
+    <td align="center">5ire New Tool</td>
+  </tr>
+</table>
 
 Enter `example` in 'Tool Key' field, enter the following command in 'Command' field:
 
@@ -201,17 +216,27 @@ uvx --from git+https://github.com/pathintegral-institute/mcp-science#subdirector
 
 The new tool configuration should be like this:
 
-<div style="display: flex; justify-content: center; align-items: center">
-  <img src="assets/5ire_tool_config.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/5ire_tool_config.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">5ire Tool Configuration</td>
+  </tr>
+</table>
 
 Click 'Save' button.
 
 You should see a new tool called 'example' on the list. click the toggle button to enable it.
 
-<div style="display: flex; justify-content: center; align-items: center">
-  <img src="assets/5ire_new_tool_item.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/5ire_new_tool_item.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">5ire New Tool Item</td>
+  </tr>
+</table>
 
 </details>
 
@@ -232,27 +257,47 @@ This part is similar to 5ire, you can refer to the 5ire section.
 
 Click the model button on the right bottom of the window, then click 'Tools and Settings' in the menu.
 
-<div align="center">
-  <img src="assets/goose_settings.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/goose_settings.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">Goose Desktop Settings</td>
+  </tr>
+</table>
 
 Find 'Extensions' section, click 'Add custom extension' button.
 
-<div align="center">
-  <img src="assets/goose_new_extension.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/goose_new_extension.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">Goose Add Custom Extension</td>
+  </tr>
+</table>
 
 The new extension configuration should be like this:
 
-<div align="center">
-  <img src="assets/goose_tool_config.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/goose_tool_config.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">Goose Tool Configuration</td>
+  </tr>
+</table>
 
 Click 'Add' to save the configuration and click the toggle button to enable it
 
-<div align="center">
-  <img src="assets/goose_extension_item.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/goose_extension_item.webp" /></td>
+  </tr>
+  <tr>
+    <td align="center">Goose Extension Item</td>
+  </tr>
+</table>
 
 </details>
 
@@ -267,38 +312,49 @@ So far, you should have successfully integrated the example server into your cli
 - Ask LLM: `Add 99 and 42`
 - LLM will call the `add` tool
 - On Claude Desktop, you'll see a popup asking for confirmation during the call, click 'Allow for this chat' to allow the tool call:
-<div align="center">
-  <img src="assets/mcp_confirmation.webp" style="max-width: 350px; margin: 20px" />
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/mcp_confirmation.webp" width="350" /></td>
+  </tr>
+  <tr>
+    <td align="center">Claude Desktop confirmation popup</td>
+  </tr>
+</table>
 
 - The Claude output should be like (you need expand the result section manually):
-<div style="display: flex; justify-content: center; align-items: center">
-  <div style="text-align: center; margin: 10px">
-  <img src="assets/mcp_add_output.webp" style="max-width: 350px;" />
-  <figcaption>Claude Desktop</figcaption>
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/mcp_add_output.webp" width="350" /></td>
+  </tr>
+  <tr>
+    <td align="center">Claude Desktop</td>
+  </tr>
+</table>
 
 ### Get photo of flowers
 
 - Ask LLM: `show me the photo of flowers`
 - LLM should call the `get_photo_of_flowers` tool
 - You'll see the image inside the result section:
-<div style="display: flex; justify-content: center; align-items: center">
-  <div style="text-align: center; margin: 10px">
-  <img src="assets/mcp_image_output.webp" style="max-width: 350px;" />
-  <figcaption>Claude Desktop</figcaption>
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/mcp_image_output.webp" width="350" /></td>
+  </tr>
+  <tr>
+    <td align="center">Claude Desktop</td>
+  </tr>
+</table>
 
 ### Reverse text
 
 - Ask LLM: `reverse the text 'hello world'`
 - LLM will call the `reverse` tool
 - You should get:
-<div style="display: flex; justify-content: center; align-items: center">
-  <div style="text-align: center; margin: 10px">
-  <img src="assets/mcp_reverse_output.webp" style="max-width: 350px;" />
-  <figcaption>Claude Desktop</figcaption>
-  </div>
-</div>
+<table>
+  <tr>
+    <td align="center"><img src="assets/mcp_reverse_output.webp" width="350" /></td>
+  </tr>
+  <tr>
+    <td align="center">Claude Desktop</td>
+  </tr>
+</table>
