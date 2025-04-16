@@ -1,5 +1,5 @@
 <p align="center">
-<img src="assets/logo_landscape.png" width="800" />
+<img src="assets/logo_landscape.webp" width="800" />
 </p>
 
 <div align="center">
@@ -65,7 +65,9 @@ A versatile mcp server that allows AI assistants to fetch and process HTML, PDF,
 
 A specialized mcp server that enables AI assistants to perform academic and scholarly searches, general web searches, or automatically select the best search type based on the query. A TXYZ API key is required.
 
-## How to integrate MCP servers into your client
+## How to integrate MCP servers into LLM
+
+If you're not familiar with these stuff, here is a hand over hand guide for you: [Hand-over-hand guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-hand-over-hand.md)
 
 ### Prerequisites
 
@@ -87,6 +89,8 @@ With MCPM, you can easily integrate MCP servers into your client application.
 ```bash
 mcpm add web-fetch
 ```
+
+The `mcpm` will automatically add the server to your client application, you can also specify the client you want to add the server to.
 
 You might need to restart your client application for the changes to take effect.
 

@@ -1,0 +1,304 @@
+# Hand-over-hand guide to use MCP servers locally
+
+This guide provides step-by-step instructions to integrate an MCP server into a Large Language Model (LLM) client application.
+
+Let's use `example-server` defined in this repo as an example.
+
+## Prerequisites
+
+- [Python](https://www.python.org/downloads/) >= 3.12
+
+## What you specifically need
+
+Let's make a quick summary of what you actually need to use MCP server locally:
+
+- A MCP server (e.g. `example-server` in this case) which contains multiple tools and resources inside.
+- A LLM client with MCP support, e.g.:
+  - [Goose](https://block.github.io/goose/) (Open source, free)
+  - [Claude Desktop](https://claude.ai/download) (Close source, by Claude, commercial)
+
+their relationship is like:
+<img src="assets/local_mcp_map.webp" width="800" />
+
+inside our example servers. there are 3 tools:
+
+- `add`: add two numbers
+- `get_photo_of_flowers`: get a photo of jasmine
+- `reverse`: reverse a string
+
+**Tools** are defined to enable servers to expose executable functionality to clients. Through tools, LLMs can interact with external systems, perform computations, and take actions in the real world.
+
+For more details about architecture and core concepts, you can refer to [the official introduction](https://modelcontextprotocol.io/docs/concepts/architecture)
+
+## Install `uv`
+
+`uv` is a package manager for Python, we will use it to run the MCP server.
+
+### macOS and Linux
+
+Open Terminal <img src="assets/macos_terminal_icon.webp" height="35" />, paste the following command, press 'Enter' to run:
+
+```bash
+curl -LsSf https://astral.sh/uv/install.sh | sh
+```
+
+<details>
+<summary>👈 Cannot find the Terminal?</summary>
+
+You can search for 'Terminal' in the Spotlight search (Cmd + Space) or Launchpad and open it.
+
+</details>
+
+### Windows
+
+Open Powershell <img src="assets/powershell_icon.webp" height="35" />, paste the following command, press 'Enter' to run:
+
+```powershell
+powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
+```
+
+<details>
+<summary>👈 Cannot find the Powershell?</summary>
+
+You can search for 'Powershell' in the Start menu (by pressing `Win` key and typing 'Powershell') or search bar and open it.
+
+</details>
+
+## Install and configure the client
+
+We choose 3 commonly used clients here as an example. You can choose any one or the other on demand (the configuration method is similar)
+
+### Claude Desktop (closed source, by Claude, free to use, no need for LLM API key)
+
+<details>
+<summary>👈 Click to see detailed instructions</summary>
+
+#### Installation
+
+- Download and install [Claude Desktop](https://claude.ai/download)
+
+#### Configure
+
+- Open Claude Desktop
+- Go to 'Settings'
+<div style="display: flex; justify-content: center; align-items: end">
+  <div style="text-align: center; margin: 20px">
+  <img src="assets/macos_claude_desktop_settings.webp" style="max-height: 200px;" />
+  <figcaption>macOS</figcaption>
+  </div>
+  <div style="text-align: center; margin: 20px">
+  <img src="assets/windows_claude_desktop_settings.webp" style="max-height: 200px;" />
+  <figcaption>Windows</figcaption>
+  </div>
+</div>
+
+- Enter 'Developer' tab
+<div align="center">
+  <img src="assets/claude_desktop_developer.webp" style="max-height: 300px;" />
+</div>
+
+- Click 'Edit Config', you'll see the file manager window pop up, navigate to the directory of config file:
+<div style="display: flex; justify-content: center; align-items: end">
+  <div style="text-align: center; margin: 20px">
+  <img src="assets/macos_claude_config_dir.webp" style="max-height: 200px;" />
+  <figcaption>macOS</figcaption>
+  </div>
+  <div style="text-align: center; margin: 20px">
+  <img src="assets/windows_claude_config_dir.webp" style="max-height: 200px;" />
+  <figcaption>Windows</figcaption>
+  </div>
+</div>
+For macOS, you can open the config file in TextEdit.
+<img src="assets/textedit_icon.webp" height="35" />
+
+For Windows, you can open the config file in Notepad.
+<img src="assets/notepad_icon.webp" height="35" />
+
+replace the content of config file with:
+
+```json
+{
+  "mcpServers": {
+    "example-server": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server",
+        "mcp-example-server"
+      ]
+    }
+  }
+}
+```
+
+and save save the changes.
+
+Restart Claude Desktop. There should be a hammer icon on the bottom of the input box, click it then you can see the tool list.
+
+<div style="display: flex; justify-content: center; align-items: center">
+  <img src="assets/mcp_loaded.webp" style="max-height: 150px; margin: 20px" />
+  <img src="assets/mcp_tool_list.webp" style="max-height: 150px; margin: 20px" />
+</div>
+
+And now, you've successfully integrated the example server into Claude Desktop.
+
+</details>
+
+### 5ire (open source, need LLM API key, macOS / Linux / Windows)
+
+<details>
+<summary>👈 Click to see detailed instructions</summary>
+
+[5ire](https://5ire.app/) is a cross-platform desktop AI assistant, MCP client.
+
+#### Installation
+
+- Download and install 5ire from [official website](https://5ire.app/)
+
+#### Get a LLM API key
+
+If you don't have an LLM API key, we recommend obtaining one from [OpenRouter](https://openrouter.ai/), which offers a unified interface for popular large language models. With no subscription required, you can simply pay as you go.
+
+#### LLM provider configuration
+
+Let's use `gpt-4o-mini` in this example.
+
+Open 5ire, go to 'Settings':
+
+<div align="center">
+  <img src="assets/5ire_settings.webp" style="max-height: 200px; margin: 20px" />
+</div>
+
+Enter Your API key of OpenRouter in the 'API Key' field, update the 'API Base' as `https://api.openrouter.ai/api/v1` and configure the 'Model Mapping' as:
+
+```json
+{
+  "gpt-4o-mini": "openai/gpt-4o-mini"
+}
+```
+
+The settings should be updated like this:
+
+<div style="display: flex; justify-content: center; align-items: center">
+  <img src="assets/5ire_settings_llm.webp" style="max-height: 200px; margin: 10px" />
+  <img src="assets/5ire_settings_llm_model.webp" style="max-height: 200px; margin: 10px" />
+</div>
+
+#### MCP server configuration
+
+Enter 'Tools' tab in the sidebar, then click 'New' button on the upper right:
+
+<div style="display: flex; justify-content: center; align-items: center">
+  <img src="assets/5ire_tools_entrance.webp" style="max-width: 200px; margin: 20px" />
+  <img src="assets/5ire_new_tool.webp" style="max-width: 200px; margin: 20px" />
+</div>
+
+Enter `example` in 'Tool Key' field, enter the following command in 'Command' field:
+
+```bash
+uvx --from git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server mcp-example-server
+```
+
+The new tool configuration should be like this:
+
+<div style="display: flex; justify-content: center; align-items: center">
+  <img src="assets/5ire_tool_config.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+Click 'Save' button.
+
+You should see a new tool called 'example' on the list. click the toggle button to enable it.
+
+<div style="display: flex; justify-content: center; align-items: center">
+  <img src="assets/5ire_new_tool_item.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+</details>
+
+### Goose Desktop (open source, need LLM API key, macOS / Linux)
+
+<details>
+<summary>👈 Click to see detailed instructions</summary>
+
+#### Installation
+
+- Download and install Goose Desktop from [official website](https://block.github.io/goose/)
+
+#### Configure LLM API key from provider
+
+This part is similar to 5ire, you can refer to the 5ire section.
+
+#### MCP server configuration
+
+Click the model button on the right bottom of the window, then click 'Tools and Settings' in the menu.
+
+<div align="center">
+  <img src="assets/goose_settings.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+Find 'Extensions' section, click 'Add custom extension' button.
+
+<div align="center">
+  <img src="assets/goose_new_extension.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+The new extension configuration should be like this:
+
+<div align="center">
+  <img src="assets/goose_tool_config.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+Click 'Add' to save the configuration and click the toggle button to enable it
+
+<div align="center">
+  <img src="assets/goose_extension_item.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+</details>
+
+<br>
+
+So far, you should have successfully integrated the example server into your client. Let's try some simple examples:
+
+## Try with example queries
+
+### Number addition
+
+- Ask LLM: `Add 99 and 42`
+- LLM will call the `add` tool
+- On Claude Desktop, you'll see a popup asking for confirmation during the call, click 'Allow for this chat' to allow the tool call:
+<div align="center">
+  <img src="assets/mcp_confirmation.webp" style="max-width: 350px; margin: 20px" />
+</div>
+
+- The Claude output should be like (you need expand the result section manually):
+<div style="display: flex; justify-content: center; align-items: center">
+  <div style="text-align: center; margin: 10px">
+  <img src="assets/mcp_add_output.webp" style="max-width: 350px;" />
+  <figcaption>Claude Desktop</figcaption>
+  </div>
+</div>
+
+### Get photo of flowers
+
+- Ask LLM: `show me the photo of flowers`
+- LLM should call the `get_photo_of_flowers` tool
+- You'll see the image inside the result section:
+<div style="display: flex; justify-content: center; align-items: center">
+  <div style="text-align: center; margin: 10px">
+  <img src="assets/mcp_image_output.webp" style="max-width: 350px;" />
+  <figcaption>Claude Desktop</figcaption>
+  </div>
+</div>
+
+### Reverse text
+
+- Ask LLM: `reverse the text 'hello world'`
+- LLM will call the `reverse` tool
+- You should get:
+<div style="display: flex; justify-content: center; align-items: center">
+  <div style="text-align: center; margin: 10px">
+  <img src="assets/mcp_reverse_output.webp" style="max-width: 350px;" />
+  <figcaption>Claude Desktop</figcaption>
+  </div>
+</div>
