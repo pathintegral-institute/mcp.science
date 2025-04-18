@@ -20,7 +20,7 @@ Let's make a quick summary of what you actually need to use MCP server locally:
 their relationship is like:
 
 <div align="center">
-<img src="assets/local_mcp_map.webp" width="800" />
+<img src="assets/local_mcp_map.webp" width="600" />
 </div>
 
 inside our example servers. there are 3 tools:
@@ -84,10 +84,15 @@ We choose 3 commonly used clients here as an example. You can choose any one or 
 
 - Open Claude Desktop
 - Go to 'Settings'
+
 <table style="width: 100%">
   <tr>
-    <td style="text-align: center"><img src="assets/macos_claude_desktop_settings.webp" style="max-height: 200px;" /><br/><figcaption>macOS</figcaption></td>
-    <td style="text-align: center"><img src="assets/windows_claude_desktop_settings.webp" style="max-height: 200px;" /><br/><figcaption>Windows</figcaption></td>
+    <td><img src="assets/macos_claude_desktop_settings.webp" style="max-height: 200px;" /></td>
+    <td><img src="assets/windows_claude_desktop_settings.webp" style="max-height: 200px;" /></td>
+  </tr>
+  <tr>
+    <td align="center"><figcaption>macOS</figcaption></td>
+    <td align="center"><figcaption>Windows</figcaption></td>
   </tr>
 </table>
 
@@ -100,11 +105,15 @@ We choose 3 commonly used clients here as an example. You can choose any one or 
 <table style="width: 100%">
   <tr>
     <td style="text-align: center; vertical-align: bottom">
-      <img src="assets/macos_claude_config_dir.webp" style="max-height: 200px;" /><br/><figcaption>macOS</figcaption>
+      <img src="assets/macos_claude_config_dir.webp" style="max-height: 200px;" /><br/>
     </td>
     <td style="text-align: center; vertical-align: bottom">
-      <img src="assets/windows_claude_config_dir.webp" style="max-height: 200px;" /><br/><figcaption>Windows</figcaption>
+      <img src="assets/windows_claude_config_dir.webp" style="max-height: 200px;" /><br/>
     </td>
+  </tr>
+  <tr>
+    <td align="center"><figcaption>macOS</figcaption></td>
+    <td align="center"><figcaption>Windows</figcaption></td>
   </tr>
 </table>
 For macOS, you can open the config file in TextEdit.
@@ -136,8 +145,8 @@ Restart Claude Desktop. There should be a hammer icon on the bottom of the input
 
 <table>
   <tr>
-    <td align="center"><img src="assets/mcp_loaded.webp" style="max-height: 150px; margin: 20px" /></td>
-    <td align="center"><img src="assets/mcp_tool_list.webp" style="max-height: 150px; margin: 20px" /></td>
+    <td width="50%"><img src="assets/mcp_loaded.webp" /></td>
+    <td width="50%"><img src="assets/mcp_tool_list.webp" /></td>
   </tr>
 </table>
 
@@ -184,12 +193,14 @@ The settings should be updated like this:
   <tr>
     <td style="text-align: center; vertical-align: bottom">
       <img src="assets/5ire_settings_llm.webp" style="max-height: 200px; margin: 20px" />
-      <figcaption>LLM settings</figcaption>
     </td>
     <td style="text-align: center; vertical-align: bottom">
       <img src="assets/5ire_settings_llm_model.webp" style="max-height: 200px; margin: 20px" />
-      <figcaption>Model settings</figcaption>
     </td>
+  </tr>
+  <tr>
+    <td><figcaption>LLM settings</figcaption></td>
+    <td><figcaption>Model mapping</figcaption></td>
   </tr>
 </table>
 
@@ -279,7 +290,7 @@ Find 'Extensions' section, click 'Add custom extension' button.
 
 The new extension configuration should be like this:
 
-<table>
+<table align="center">
   <tr>
     <td align="center"><img src="assets/goose_tool_config.webp" /></td>
   </tr>
@@ -290,7 +301,7 @@ The new extension configuration should be like this:
 
 Click 'Add' to save the configuration and click the toggle button to enable it
 
-<table>
+<table align="center">
   <tr>
     <td align="center"><img src="assets/goose_extension_item.webp" /></td>
   </tr>
@@ -312,9 +323,9 @@ So far, you should have successfully integrated the example server into your cli
 - Ask LLM: `Add 99 and 42`
 - LLM will call the `add` tool
 - On Claude Desktop, you'll see a popup asking for confirmation during the call, click 'Allow for this chat' to allow the tool call:
-<table>
+<table align="center">
   <tr>
-    <td align="center"><img src="assets/mcp_confirmation.webp" width="350" /></td>
+    <td align="center"><img src="assets/mcp_confirmation.webp" width="500" /></td>
   </tr>
   <tr>
     <td align="center">Claude Desktop confirmation popup</td>
@@ -322,9 +333,9 @@ So far, you should have successfully integrated the example server into your cli
 </table>
 
 - The Claude output should be like (you need expand the result section manually):
-<table>
+<table align="center">
   <tr>
-    <td align="center"><img src="assets/mcp_add_output.webp" width="350" /></td>
+    <td align="center"><img src="assets/mcp_add_output.webp" width="500" /></td>
   </tr>
   <tr>
     <td align="center">Claude Desktop</td>
@@ -336,9 +347,9 @@ So far, you should have successfully integrated the example server into your cli
 - Ask LLM: `show me the photo of flowers`
 - LLM should call the `get_photo_of_flowers` tool
 - You'll see the image inside the result section:
-<table>
+<table align="center">
   <tr>
-    <td align="center"><img src="assets/mcp_image_output.webp" width="350" /></td>
+    <td align="center"><img src="assets/mcp_image_output.webp" width="500" /></td>
   </tr>
   <tr>
     <td align="center">Claude Desktop</td>
@@ -350,9 +361,9 @@ So far, you should have successfully integrated the example server into your cli
 - Ask LLM: `reverse the text 'hello world'`
 - LLM will call the `reverse` tool
 - You should get:
-<table>
+<table align="center">
   <tr>
-    <td align="center"><img src="assets/mcp_reverse_output.webp" width="350" /></td>
+    <td align="center"><img src="assets/mcp_reverse_output.webp" width="500" /></td>
   </tr>
   <tr>
     <td align="center">Claude Desktop</td>
