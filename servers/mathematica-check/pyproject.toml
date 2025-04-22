@@ -1,0 +1,18 @@
+[project]
+name = "mathematica-check"
+version = "0.1.0"
+requires-python = ">=3.10"
+description = "A Python MCP server for interacting with Mathematica/wolframscript."
+authors = [{ name = "Your Name", email = "you@example.com" }] # Replace with your details
+license = { text = "MIT" } # Or your preferred license
+
+dependencies = [ # Specify a version range if needed
+    "mcp[cli]>=1.0.0",
+]
+
+[project.scripts]
+mathematica-check = "mathematica_server.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta" 
