@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantum-computation"
+version = "0.1.0"
+description = "A short description"
+readme = "README.md"
+authors = [{ name = "PathIntegral Institute", email = "info@pathintegral.xyz" }]
+dependencies = [
+    "loguru>=0.7.3",
+    "mcp>=1.6.0",
+    "mp-api>=0.45.3",
+    "pymatgen>=2025.3.10",
+    "ase>=3.24.0",
+    "gpaw>=1.1.0",
+]
+requires-python = ">=3.12"
+
+[project.urls]
+Homepage = "https://mcp.science"

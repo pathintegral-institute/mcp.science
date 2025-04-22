@@ -2,7 +2,7 @@ import sys
 import argparse
 import json
 from pymatgen.core.structure import Structure
-from gpaw_utils.data_class import CalculationProject
+from .gpaw_utils.data_class import CalculationProject
 
 
 def main(project_folder_path: str, structure_str: str):
@@ -18,7 +18,8 @@ def main(project_folder_path: str, structure_str: str):
 
         calculation_history = new_project.get_calculation_history()
 
-        result = json.dumps({"calculation_history": calculation_history}, indent=4)
+        result = json.dumps(
+            {"calculation_history": calculation_history}, indent=4)
         print(result)
     except Exception as e:
         print(f"Error occurred: {str(e)}", file=sys.stderr, flush=True)

@@ -1,12 +1,6 @@
-from pymatgen.io.ase import AseAtomsAdaptor
 from ase.atoms import Atoms
-from pymatgen.core import Structure, Lattice
 from gpaw import GPAW, restart
 from ase.optimize import BFGS
-import numpy as np
-import shutil
-import copy
-import json
 import time
 import uuid
 import os
@@ -39,7 +33,8 @@ def resume_relax_calculation(ckpt_file_path: str,
             atoms.calc = calc
             return atoms
         else:
-            print("The previous calculation is not converged. Resume the calculation now.")
+            print(
+                "The previous calculation is not converged. Resume the calculation now.")
             optimizer = BFGS(atoms, trajectory=trajectory_file_path)
             # Enable checkpointing in the optimizer
             optimizer.attach(lambda: calc.write(ckpt_file_path), interval=1)
@@ -87,7 +82,8 @@ def relax_calculation(atoms: Atoms,
             symbol: moment for symbol, moment in zip(chemical_symbols_list, initial_magnetic_moments)}
         initial_magnetic_moments_full_list = []
         for chemical_symbol in atoms.get_chemical_symbols():
-            initial_magnetic_moments_full_list.append(initial_magnetic_moments_dict[chemical_symbol])
+            initial_magnetic_moments_full_list.append(
+                initial_magnetic_moments_dict[chemical_symbol])
         atoms.set_initial_magnetic_moments(initial_magnetic_moments_full_list)
     else:
         atoms.set_initial_magnetic_moments([0] * len(atoms))
@@ -103,10 +99,12 @@ def relax_calculation(atoms: Atoms,
     atoms = EnhancedAtoms(atoms)
     atoms.set_relax_region(relax_intervals)
 
-    optimizer = BFGS(atoms=atoms, trajectory=trajectory_file_path, logfile=logfile)
+    optimizer = BFGS(
+        atoms=atoms, trajectory=trajectory_file_path, logfile=logfile)
     if ckpt_file_path:
         optimizer.attach(lambda: calc.write(ckpt_file_path), interval=1)
-    optimizer.run(fmax=force_threshold, steps=steps)  # fmax is the convergence threshold for the force,  eV/A.
+    # fmax is the convergence threshold for the force,  eV/A.
+    optimizer.run(fmax=force_threshold, steps=steps)
     return atoms
 
 
@@ -122,7 +120,8 @@ def ground_state_calculation(atoms: Atoms,
                              mode_name: str = 'pw',
                              n_write: int = 3):
     if ckpt_file_path and os.path.exists(ckpt_file_path):
-        atoms = resume_ground_state_calculation(ckpt_file_path=ckpt_file_path, n_write=n_write)
+        atoms = resume_ground_state_calculation(
+            ckpt_file_path=ckpt_file_path, n_write=n_write)
         return atoms
     chemical_symbols_list = list(set(atoms.get_chemical_symbols()))
     chemical_symbols_list.sort()
@@ -132,7 +131,8 @@ def ground_state_calculation(atoms: Atoms,
         initial_magnetic_moments_dict = {
             symbol: moment for symbol, moment in zip(
                 chemical_symbols_list, initial_magnetic_moments)}
-        atoms.set_initial_magnetic_moments_by_atom(initial_magnetic_moments_dict)
+        atoms.set_initial_magnetic_moments_by_atom(
+            initial_magnetic_moments_dict)
     else:
         atoms.set_initial_magnetic_moments([0] * len(atoms))
     calc = GPAW(mode={'name': mode_name, 'ecut': ecut},
@@ -162,7 +162,8 @@ def resume_ground_state_calculation(ckpt_file_path: str, n_write: int = 3):
             return atoms
         else:
             # The checkpoint is NOT converged. Resume calculation now.
-            print("The previous calculation is not converged. Resume the calculation now.")
+            print(
+                "The previous calculation is not converged. Resume the calculation now.")
             calc.attach(calc.write, n_write, ckpt_file_path, mode='all')
             atoms.get_potential_energy()
             return atoms
@@ -233,7 +234,8 @@ def perform_calculation_service(input_info: CalculationInfo,
         else:
             calc = GPAW(input_ckpt_file_path, txt=None)
             if not hasattr(calc, 'density') or calc.density is None:
-                raise ValueError("Input ckpt_file_path is not a valid input because it does not have charge density.")
+                raise ValueError(
+                    "Input ckpt_file_path is not a valid input because it does not have charge density.")
             atoms.calc = calc
             atoms = band_calculation(atoms=atoms,
                                      status_file_path=output_info.status_file_path,
@@ -250,22 +252,27 @@ def remove_calculation_subfolder(calculation_id: str, project_folder_path: str):
     try:
         shutil.rmtree(os.path.join(project_folder_path, calculation_id))
     except FileNotFoundError:
-        print(f"Subfolder {calculation_id} does not exist in {project_folder_path}.")
+        print(
+            f"Subfolder {calculation_id} does not exist in {project_folder_path}.")
 
 
 def perform_calculation_by_id(input_calculation_id: str, output_calculation_id: str, project_folder_path: str):
     """
     Perform the calculation based on the input information secified by input_calculation_id and output the result to the folder specified by output_information_id
     """
-    input_info_file_path = os.path.join(project_folder_path, input_calculation_id, 'info.json')
-    output_info_file_path = os.path.join(project_folder_path, output_calculation_id, 'info.json')
+    input_info_file_path = os.path.join(
+        project_folder_path, input_calculation_id, 'info.json')
+    output_info_file_path = os.path.join(
+        project_folder_path, output_calculation_id, 'info.json')
     input_info = CalculationInfo.from_file(input_info_file_path)
     output_info = CalculationInfo.from_file(output_info_file_path)
     # print(output_info)
     if not input_info:
-        raise ValueError(f"No input information found in path {input_info_file_path}.")
+        raise ValueError(
+            f"No input information found in path {input_info_file_path}.")
     if not output_info:
-        raise ValueError(f"No output information found in path {output_info_file_path}.")
+        raise ValueError(
+            f"No output information found in path {output_info_file_path}.")
     output_info = perform_calculation_service(input_info, output_info)
     return output_info
 
@@ -286,7 +293,8 @@ def perform_calculation(calculation_type: str,
     Returns:
         A dictionary containing the calculation id.
     """
-    calculation_record = CalculationProject(project_folder_path=project_folder_path)
+    calculation_record = CalculationProject(
+        project_folder_path=project_folder_path)
     if calculation_type == 'relax' or calculation_type == 'ground_state':
         input_info = calculation_record.latest_finished_calc()
     else:
@@ -319,13 +327,15 @@ def check_calculation_result(calculation_id: str, project_folder_path: str):
     Returns:
         A dictionary containing the calculation log.
     """
-    calculation_info_file_path = os.path.join(project_folder_path, calculation_id, 'info.json')
+    calculation_info_file_path = os.path.join(
+        project_folder_path, calculation_id, 'info.json')
     calculation_info = None
 
     start_time = time.time()
     while True:
         try:
-            calculation_info = CalculationInfo.from_file(calculation_info_file_path)
+            calculation_info = CalculationInfo.from_file(
+                calculation_info_file_path)
             calculation_status = calculation_info.calculation_status
             status_file_content = calculation_info.status_file_content
         except Exception as e:
@@ -350,7 +360,8 @@ def check_calculation_result(calculation_id: str, project_folder_path: str):
                     fig_str = pio.to_json(fig)
                     result["figure_str"] = fig_str
             except Exception as e:
-                print(f"Warning: Error generating plot: {str(e)}", file=sys.stderr, flush=True)
+                print(
+                    f"Warning: Error generating plot: {str(e)}", file=sys.stderr, flush=True)
             break
 
         # if time exceeds max_computation_time, exit
@@ -379,11 +390,13 @@ def stream_calculation_log(calculation_id: str, project_folder_path: str):
     Returns:
         A dictionary containing the calculation log.
     """
-    calculation_info_file_path = os.path.join(project_folder_path, calculation_id, 'info.json')
+    calculation_info_file_path = os.path.join(
+        project_folder_path, calculation_id, 'info.json')
 
     while True:
         try:
-            calculation_info = CalculationInfo.from_file(calculation_info_file_path)
+            calculation_info = CalculationInfo.from_file(
+                calculation_info_file_path)
             calculation_status = calculation_info.calculation_status
             status_file_content = calculation_info.status_file_content
             yield status_file_content
