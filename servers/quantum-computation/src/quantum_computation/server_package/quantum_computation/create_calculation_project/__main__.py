@@ -2,7 +2,7 @@ import sys
 import argparse
 import json
 from pymatgen.core.structure import Structure
-from .gpaw_utils.data_class import CalculationProject
+from gpaw_utils.data_class import CalculationProject
 
 
 def main(project_folder_path: str, structure_str: str):

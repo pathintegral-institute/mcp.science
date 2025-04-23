@@ -1,0 +1,6 @@
+[default.ssh_config]
+hostname = "instance-20241010-021003"
+username = "Geoff"
+key_filename = "~/.ssh/id_rsa"
+remote_root_path = "/home/Geoff/qc_test"
+use_key_to_connect = true

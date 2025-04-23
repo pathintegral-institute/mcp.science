@@ -8,14 +8,16 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "dynaconf>=3.2.10",
+    "ipython>=9.1.0",
     "loguru>=0.7.3",
-    "mcp>=1.6.0",
+    "mcp[cli]>=1.6.0",
     "mp-api>=0.45.3",
     "pymatgen>=2025.3.10",
 ]
 
 [project.scripts]
-quantum-computation = "quantum_computation:main"
+mcp-quantum-computation = "quantum_computation:main"
 
 [build-system]
 requires = ["hatchling"]
