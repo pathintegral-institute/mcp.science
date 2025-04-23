@@ -9,7 +9,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 def main(project_folder_path, calculation_id):
-    from gpaw_utils.lib import check_calculation_result
+    from ..gpaw_utils.lib import check_calculation_result
 
     # Redirect all output to stderr initially
     original_stdout = sys.stdout

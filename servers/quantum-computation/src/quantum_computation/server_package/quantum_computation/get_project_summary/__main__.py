@@ -1,6 +1,6 @@
 import argparse
 import json
-from gpaw_utils.data_class import CalculationProject
+from ..gpaw_utils.data_class import CalculationProject
 
 
 def main(project_folder_path: str):
