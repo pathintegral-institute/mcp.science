@@ -1,6 +1,17 @@
-[default.ssh_config]
-hostname = "instance-20241010-021003"
-username = "Geoff"
-key_filename = "~/.ssh/id_rsa"
-remote_root_path = "/home/Geoff/qc_test"
+# This file is used to store the configuration of the server.
+
+[default]
+structure_cache_abs_path = "/path/to/structure_cache"   # the output directory of materials-project server
+remote_calculation_output_abs_path = "/tmp/qc_output"
+remote_python_path = "/path/to/python"
+remote_gpaw_path = "/path/to/gpaw"
+
+[mp_api]
+mp_api_key = "" # should be loaded from secrets.toml
+
+[ssh_config]
+hostname = "host"
+username = "user"
+key_filename = "/path/to/id_rsa"
+remote_root_path = "/path/to/your/working/folder"
 use_key_to_connect = true

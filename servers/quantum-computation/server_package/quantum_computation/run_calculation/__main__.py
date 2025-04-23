@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 
 def main(params_str, project_folder_path, output_calculation_id):
-    from gpaw_utils.lib import perform_calculation
+    from ..gpaw_utils.lib import perform_calculation
 
     params = json.loads(params_str)
     calculation_type = params["calculation_type"]

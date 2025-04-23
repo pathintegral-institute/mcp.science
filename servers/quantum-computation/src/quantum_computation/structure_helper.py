@@ -3,14 +3,12 @@ import json
 from loguru import logger
 
 from .data_class import StructureData
+from .config import load_config
 
-structure_temp_folder_path = os.getenv(
-    "STRUCTURE_TEMP_FOLDER_PATH", "working/structures/temp")
-root_path = os.getenv("ROOT_PATH", "")
-structure_temp_folder_abs_path = os.path.join(
-    root_path, structure_temp_folder_path)
+config = load_config()['DEFAULT']
+structure_temp_folder_abs_path = config["structure_cache_abs_path"]
 material_id_dict_path = os.path.join(
-    root_path, structure_temp_folder_path, "material_id_dict.json")
+    structure_temp_folder_abs_path, "material_id_dict.json")
 
 
 def get_structure_folder_path(structure_uri: str) -> str:

@@ -15,6 +15,7 @@ dependencies = [
     "pymatgen>=2025.3.10",
     "ase>=3.24.0",
     "gpaw>=1.1.0",
+    "psutil>=7.0.0",
 ]
 requires-python = ">=3.12"
 

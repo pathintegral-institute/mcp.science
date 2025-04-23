@@ -4,4 +4,4 @@ from loguru import logger
 
 def main() -> None:
     logger.info("starting quantum computation server...")
-    mcp.run(transport="sse")
+    mcp.run(transport="stdio")

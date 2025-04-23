@@ -1,42 +1,8 @@
 import paramiko
-from functools import lru_cache
 from getpass import getpass
 import os
 from loguru import logger
-from pydantic import BaseModel
-from dynaconf import Dynaconf
-
-
-class SSHConfig(BaseModel):
-    """SSH configuration for remote execution."""
-
-    hostname: str
-    username: str
-    remote_script_folder_path: str
-    python_path: str
-    remote_root_path: str
-    remote_user_path: str
-    use_key_to_connect: bool
-
-
-class AppSettings(BaseModel):
-    ssh_config: SSHConfig
-
-
-@lru_cache
-def load_ssh_config():
-    """
-    Load configuration from config/ssh_config.toml using dynaconf.
-    Returns a Dynaconf settings object.
-    """
-    # get the current working directory
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    config_path = f"{current_dir}/config/settings.toml"
-    logger.info(f"Loading config from: {config_path}")
-    settings = Dynaconf(
-        settings_files=[config_path])
-    logger.info(f"Loaded ssh config: {settings.to_dict()}")
-    return settings.to_dict()['DEFAULT']['ssh_config']
+from .config import load_ssh_config
 
 
 def connect_ssh(hostname, username):
@@ -75,8 +41,7 @@ def connect_ssh_by_key(hostname, username, key_path):
         logger.info(f"Successfully connected to {hostname}")
         return ssh
     except Exception as e:
-        logger.info(f"Failed to connect to {hostname}: {str(e)}")
-        return None
+        raise e
 
 
 def execute_command_on_server(command: str):

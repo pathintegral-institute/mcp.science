@@ -181,3 +181,4 @@ working/
 CLAUDE.md
 
 .DS_Store
+secrets.toml

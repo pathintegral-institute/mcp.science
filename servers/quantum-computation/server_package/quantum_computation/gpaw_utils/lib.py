@@ -5,6 +5,7 @@ import time
 import uuid
 import os
 import sys
+import psutil
 from .data_class import CalculationInfo, EnhancedAtoms, CalculationProject
 import plotly.io as pio
 
@@ -329,7 +330,32 @@ def check_calculation_result(calculation_id: str, project_folder_path: str):
     """
     calculation_info_file_path = os.path.join(
         project_folder_path, calculation_id, 'info.json')
+    status_txt_file_path = os.path.join(
+        project_folder_path, calculation_id, 'status.txt')
     calculation_info = None
+
+    running = False
+    for proc in psutil.process_iter(['pid', 'name']):
+        if "python" not in proc.info['name']:
+            continue
+        for part in proc.cmdline():
+            if "/main_run_calculation.py" in part and calculation_id in part:
+                print(proc.cmdline())
+                running = True
+                break
+        if running:
+            break
+
+    if not os.path.exists(calculation_info_file_path):
+        return {
+            "calculation_status": "failed",
+            "log": "unable to start calculation"
+        }
+    elif not os.path.exists(status_txt_file_path) and not running:
+        return {
+            "calculation_status": "failed",
+            "log": "the calculation might not be running"
+        }
 
     start_time = time.time()
     while True:
