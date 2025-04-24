@@ -66,8 +66,7 @@ async def check_mathematica_installation() -> bool:
 
 async def execute_mathematica_code(code: str, format: str = "text") -> str:
     """Executes Mathematica code using wolframscript."""
-    format_option = f"-format {format.lower()}"
-    command = ["wolframscript", format_option, "-code", code]
+    command = ["wolframscript", "-format", format.lower(), "-code", code]
 
     # Avoid logging potentially large code
     logger.info(
