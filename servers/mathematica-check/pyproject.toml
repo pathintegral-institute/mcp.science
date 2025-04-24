@@ -11,7 +11,7 @@ dependencies = [ # Specify a version range if needed
 ]
 
 [project.scripts]
-mathematica-check = "mathematica_server.server:main"
+mcp-mathematica-check = "mathematica_server.server:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
