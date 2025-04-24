@@ -184,13 +184,16 @@ async def verify_derivation_steps(steps: List[str], format: str = "text") -> str
 
 @mcp.tool()
 async def execute_mathematica(
-    code: str, format: Optional[Literal["text", "latex", "mathematica"]] = "text"
+    code: str, format: Optional[Literal["text", "mathematica"]] = "text"
 ) -> TextContent:
     """
     Execute Mathematica code and return the result.
 
+    IMPORTANT: Each code block should be self-contained and complete. Variables, functions, 
+    or definitions from previous executions are not preserved between calls.
+
     Args:
-        code: Mathematica code to execute.
+        code: Mathematica code to execute. Should be a complete, self-contained code block.
         format: Output format (text, latex, or mathematica). Defaults to text.
 
     Returns:
@@ -216,12 +219,15 @@ async def execute_mathematica(
 
 @mcp.tool()
 async def verify_derivation(
-    steps: List[str], format: Optional[Literal["text", "latex", "mathematica"]] = "text"
+    steps: List[str], format: Optional[Literal["text", "mathematica"]] = "text"
 ) -> TextContent:
     """
     Verify a mathematical derivation step by step using Mathematica's Simplify.
 
     Checks if Simplify[step_i == step_{i-1}] evaluates to True for i > 1.
+
+    IMPORTANT: Each step expression should be self-contained and valid Mathematica syntax.
+    The verification is performed in a single execution, so all steps are processed together.
 
     Args:
         steps: Array of mathematical expressions (as strings) representing steps in a derivation. Requires at least two steps.

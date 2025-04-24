@@ -11,11 +11,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mathematica-check = "mathematica_check.server:main"
-
-[tool.setuptools]
-packages = ["mathematica_check"]
-package-dir = {"mathematica_check" = "src"}
+mcp-mathematica-check = "server:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]
