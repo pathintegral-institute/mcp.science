@@ -51,11 +51,11 @@ mathematica-check
 ```
 Or explicitly:
 ```bash
-python -m mathematica_server.server
+python -m mathematica-check.server
 ```
 Or using the MCP CLI:
 ```bash
-mcp run src/mathematica_server/server.py
+mcp run src/server.py
 ```
 
 The server will start and listen for connections from MCP clients via standard input/output (stdio).
@@ -77,7 +77,7 @@ Follow the general steps for integrating MCP servers with your client:
           
           // Option 2: Explicitly using python from the venv
           // "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/python",
-          // "args": ["-m", "mathematica_server.server"],
+          // "args": ["-m", "mathematica-check.server"],
           // "cwd": "/path/to/your/project/servers/mathematica-check", // Set working directory
           
           "disabled": false,
@@ -118,7 +118,7 @@ Verifies a sequence of mathematical expressions.
 ## Troubleshooting
 
 *   **Server Not Found/Not Responding:**
-    *   Ensure the server is running (`mathematica-check` or `python -m mathematica_server.server`).
+    *   Ensure the server is running (`mathematica-check` or `python -m mathematica-check.server`).
     *   Verify the virtual environment is activated.
     *   Check if `wolframscript` is installed and in your PATH (`wolframscript -help`).
     *   Check the client's MCP configuration, especially the `command`, `args`, and `cwd`.
@@ -130,7 +130,7 @@ Verifies a sequence of mathematical expressions.
 
 ## Project Structure
 
-*   `src/mathematica_server/`: Python source code for the server.
+*   `src/`: Python source code for the server.
     *   `server.py`: Main server logic and tool definitions.
 *   `pyproject.toml`: Project metadata and dependencies (for `uv` and `pip`).
 *   `.python-version`: Specifies the required Python version (used by tools like `pyenv`).

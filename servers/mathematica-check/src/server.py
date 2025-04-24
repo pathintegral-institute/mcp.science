@@ -18,7 +18,7 @@ from mcp.types import TextContent
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(name)s - %(message)s"
 )
-logger = logging.getLogger("mathematica_server")
+logger = logging.getLogger("mathematica-check")
 
 # --- MCP Server Initialization ---
 mcp = FastMCP(
@@ -156,7 +156,7 @@ async def verify_derivation_steps(steps: List[str], format: str = "text") -> str
       ];
 
       (* Format the results *)
-      formattedResults = "Derivation Verification Results:\n\n";
+      formattedResults = "Derivation Verification Results:\\n\\n";
 
       For[i = 1, i <= Length[results], i++,
         result = results[[i]];
@@ -166,12 +166,12 @@ async def verify_derivation_steps(steps: List[str], format: str = "text") -> str
         errMsg = result["error"];
 
         formattedResults = formattedResults <>
-          "Step " <> ToString[stepNum] <> ": " <> expr <> "\n" <>
+          "Step " <> ToString[stepNum] <> ": " <> expr <> "\\n" <>
           "  Valid: " <> ToString[isEquiv];
         If[errMsg =!= "",
-           formattedResults = formattedResults <> "\n  Note: " <> errMsg;
+           formattedResults = formattedResults <> "\\n  Note: " <> errMsg;
         ];
-         formattedResults = formattedResults <> "\n\n";
+         formattedResults = formattedResults <> "\\n\\n";
       ];
 
       (* Ensure final output is a string *)
@@ -259,11 +259,9 @@ async def verify_derivation(
 def main():
     """Runs the MCP server."""
     logger.info("Starting Mathematica MCP server (Python)...")
-    # Use asyncio.run() for async tools if using FastMCP directly in script - This was incorrect
-    # asyncio.run(mcp.run_asyncio('stdio'))
     # Use the standard run method, which handles the loop for async tools
     mcp.run("stdio")
 
 
 if __name__ == "__main__":
-    main()
+    main() 
