@@ -1,4 +1,4 @@
-# Quantum Computation
+# GPAW Computation
 
 # Prerequisites
 
@@ -22,6 +22,7 @@
   </details>
 
 - mpi api key
+- material-project MCP: another helpful MCP Server for fetching structure data, please check https://github.com/pathintegral-institute/mcp.science/tree/main/servers/materials-project for more details.
 
 # Computation server setup
 
@@ -30,6 +31,8 @@ the `server_package` folder contains scripts that is used to let gpaw-computatio
 # Configure local MCP
 
 before running the server, you need to configure the local MCP by checking `src/gpaw_computation/config/settings.toml`
+
+Noted that `structure_cache_abs_path` is the output directory of materials-project MCP server
 
 # Run the server
 
