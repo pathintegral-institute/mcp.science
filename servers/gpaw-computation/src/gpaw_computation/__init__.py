@@ -3,5 +3,5 @@ from loguru import logger
 
 
 def main() -> None:
-    logger.info("starting quantum computation server...")
+    logger.info("starting gpaw computation server...")
     mcp.run(transport="stdio")

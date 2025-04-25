@@ -136,7 +136,7 @@ async def create_new_project(
 
     structure_str = shlex.quote(structure_str)
     shell_command = (f"{remote_python_path} -m "
-                     f"quantum_computation.create_calculation_project "
+                     f"gpaw_computation_server.create_calculation_project "
                      f"-p {project_folder_path} -s {structure_str}")
     logger.info(f"shell_command: {str(shell_command)}")
     _, stdout, stderr = execute_command_on_server(shell_command)
@@ -184,7 +184,7 @@ async def start_calculation(
 
     shell_command = (
         f"/usr/bin/mpirun -np 4 {remote_gpaw_path} "
-        f"python -m quantum_computation.run_calculation "
+        f"python -m gpaw_computation_server.run_calculation "
         f"-pm {shlex.quote(params_str)} "
         f"-p {project_folder_path} "
         f"-c {output_calculation_id}"
@@ -230,7 +230,7 @@ async def check_calculation_result(
 
     shell_command = (
         f"{remote_python_path} -m "
-        "quantum_computation.check_calculation_result "
+        "gpaw_computation_server.check_calculation_result "
         f"-p {project_folder_path} -c {output_calculation_id}"
     )
     logger.info(f"actual python command, {shell_command}")
@@ -277,5 +277,5 @@ async def check_calculation_result(
 
 if __name__ == "__main__":
     # Initialize and run the server
-    logger.info("starting quantum computation server...")
+    logger.info("starting gpaw computation server...")
     mcp.run(transport="stdio")

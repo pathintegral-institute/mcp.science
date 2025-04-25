@@ -1,5 +1,5 @@
 [project]
-name = "quantum-computation"
+name = "gpaw-computation"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
@@ -16,7 +16,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-quantum-computation = "quantum_computation:main"
+mcp-gpaw-computation = "gpaw_computation:main"
 
 [build-system]
 requires = ["hatchling"]

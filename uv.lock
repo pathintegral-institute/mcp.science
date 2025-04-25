@@ -12,7 +12,7 @@ members = [
     "mcp-txyz-search",
     "mcp-web-fetch",
     "python-code-execution",
-    "quantum-computation",
+    "gpaw-computation",
 ]
 
 [[package]]
@@ -1230,9 +1230,9 @@ wheels = [
 ]
 
 [[package]]
-name = "quantum-computation"
+name = "gpaw-computation"
 version = "0.1.0"
-source = { editable = "servers/quantum_computation" }
+source = { editable = "servers/gpaw-computation" }
 dependencies = [
     { name = "ase" },
     { name = "loguru" },

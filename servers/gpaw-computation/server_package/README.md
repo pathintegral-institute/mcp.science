@@ -1,6 +1,6 @@
-# Quantum Computation Server Package
+# Gpaw Computation Server Package
 
-This package is used to let quantum-computation MCP use quantum computation server to run gpaw calculations. Put this package on your computation server.
+This package is used to let gpaw-computation MCP to run gpaw calculations. Put this package on your computation server.
 
 # Prerequisites
 
@@ -43,8 +43,9 @@ sudo apt install -y python3-pip python3-venv build-essential libblas-dev liblapa
 We would recommend you to create a working directory for virtual environment and install this package.
 
 ```bash
-cd /your-working-directory
+mkdir -p your-working-directory
+cd your-working-directory
 uv init
 uv venv --python 3.12  # to make sure you use python 3.12
-uv pip install git+https://github.com/pathintegral-institute/mcp.science.git#subdirectory=servers/quantum_computation/src/server_package
+uv pip install git+https://github.com/pathintegral-institute/mcp.science.git#subdirectory=servers/gpaw-computation/server_package
 ```
