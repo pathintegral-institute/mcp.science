@@ -73,12 +73,12 @@ Follow the general steps for integrating MCP servers with your client:
       "mcpServers": {
         "mathematica-check": {
           // Option 1: Running the installed script (ensure .venv/bin is in PATH or use absolute path)
-          "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/mathematica-check",
+          "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/mcp-mathematica-check",
           
           // Option 2: Explicitly using python from the venv
           // "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/python",
-          // "args": ["-m", "mathematica-check.server"],
-          // "cwd": "/path/to/your/project/servers/mathematica-check", // Set working directory
+          // "args": ["-m", "server"],
+          // "cwd": "/path/to/your/project/servers/mathematica-check", // Set working directory to the root of mathematica-check
           
           "disabled": false,
           "autoApprove": [] // Optional: Add tool names ("execute_mathematica", "verify_derivation")
