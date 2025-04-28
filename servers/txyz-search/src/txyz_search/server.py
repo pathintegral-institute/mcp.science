@@ -1,12 +1,10 @@
-
 import logging
 import os
-from typing import Any, Callable, List, Optional, cast
+from typing import Any, Callable, Dict, List, Optional, cast
 
 import httpx
 from dotenv import load_dotenv
-from mcp.server.lowlevel import Server as McpServer
-from mcp.server.stdio import stdio_server
+from mcp.server import FastMCP
 from mcp.shared.exceptions import McpError
 from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, Tool
 from pydantic import BaseModel, ValidationError
@@ -20,6 +18,8 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 load_dotenv()
+
+mcp = FastMCP("txyz_search")
 
 
 def _max_result_restriction(max_results: int) -> int:
@@ -148,53 +148,25 @@ async def _search(
     return cast(list[TextContent], formatted_results)
 
 
+@mcp.tool(
+    name="txyz_search_scholar", 
+    description="Focused, specialized search for academic and scholarly materials, the results (`ScholarResponse`) are could be papers, articles etc.",
+)
 async def search_scholar(query: str, max_results: int) -> list[TextContent]:
     return await _search("search/scholar", query, max_results, _handle_scholar_result)
 
 
+@mcp.tool(
+    name="txyz_search_web", 
+    description="Perform a web search for general purpose information, the results would be resources from web pages.",
+)
 async def search_web(query: str, max_results: int) -> list[TextContent]:
     return await _search("search/web", query, max_results, _handle_web_result)
 
 
+@mcp.tool(
+    name="txyz_search_smart", 
+    description="AI-powered Smart Search handles all the necessary work to deliver the best results. The results may include either scholarly materials or web pages.",
+)
 async def search_smart(query: str, max_results: int) -> list[TextContent]:
     return await _search("search/smart", query, max_results, _handle_smart_result)
-
-
-async def serve():
-    server = McpServer(name="mcp-txyz-search")
-
-    @server.list_tools()
-    async def list_tools() -> list[Tool]:
-        return [search_scholar_tool, search_web_tool, search_smart_tool]
-
-    @server.call_tool()
-    async def call_tool(tool_name: str, arguments: dict[str, Any]) -> list[TextContent]:
-        try:
-            args = SearchQuery(**arguments)
-        except ValidationError as e:
-            raise McpError(ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"Invalid arguments for {tool_name}: {str(e)}"
-            ))
-        match tool_name:
-            case search_scholar_tool.name:
-                return await search_scholar(args.query, args.max_results)
-            case search_web_tool.name:
-                return await search_web(args.query, args.max_results)
-            case search_smart_tool.name:
-                return await search_smart(args.query, args.max_results)
-            case _:
-                raise McpError(ErrorData(
-                    code=INTERNAL_ERROR,
-                    message=f"Invalid tool name: {tool_name}"
-                ))
-
-
-    async with stdio_server() as (read_stream, write_stream):
-        logger.info("Starting TXYZ Search Server...")
-        await server.run(
-            read_stream,
-            write_stream,
-            initialization_options=server.create_initialization_options(),
-            raise_exceptions=False
-        )
