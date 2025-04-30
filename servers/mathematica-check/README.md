@@ -21,12 +21,21 @@ This server acts as a bridge, enabling applications that support MCP to leverage
 
 ## Installation
 
+### Directly way
+```bash
+uvx --from git+https://github.com/pathintegral-institute/mcp.science.git#subdirectory=servers/mathematica-check mcp-mathematica-check
+```
+
+
+### Clone codes to local and use
+
 1.  **Clone the repository (if you haven't already):**
     ```bash
     git clone <repository-url>
     cd <repository-directory>/servers/mathematica-check
     ```
 2.  **Set up the Python environment and install dependencies using `uv`:**
+
     ```bash
     # Create a virtual environment
     uv venv
@@ -47,15 +56,19 @@ To start the MCP server, ensure your virtual environment is activated, and then 
 
 ```bash
 # Using the script defined in pyproject.toml
-mathematica-check
+mcp-mathematica-check
 ```
+
 Or explicitly:
+
 ```bash
-python -m mathematica-check.server
+python -m mathematica_check.server
 ```
+
 Or using the MCP CLI:
+
 ```bash
-mcp run src/server.py
+mcp run src/mathematica_check/server.py
 ```
 
 The server will start and listen for connections from MCP clients via standard input/output (stdio).
@@ -68,18 +81,19 @@ Follow the general steps for integrating MCP servers with your client:
 2.  **Configure Your MCP Client:** Add the server to your client's configuration (e.g., `settings.json` or similar). You'll need to provide the command to run the server within its environment.
 
     Example configuration snippet:
+
     ```json
     {
       "mcpServers": {
         "mathematica-check": {
           // Option 1: Running the installed script (ensure .venv/bin is in PATH or use absolute path)
           "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/mcp-mathematica-check",
-          
+
           // Option 2: Explicitly using python from the venv
           // "command": "/path/to/your/project/servers/mathematica-check/.venv/bin/python",
-          // "args": ["-m", "server"],
+          // "args": ["-m", "mathematica_check.server"],
           // "cwd": "/path/to/your/project/servers/mathematica-check", // Set working directory to the root of mathematica-check
-          
+
           "disabled": false,
           "autoApprove": [] // Optional: Add tool names ("execute_mathematica", "verify_derivation")
         }
@@ -130,7 +144,7 @@ Verifies a sequence of mathematical expressions.
 
 ## Project Structure
 
-*   `src/`: Python source code for the server.
+*   `src/mathematica_check`: Python source code for the server.
     *   `server.py`: Main server logic and tool definitions.
 *   `pyproject.toml`: Project metadata and dependencies (for `uv` and `pip`).
 *   `.python-version`: Specifies the required Python version (used by tools like `pyenv`).

@@ -6,12 +6,10 @@ description = "A Python MCP server for interacting with Mathematica/wolframscrip
 authors = [{ name = "Sirui Lu", email = "sirui.lu.phys@gmail.com" }]
 license = { text = "MIT" }
 
-dependencies = [
-    "mcp[cli]>=1.0.0",
-]
+dependencies = ["mcp[cli]>=1.0.0"]
 
 [project.scripts]
-mcp-mathematica-check = "server:main"
+mcp-mathematica-check = "mathematica_check.server:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

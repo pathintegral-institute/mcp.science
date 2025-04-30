@@ -57,7 +57,8 @@ async def check_mathematica_installation() -> bool:
         logger.error("Mathematica (wolframscript) not found in PATH.")
         _mathematica_available = False
     except Exception as e:
-        logger.error(f"Error checking Mathematica installation: {e}", exc_info=True)
+        logger.error(
+            f"Error checking Mathematica installation: {e}", exc_info=True)
         _mathematica_available = False
 
     _mathematica_checked = True
@@ -90,7 +91,8 @@ async def execute_mathematica_code(code: str, format: str = "text") -> str:
             )
 
         if stderr_str:
-            logger.warning(f"Mathematica execution produced stderr: {stderr_str}")
+            logger.warning(
+                f"Mathematica execution produced stderr: {stderr_str}")
 
         logger.info("Mathematica execution completed successfully.")
         return stdout_str
@@ -269,4 +271,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()
