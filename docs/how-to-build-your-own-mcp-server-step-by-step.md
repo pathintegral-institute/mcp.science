@@ -164,7 +164,7 @@ def get_image_of_flower():
 ```
 
 
-To convert this into mcp server, create a new Python file `server.py`:
+To convert this into mcp server, replace the code in `main.py` with:
 
 ```python
 from mcp.server.fastmcp import FastMCP
@@ -213,6 +213,9 @@ def get_image_of_flower():
 def main():
     logger.info('Starting your-new-server')
     mcp.run('stdio')
+
+if __name__ == "__main__":
+    main()
 ```
 
 
@@ -233,7 +236,7 @@ Now let’s start your server and see if it works!
 In your terminal, run:
 
 ```bash
-mcp run server.py
+python main.py
 ```
 
 You should see something like:
@@ -284,7 +287,7 @@ uv add <package-name>
 ### Use MCP Inspector to test your tools (No LLM Needed)
 
 ```bash
-mcp dev server.py
+mcp dev main.py
 ```
 
 You will see output like this:
