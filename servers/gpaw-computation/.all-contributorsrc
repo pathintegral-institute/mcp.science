@@ -14,7 +14,8 @@
     {
       "name": "Binghai Yan",
       "email": "binghaiyan@gmail.com",
-      "contributions": ["ideas", "research"]
+      "contributions": ["ideas", "research"],
+      "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Binghai%20Yan&"
     }
   ]
 } 
