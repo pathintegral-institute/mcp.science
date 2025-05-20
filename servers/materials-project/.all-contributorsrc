@@ -1,0 +1,25 @@
+{
+  "projectName": "materials-project",
+  "projectOwner": "pathintegral-institute",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": ["README.md"],
+  "imageSize": 100,
+  "commit": false,
+  "contributorsPerLine": 7,
+  "contributorsSortAlphabetically": false,
+  "linkToUsage": true,
+  "skipCi": true,
+  "contributors": [
+    {
+      "name": "Binghai Yan",
+      "email": "binghaiyan@gmail.com",
+      "contributions": ["ideas", "research"]
+    },
+    {
+      "name": "Yanzhen Wang",
+      "email": "yzwang.phys@gmail.com",
+      "contributions": ["ideas", "research"]
+    }
+  ]
+} 
