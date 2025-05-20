@@ -20,7 +20,7 @@
     {
       "name": "Yanzhen Wang",
       "email": "yzwang.phys@gmail.com",
-      "contributions": ["ideas", "research"],
+      "contributions": ["ideas", "research", "code", "test"],
       "avatar_url": "https://api.dicebear.com/7.x/initials/svg?seed=Yanzhen%20Wang&"
     }
   ]
