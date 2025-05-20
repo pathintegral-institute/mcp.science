@@ -1,0 +1,26 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "pyq",
+      "name": "Yongqing",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6189103?v=4",
+      "profile": "https://github.com/pyq",
+      "contributions": [
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "mcp.science",
+  "projectOwner": "pathintegral-institute"
+}
