@@ -203,8 +203,8 @@ For other MCP clients like MCP CLI or custom implementations, refer to their spe
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><img src="https://api.dicebear.com/7.x/initials/svg?seed=Binghai%20Yan&?s=100" width="100px;" alt="Binghai Yan"/><br /><sub><b>Binghai Yan</b></sub><br /><a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research" title="Research">🔬</a></td>
-      <td align="center" valign="top" width="14.28%"><img src="https://api.dicebear.com/7.x/initials/svg?seed=Yanzhen%20Wang&?s=100" width="100px;" alt="Yanzhen Wang"/><br /><sub><b>Yanzhen Wang</b></sub><br /><a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research" title="Research">🔬</a></td>
+      <td align="center" valign="top" width="14.28%"><img src="https://api.dicebear.com/7.x/initials/svg?seed=Binghai%20Yan&?s=100" width="100px;" alt="Binghai Yan"/><br /><sub><b>Binghai Yan</b></sub><br /><a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research" title="Research">🔬</a> <a href="https://github.com/pathintegral-institute/materials-project/commits?author=" title="Code">💻</a> <a href="https://github.com/pathintegral-institute/materials-project/commits?author=" title="Tests">⚠️</a></td>
+      <td align="center" valign="top" width="14.28%"><img src="https://api.dicebear.com/7.x/initials/svg?seed=Yanzhen%20Wang&?s=100" width="100px;" alt="Yanzhen Wang"/><br /><sub><b>Yanzhen Wang</b></sub><br /><a href="#ideas" title="Ideas, Planning, & Feedback">🤔</a> <a href="#research" title="Research">🔬</a> <a href="https://github.com/pathintegral-institute/materials-project/commits?author=" title="Code">💻</a> <a href="https://github.com/pathintegral-institute/materials-project/commits?author=" title="Tests">⚠️</a></td>
     </tr>
   </tbody>
   <tfoot>
