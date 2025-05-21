@@ -3,6 +3,9 @@ message: >
   This repository contains multiple subprojects under `servers/`, each with their own maintainers and citation needs.
   Please cite the specific service if applicable (see the CITATION.cff in the relevant subproject directory).
   For general use, cite this repository as below.
+authors:
+  - name: "Path Integral Institute"
+    website: https://www.pathintegral.xyz/
 title: MCP.Science
 version: 0.1.0
 date-released: 2025-05-21
