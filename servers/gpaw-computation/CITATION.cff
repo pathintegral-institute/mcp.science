@@ -1,6 +1,7 @@
 cff-version: 1.2.0
 authors:
-  - name: Binghai Yan
+  - family-names: Yan
+    given-names: Binghai
 title: GPAW Computation MCP Server
 version: 0.1.0
 date-released: 2025-05-21

@@ -1,7 +1,9 @@
 cff-version: 1.2.0
 authors:
-  - name: Binghai Yan
-  - name: Yanzhen Wang
+  - family-names: Yan
+    given-names: Binghai
+  - family-names: Wang
+    given-names: Yanzhen
 title: Materials Project MCP Server
 version: 0.1.0
 date-released: 2025-05-21
