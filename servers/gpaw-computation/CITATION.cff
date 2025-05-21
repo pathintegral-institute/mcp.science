@@ -1,0 +1,9 @@
+cff-version: 1.2.0
+authors:
+  - name: Binghai Yan
+title: GPAW Computation MCP Server
+version: 0.1.0
+date-released: 2025-05-21
+url: https://github.com/pathintegral-institute/mcp.science/tree/main/servers/gpaw-computation
+message: >
+  Please cite this server if you use it in your research. For general repository citation, see the root CITATION.cff. 

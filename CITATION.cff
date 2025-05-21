@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+message: >
+  This repository contains multiple subprojects under `servers/`, each with their own maintainers and citation needs.
+  Please cite the specific service if applicable (see the CITATION.cff in the relevant subproject directory).
+  For general use, cite this repository as below.
+authors:
+  - name: PathIntegral Institute
+    affiliation: PathIntegral Institute
+title: MCP.Science — Multi-Component Processing Services
+version: 0.1.0
+date-released: 2025-05-21
+url: https://github.com/pathintegral-institute/mcp.science

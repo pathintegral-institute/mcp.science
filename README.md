@@ -22,6 +22,7 @@ _Join us in accelerating scientific discovery with AI and open-source tools!_
 - [Contributing](#contributing)
 - [License](#license)
 - [Acknowledgments](#acknowledgments)
+- [Citation](#citation)
 
 ## About
 
@@ -200,3 +201,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Acknowledgments
 
 Thanks to all contributors!
+
+## Citation
+
+For general use, please cite this repository as described in the root [CITATION.cff](./CITATION.cff).
+
+If you use a specific server/subproject, please see the corresponding `CITATION.cff` file in that subproject's folder under `servers/` for the appropriate citation.

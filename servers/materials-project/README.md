@@ -222,3 +222,7 @@ For other MCP clients like MCP CLI or custom implementations, refer to their spe
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+## 📖 Citation
+
+If you use the Materials Project MCP server in your research, please cite it as described in the [CITATION.cff](./CITATION.cff) file in this directory. For general repository citation, see the root [CITATION.cff](../../CITATION.cff).
