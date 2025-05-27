@@ -40,7 +40,8 @@ class TXYZAPIClient:
 
     def __init__(self):
         self.api_key = os.getenv("TXYZ_API_KEY", default="")
-        self.base_url = os.getenv("TXYZ_API_BASE_URL", default="https://api.txyz.ai/v1")
+        self.base_url = os.getenv(
+            "TXYZ_API_BASE_URL", default="https://api.txyz.ai/v1")
         self._validate_api_key()
 
     def _validate_api_key(self):
@@ -115,11 +116,13 @@ def _handle_smart_result(result: TXYZSearchResult, idx: int) -> TextContent:
 
 # General Search Function
 async def _search(
-        router: str,
-        query: str,
-        max_results: int,
-        result_handler: Callable[[TXYZSearchResult, int], TextContent]
-    ) -> list[TextContent]:
+    router: str,
+    query: str,
+    max_results: int,
+    as_ylo: Optional[int],
+    as_yhi: Optional[int],
+    result_handler: Callable[[TXYZSearchResult, int], TextContent]
+) -> list[TextContent]:
     """
     General Search Tool
 
@@ -133,13 +136,18 @@ async def _search(
         formatted search results list
     """
     client = TXYZAPIClient()
+    payload = {
+        "query": query,
+        "max_results": _max_result_restriction(max_results)
+    }
+    if as_ylo:
+        payload["as_ylo"] = as_ylo
+    if as_yhi:
+        payload["as_yhi"] = as_yhi
+
     response = await client.make_request(
         router=router,
-        data={
-            "query": query,
-            "max_results": _max_result_restriction(max_results)
-        }
-    )
+        data=payload)
 
     if not response.results:
         return _handle_no_results()
@@ -153,24 +161,42 @@ async def _search(
 
 
 @mcp.tool(
-    name="txyz_search_scholar", 
+    name="txyz_search_scholar",
     description="Focused, specialized search for academic and scholarly materials, the results (`ScholarResponse`) are could be papers, articles etc.",
 )
-async def search_scholar(query: str, max_results: int) -> list[TextContent]:
-    return await _search("search/scholar", query, max_results, _handle_scholar_result)
+async def search_scholar(query: str,
+                         max_results: int,
+                         as_ylo: Annotated[Optional[int],
+                                           "year of publication lower bound"] = None,
+                         as_yhi: Annotated[Optional[int], "year of publication upper bound"] = None) -> list[TextContent]:
+    """
+    query: str
+    max_results: int
+    as_yhi: Optional[int], year of publication upper bound
+    as_ylo: Optional[int], year of publication lower bound
+    """
+    return await _search("search/scholar", query, max_results, as_ylo, as_yhi, _handle_scholar_result)
 
 
 @mcp.tool(
-    name="txyz_search_web", 
+    name="txyz_search_web",
     description="Perform a web search for general purpose information, the results would be resources from web pages.",
 )
-async def search_web(query: str, max_results: int) -> list[TextContent]:
-    return await _search("search/web", query, max_results, _handle_web_result)
+async def search_web(query: str,
+                     max_results: int,
+                     as_ylo: Annotated[Optional[int],
+                                       "year of publication lower bound"] = None,
+                     as_yhi: Annotated[Optional[int], "year of publication upper bound"] = None) -> list[TextContent]:
+    return await _search("search/web", query, max_results, as_ylo, as_yhi, _handle_web_result)
 
 
 @mcp.tool(
-    name="txyz_search_smart", 
+    name="txyz_search_smart",
     description="AI-powered Smart Search handles all the necessary work to deliver the best results. The results may include either scholarly materials or web pages.",
 )
-async def search_smart(query: str, max_results: int) -> list[TextContent]:
-    return await _search("search/smart", query, max_results, _handle_smart_result)
+async def search_smart(query: str,
+                       max_results: int,
+                       as_ylo: Annotated[Optional[int],
+                                         "year of publication lower bound"] = None,
+                       as_yhi: Annotated[Optional[int], "year of publication upper bound"] = None) -> list[TextContent]:
+    return await _search("search/smart", query, max_results, as_ylo, as_yhi, _handle_smart_result)
