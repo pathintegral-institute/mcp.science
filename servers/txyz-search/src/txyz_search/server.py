@@ -1,16 +1,14 @@
 import logging
 import os
-from typing import Any, Callable, Dict, List, Optional, cast
+from typing import Any, Callable, List, Optional, cast, Annotated
 
 import httpx
 from dotenv import load_dotenv
 from mcp.server import FastMCP
 from mcp.shared.exceptions import McpError
-from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, Tool
-from pydantic import BaseModel, ValidationError
+from mcp.types import INTERNAL_ERROR, ErrorData, TextContent
+from pydantic import BaseModel
 
-from .tools import (SearchQuery, search_scholar_tool, search_smart_tool,
-                    search_web_tool)
 
 logging.basicConfig(
     level=logging.INFO,
@@ -25,6 +23,7 @@ mcp = FastMCP("txyz_search")
 def _max_result_restriction(max_results: int) -> int:
     return max(1, min(20, max_results))
 
+
 class TXYZSearchResult(BaseModel):
     title: str
     link: str
@@ -32,8 +31,10 @@ class TXYZSearchResult(BaseModel):
     authors: Optional[List[str]] = None
     number_of_citations: Optional[int] = None
 
+
 class TXYZSearchResponse(BaseModel):
     results: List[TXYZSearchResult]
+
 
 class TXYZAPIClient:
 
@@ -76,6 +77,7 @@ def _handle_no_results() -> list[TextContent]:
     """Handle no results case"""
     return [TextContent(type="text", text="No results found")]
 
+
 def _handle_scholar_result(result: TXYZSearchResult, idx: int) -> TextContent:
     """Handle scholar search result formatting"""
     author_content = f"Authors: {', '.join(result.authors)}" if result.authors else "Authors: Not available"
@@ -83,10 +85,12 @@ def _handle_scholar_result(result: TXYZSearchResult, idx: int) -> TextContent:
     content = f"{idx + 1}. **{result.title}**\n   URL: {result.link}\n   {author_content}\n   {citation_content}\n   Snippet: {result.snippet}\n"
     return TextContent(type="text", text=content)
 
+
 def _handle_web_result(result: TXYZSearchResult, idx: int) -> TextContent:
     """Handle web search result formatting"""
     content = f"{idx + 1}. **{result.title}**\n   URL: {result.link}\n   Snippet: {result.snippet}\n"
     return TextContent(type="text", text=content)
+
 
 def _handle_smart_result(result: TXYZSearchResult, idx: int) -> TextContent:
     """Handle smart search result formatting"""
