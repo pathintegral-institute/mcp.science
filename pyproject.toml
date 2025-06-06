@@ -5,8 +5,6 @@ description = "Open Source MCP Servers for Scientific Research"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "jupyter-server>=2.16.0",
-    "requests>=2.32.3",
 ]
 
 [project.scripts]
