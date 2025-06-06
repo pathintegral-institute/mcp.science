@@ -33,7 +33,7 @@ export WAIT_EXECUTION_TIMEOUT=60
 1. Start the Jupyter Lab server:
 
 ```bash
-jupyter lab --ServerApp.port=${PORT} --ServerApp.token=${JUPYTER_SERVER_TOKEN}
+jupyter lab --ServerApp.port=${PORT} --IdentityProvider.token=${JUPYTER_SERVER_TOKEN}
 ```
 
 2. Note the access token generated, which will be displayed in the terminal output in the format:
@@ -57,7 +57,7 @@ Use the `uvx` command-line tool to install and start the MCP Server:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/pathintegral-institute/mcp.science.git#subdirectory=servers/jupyter-code-execution",
+        "git+https://github.com/pathintegral-institute/mcp.science@main#subdirectory=servers/jupyter-code-execution",
         "mcp-jupyter-code-execution"
       ],
       "env": {
