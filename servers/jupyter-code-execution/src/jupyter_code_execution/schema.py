@@ -84,21 +84,21 @@ Output = Annotated[Union[ExecuteResult, DisplayData, Stream, Error], Field(discr
 
 # Raw cell
 class RawCell(BaseModel):
-    id: str = Field(
-    ...,
-    description="Cell identifier",
-    pattern=r"^[a-zA-Z0-9-_]+$",
-    min_length=1,
-    max_length=64
-)
+    id: Optional[str] = Field(
+        None,
+        description="Cell identifier",
+        pattern=r"^[a-zA-Z0-9-_]+$",
+        min_length=1,
+        max_length=64
+    )
     cell_type: Literal["raw"] = Field(..., description="Cell type")
     metadata: CellMetadata = Field(..., description="Cell-level metadata")
     source: MultilineString = Field(..., description="Cell content")
 
 # Markdown cell
 class MarkdownCell(BaseModel):
-    id: str = Field(
-        ...,
+    id: Optional[str] = Field(
+        None,
         description="Cell identifier",
         pattern=r"^[a-zA-Z0-9-_]+$",
         min_length=1,
@@ -110,8 +110,9 @@ class MarkdownCell(BaseModel):
 
 # Code cell
 class CodeCell(BaseModel):
-    id: str = Field(
-        ...,
+    # id is introduced in jupyter notebook v4.5
+    id: Optional[str] = Field(
+        None,
         description="Cell identifier",
         pattern=r"^[a-zA-Z0-9-_]+$",
         min_length=1,
@@ -158,6 +159,42 @@ class NotebookMetadata(BaseModel):
 class Notebook(BaseModel):
     """Jupyter Notebook v4.5 format"""
     metadata: NotebookMetadata = Field(..., description="Notebook root-level metadata")
-    nbformat_minor: int = Field(..., description="Notebook format (minor number)", ge=5)
+    nbformat_minor: int = Field(..., description="Notebook format (minor number)", ge=4)
     nbformat: Literal[4] = Field(..., description="Notebook format (major number)")
     cells: List[Cell] = Field(..., description="Array of cells of the current notebook")
+
+# Define Jupyter API return content information model
+class ContentInfo(BaseModel):
+    name: str = Field(..., description="File or directory name")
+    path: str = Field(..., description="File or directory relative path")
+    last_modified: str = Field(..., description="Last modified time")
+    created: str = Field(..., description="Created time")
+    format: Optional[str] = Field(None, description="Content format, such as text, json, etc.")
+    mimetype: Optional[str] = Field(None, description="MIME type")
+    size: Optional[int] = Field(None, description="File size, unit is byte")
+    writable: bool = Field(..., description="Whether the file is writable")
+    hash: Optional[str] = Field(None, description="File hash value")
+    hash_algorithm: Optional[str] = Field(None, description="Hash algorithm")
+    type: str = Field(..., description="Content type, can be file, directory or notebook")
+
+class DirectoryItem(ContentInfo):
+    content: Optional[str] = Field(None, description="File content, usually a string")
+
+class FileContent(ContentInfo):
+    type: Literal["file"] = Field(..., description="File type")
+    content: Optional[str] = Field(None, description="File content, usually a string")
+
+class DirectoryContent(ContentInfo):
+    type: Literal["directory"] = Field(..., description="Directory type")
+    content: List[DirectoryItem] = Field(..., description="Directory content")
+
+class NotebookContent(ContentInfo):
+    type: Literal["notebook"] = Field(..., description="Notebook type")
+    content: Optional[Notebook] = Field(None, description="Notebook content")
+
+# Use Annotated and discriminator parameter to represent any possible content type returned by the API
+class ContentResponseModel(RootModel):
+    root: Annotated[
+        Union[FileContent, DirectoryContent, NotebookContent],
+        Field(discriminator="type")
+    ]

@@ -13,7 +13,7 @@ import ssl
 import urllib.parse
 from urllib.parse import urlparse, urlunparse
 
-from .schema import CodeCell, CellMetadata, Output, ExecuteResult, DisplayData, Stream, Error, Notebook
+from .schema import CodeCell, CellMetadata, Output, ExecuteResult, DisplayData, Stream, Error, Notebook, ContentResponseModel
 import logging
 import os
 import requests
@@ -476,3 +476,23 @@ def add_new_cell_to_notebook(notebook_path: str, cell: CodeCell) -> None:
     response.raise_for_status()
     return
 
+
+def get_content(file_path: str) -> ContentResponseModel:
+    # Get environment variables
+    server_url = os.getenv('JUPYTER_SERVER_URL') # here SERVER_URL should be {schema}://{host}:{port}/{base_url}
+    server_token = os.getenv('JUPYTER_SERVER_TOKEN')
+
+    if not server_url or not server_token:
+        raise ValueError("Both JUPYTER_SERVER_URL and JUPYTER_SERVER_TOKEN environment variables must be set")
+
+    # Construct the API endpoint
+    api_url = f"{server_url}/api/contents/{file_path}?token={server_token}"
+
+    # Send GET request to retrieve file content
+    response = requests.get(api_url)
+    response.raise_for_status()  # Raise an exception for bad status codes
+
+    # Parse the response and validate the model
+    content_model = ContentResponseModel.model_validate(response.json())
+
+    return content_model
