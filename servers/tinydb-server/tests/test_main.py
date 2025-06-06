@@ -12,10 +12,10 @@ class TestTinyDBServer(unittest.TestCase):
     def setUp(self):
         """Set up for test methods."""
         self.test_db_file = 'test_db.json'
-        tinydb_main.DB_FILE = self.test_db_file # Set the global DB_FILE in main module
-        # Call get_db() to ensure it re-initializes with the test_db_file
-        # This will also handle closing the old db if it was open
-        tinydb_main.get_db()
+        # Call get_db() with the test_db_file path.
+        # This will ensure the db instance in tinydb_main uses this file
+        # and also sets the internal _db_file_path_for_get_db for subsequent calls within tools.
+        tinydb_main.get_db(db_file_path_from_arg=self.test_db_file)
 
     def tearDown(self):
         """Tear down after test methods."""

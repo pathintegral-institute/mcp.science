@@ -1,36 +1,58 @@
 from mcp.server.fastmcp import FastMCP
 from mcp.types import TextContent
 import logging
-import os # Added import
+import os
+import argparse # Added import
+import sys # Added import
 from tinydb import TinyDB, Query, where
 
-# Set up logging
+# Set up logging (ensure this is done before any logs are emitted if main is called as script)
+# By default, basicConfig sends logs to sys.stderr if 'stream' is not specified.
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(name)s - %(message)s'
+    # stream=sys.stderr # This is the default, explicitly stating it is optional
 )
 logger = logging.getLogger("tinydb-server")
 
-# Initialize TinyDB
-DB_FILE = os.getenv('MCP_TINYDB_FILE', 'db.json')
-# db will be initialized by get_db() on first use or when DB_FILE changes.
+# Global db instance, will be initialized by get_db after parsing args.
 db = None
+# This will hold the db file path received from argparse or set by tests.
+# It's needed by get_db to know which file to (re)initialize.
+_db_file_path_for_get_db = None
 
-def get_db():
-    """Gets the TinyDB instance, re-initializes if DB_FILE changed or not initialized."""
-    global db # Our global db instance
-    # Access the global DB_FILE, which might be changed by tests
-    # (Need to ensure global DB_FILE is accessible and modifiable)
-    global DB_FILE
+
+def get_db(db_file_path_from_arg=None):
+    """
+    Gets the TinyDB instance. Initializes or re-initializes if the target db_file_path changes
+    or if it's not initialized.
+    The path for the DB is determined by:
+    1. db_file_path_from_arg (if provided, typically from CLI or direct test call)
+    2. _db_file_path_for_get_db (global, set by main() from CLI or by tests)
+    """
+    global db
+    global _db_file_path_for_get_db
+
+    target_db_path = db_file_path_from_arg if db_file_path_from_arg else _db_file_path_for_get_db
+
+    if not target_db_path:
+        # This case should ideally not be hit if main() correctly sets _db_file_path_for_get_db
+        logger.error("Database file path not set. Using default 'db.json'.")
+        target_db_path = 'db.json'
+
+    # Update the global path if a new one was explicitly passed via argument (e.g. from test setup)
+    if db_file_path_from_arg:
+        _db_file_path_for_get_db = db_file_path_from_arg
 
     current_storage_path = None
-    if db and db._storage: # Check if db is initialized and has storage
+    if db and db._storage:
         current_storage_path = db._storage.path
 
-    if db is None or current_storage_path != DB_FILE:
-        if db: # If db exists and path is different, close it
+    if db is None or current_storage_path != target_db_path:
+        if db:
             db.close()
-        db = TinyDB(DB_FILE) # Re-initialize with the potentially new DB_FILE
+        logger.info(f"Initializing TinyDB with file: {target_db_path}")
+        db = TinyDB(target_db_path)
     return db
 
 # Create the MCP server object
@@ -185,8 +207,27 @@ def drop_table(table_name: str) -> TextContent:
 
 # This is the main entry point for your server
 def main():
-    logger.info('Starting tinydb-server')
-    get_db() # Initialize db on start
+    parser = argparse.ArgumentParser(description="MCP TinyDB Server")
+    parser.add_argument(
+        "--db-file",
+        type=str,
+        default="db.json",
+        help="Path to the TinyDB JSON file (default: db.json)",
+    )
+    args = parser.parse_args(sys.argv[1:]) # Use only arguments after script name
+
+    global _db_file_path_for_get_db
+    _db_file_path_for_get_db = args.db_file
+
+    # Initialize logging (already done at module level, but good to be aware if it were conditional)
+    # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
+    # logger = logging.getLogger("tinydb-server") # Also already done
+
+    logger.info(f"Starting tinydb-server. Database file: {args.db_file}")
+
+    # Initialize the database with the path from arguments
+    get_db(args.db_file) # This will set and use args.db_file
+
     mcp.run('stdio')
 
 if __name__ == "__main__":

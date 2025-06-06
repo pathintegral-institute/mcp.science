@@ -182,11 +182,21 @@ First, navigate to the `servers/tinydb-server` directory and install the depende
 pip install -e .
 ```
 
-Then, run the server from that directory:
+Then, run the server from that directory.
 
+To use the default database file (`db.json` in the current directory):
 ```bash
 tinydb-server
 ```
 
+To specify a custom database file path, use the `--db-file` argument:
+```bash
+tinydb-server --db-file /path/to/your/custom_database.json
+```
+Or, for a file in the current directory:
+```bash
+tinydb-server --db-file my_data.json
+```
+
 This will start the server and make it available for the MCP to connect to via stdio.
-The database file (`db.json` by default) will be created in the same directory where you run the command.
+The server will create the database file if it doesn't already exist at the specified path.
