@@ -10,7 +10,7 @@ Before using the Jupyter Act MCP Server, install the following dependencies:
 
 ```bash
 # Install Jupyter related dependencies
-pip install jupyterlab==4.4.1 jupyter-collaboration==4.0.2 ipykernel
+pip install jupyterlab jupyter-collaboration ipykernel
 ```
 
 ### Environment Variables Configuration
