@@ -53,12 +53,12 @@ Use the `uvx` command-line tool to install and start the MCP Server:
 ```json
 {
   "mcpServers": {
-    "jupyter-code-execution": {
+    "jupyter-act": {
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/pathintegral-institute/mcp.science@main#subdirectory=servers/jupyter-code-execution",
-        "mcp-jupyter-code-execution"
+        "git+https://github.com/pathintegral-institute/mcp.science@main#subdirectory=servers/jupyter-act",
+        "mcp-jupyter-act"
       ],
       "env": {
         "JUPYTER_SERVER_URL": "${JUPYTER_SERVER_URL}",
@@ -109,7 +109,7 @@ Add a new cell to the specified notebook.
 
 ### 4. replace_cell
 
-Replace the given cell in the notebook.
+Replace the given cell in the notebook. ⚠️ **WARNING: This is a high-risk operation** that will modify the notebook content without user confirmation. Use with extreme caution and only when absolutely necessary.
 
 **Parameters**:
 - `notebook_path`: Relative path to the notebook file
@@ -121,23 +121,23 @@ Replace the given cell in the notebook.
 
 ### 5. read_jupyter_file
 
-Read file content. For regular files, returns the entire content; for .ipynb files, returns notebook cells in pages.
+Read file content. For regular files, returns the entire content; for .ipynb files, returns notebook cells in pages. Each read returns metadata containing cursor, has_more, and reverse values for subsequent reads.
 
 **Parameters**:
-- `file_path`: File path, supports both regular files and .ipynb files
-- `cursor`: Starting position, only applies to .ipynb files
-- `cell_count`: Number of cells to read, only applies to .ipynb files
-- `reverse`: Reading direction, only applies to .ipynb files
+- `file_path`: File path, supports both regular files and .ipynb files (relative path to the working directory)
+- `cursor`: Starting position for reading, only applies to .ipynb files (default: 0). Use 0 for first read, then use the cursor value from previous read's metadata
+- `cell_count`: Number of cells to read, only applies to .ipynb files (default: 10)
+- `reverse`: Reading direction, only applies to .ipynb files (default: true). True means read from end to beginning, False means read from beginning to end
 
 **Returns**:
-- File content or notebook cell content
+- File content or notebook cell content with pagination metadata
 
 ### 6. list_jupyter_files
 
-List files in the specified directory.
+List files in the Jupyter workspace. To list files in the root directory, provide an empty string as file_path.
 
 **Parameters**:
-- `file_path`: Relative path to the working directory
+- `file_path`: Relative path to list files from (default: ""). Use empty string for root directory, or a path like 'subfolder/' for subdirectories
 
 **Returns**:
 - List of files and subdirectories in the directory
@@ -147,3 +147,4 @@ List files in the specified directory.
 1. Ensure the Jupyter server is running and accessible
 2. Make sure environment variables are correctly configured
 3. Before executing code, ensure the corresponding notebook is opened and with a kernel running
+4. The `replace_cell` tool is a high-risk operation - use with extreme caution as it modifies notebook content without user confirmation
