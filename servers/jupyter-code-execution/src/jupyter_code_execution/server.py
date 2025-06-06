@@ -199,10 +199,12 @@ def _handle_notebook_content(notebook_content: NotebookContent, cursor: int, cel
 
     # calculate the cell range to return
     if reverse:
-        start = max(0, total_cells - cursor - cell_count)
-        end = max(0, total_cells - cursor)
+        # Ensure we don't go beyond available cells
+        actual_cursor = min(cursor, total_cells)
+        start = max(0, total_cells - actual_cursor - cell_count)
+        end = total_cells - actual_cursor
         selected_cells = cells[start:end]
-        new_cursor = cursor + (end - start)  # Update cursor by the actual number of cells read
+        new_cursor = actual_cursor + (end - start)  # Update cursor by the actual number of cells read
         has_more = start > 0  # More content if we haven't reached the beginning
     else:
         start = min(cursor, total_cells)
@@ -318,8 +320,17 @@ def _handle_notebook_content(notebook_content: NotebookContent, cursor: int, cel
     description="List files in the given file path. Use this tool to navigate and explore subdirectories after discovering the root directory structure. Provide a relative path to browse specific folders within the workspace."
 )
 def list_files(
-    file_path: Annotated[str, Field(...,description="Relative path to the working directory")],
-) -> list[TextContent]:
+     file_path: Annotated[str, Field(...,description="Relative path to the working directory")],
+ ) -> list[TextContent]:
+    # Validate path to prevent directory traversal
+    if ".." in file_path:
+        return [
+            TextContent(
+                type="text",
+                text="Invalid path: Directory traversal are not allowed"
+            )
+        ]
+
     try:
         contents = cast(DirectoryContent, get_content(file_path).root)
     except Exception as e:
