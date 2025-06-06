@@ -13,7 +13,7 @@ import ssl
 import urllib.parse
 from urllib.parse import urlparse, urlunparse
 
-from .schema import CodeCell, CellMetadata, Output, ExecuteResult, DisplayData, Stream, Error, Notebook, ContentResponseModel
+from .schema import Cell, CodeCell, CellMetadata, Output, ExecuteResult, DisplayData, Stream, Error, Notebook, ContentResponseModel
 import logging
 import os
 import requests
@@ -22,6 +22,7 @@ from contextlib import AbstractContextManager
 logger = logging.getLogger(__name__)
 
 JUPYTER_RUNTIME_PATH = jupyter_runtime_dir()
+DEFAULT_EXECUTION_WAIT_TIMEOUT = 60
 
 def find_connection_info_file_path(kernel_id: str) -> Optional[str]:
     """
@@ -422,6 +423,19 @@ class RemoteKernelClientManager(AbstractContextManager):
         return self.ws_connected and self.ws is not None
 
 
+def execute_code_with_client(kernel_id: str, code: str) -> tuple[CodeCell, bool]:
+
+    with RemoteKernelClientManager(kernel_id) as client:
+        # execute code
+        code_cell, run_timeout = execute_and_capture_output(
+            client,
+            code,
+            read_channel_timeout=1,
+            execution_timeout=int(os.getenv("WAIT_EXECUTION_TIMEOUT", DEFAULT_EXECUTION_WAIT_TIMEOUT))
+        )
+
+    return code_cell, run_timeout
+
 def get_kernel_by_notebook_path(notebook_path: str) -> Optional[str]:
     """Get kernel id by notebook path (here notebook path should be a relative path according to the root dir of the jupyter server)"""
     # Get environment variables
@@ -447,7 +461,7 @@ def get_kernel_by_notebook_path(notebook_path: str) -> Optional[str]:
 
     return None
 
-def add_new_cell_to_notebook(notebook_path: str, cell: CodeCell) -> None:
+def add_new_cell_to_notebook(notebook_path: str, cell: Cell) -> None:
     """Add new cell to notebook"""
     # Get environment variables
     server_url = os.getenv('JUPYTER_SERVER_URL') # here SERVER_URL should be {schema}://{host}:{port}/{base_url}
@@ -470,6 +484,40 @@ def add_new_cell_to_notebook(notebook_path: str, cell: CodeCell) -> None:
     # Update the notebook
     response = requests.put(api_url, json={
         "content": notebook_model.model_dump(),
+        "type": "notebook",
+        "format": "json"
+    })
+    response.raise_for_status()
+    return
+
+
+def locate_idx_for_cell_with_given_id(notebook_model: Notebook, cell_id: str) -> Optional[int]:
+    cell_idx_to_replace = next(
+        (idx for idx, cell in enumerate(notebook_model.cells) if cell.id == cell_id),
+        None
+    )
+
+    return cell_idx_to_replace
+
+
+def replace_cell_in_notebook(notebook_path: str, notebook: Notebook, cell: Cell, cell_idx: int) -> None:
+    """ we should replace the cell with the given idx with the cell
+    """
+    # Get environment variables
+    server_url = os.getenv('JUPYTER_SERVER_URL') # here SERVER_URL should be {schema}://{host}:{port}/{base_url}
+    server_token = os.getenv('JUPYTER_SERVER_TOKEN')
+
+    if not server_url or not server_token:
+        raise ValueError("Both JUPYTER_SERVER_URL and JUPYTER_SERVER_TOKEN environment variables must be set")
+
+    # Construct the API endpoint
+    api_url = f"{server_url}/api/contents/{notebook_path}?token={server_token}"
+    # Replace the cell
+    notebook.cells[cell_idx] = cell
+
+    # Update the notebook
+    response = requests.put(api_url, json={
+        "content": notebook.model_dump(),
         "type": "notebook",
         "format": "json"
     })

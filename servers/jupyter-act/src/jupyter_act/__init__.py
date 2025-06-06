@@ -1,4 +1,5 @@
-from .server import mcp, DEFAULT_EXECUTION_WAIT_TIMEOUT
+from .server import mcp
+from .utils import DEFAULT_EXECUTION_WAIT_TIMEOUT
 import argparse
 import os
 import logging

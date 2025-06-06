@@ -1,12 +1,12 @@
-# Jupyter MCP Server For AI Agents
+# Jupyter Act MCP Server For AI Agents
 
-Jupyter MCP Server is a Model Context Protocol (MCP) server that allows AI agents to interact with Jupyter environments, execute code, and retrieve results. This server provides a set of tools enabling AI to execute Python code in Jupyter Notebooks and return results in Jupyter Notebook compatible JSON format.
+Jupyter Act MCP Server is a Model Context Protocol (MCP) server that allows AI agents to interact with Jupyter environments, execute code, and retrieve results. This server provides a set of tools enabling AI to execute Python code in Jupyter Notebooks and return results in Jupyter Notebook compatible JSON format.
 
 ## Environment Setup
 
 ### Dependencies Installation
 
-Before using the Jupyter MCP Server, install the following dependencies:
+Before using the Jupyter Act MCP Server, install the following dependencies:
 
 ```bash
 # Install Jupyter related dependencies
@@ -71,7 +71,7 @@ Use the `uvx` command-line tool to install and start the MCP Server:
 
 ## Tools Description
 
-Jupyter MCP Server provides the following tools:
+Jupyter Act MCP Server provides the following tools:
 
 ### 1. execute_code
 
@@ -95,7 +95,31 @@ Add a new code cell to the specified notebook and execute it.
 **Returns**:
 - Execution results, including standard output, error messages, execution results, etc.
 
-### 3. read_file_from_jupyter_workdir
+### 3. add_cell
+
+Add a new cell to the specified notebook.
+
+**Parameters**:
+- `cell_type`: Cell type, should be 'code' or 'markdown' or 'raw'
+- `notebook_path`: Relative path to the notebook file
+- `cell_content`: The content to add to the cell
+
+**Returns**:
+- Cell added successfully
+
+### 4. replace_cell
+
+Replace the given cell in the notebook.
+
+**Parameters**:
+- `notebook_path`: Relative path to the notebook file
+- `cell_id_to_replace`: The id of the cell to replace
+- `cell_content`: The Cell Content to replace
+
+**Returns**:
+- Cell replaced successfully
+
+### 5. read_jupyter_file
 
 Read file content. For regular files, returns the entire content; for .ipynb files, returns notebook cells in pages.
 
@@ -108,7 +132,7 @@ Read file content. For regular files, returns the entire content; for .ipynb fil
 **Returns**:
 - File content or notebook cell content
 
-### 4. list_files_from_jupyter_workdir
+### 6. list_jupyter_files
 
 List files in the specified directory.
 
@@ -117,16 +141,6 @@ List files in the specified directory.
 
 **Returns**:
 - List of files and subdirectories in the directory
-
-### 5. list_root_files_from_jupyter_workdir
-
-List files in the Jupyter root directory.
-
-**Parameters**:
-- None
-
-**Returns**:
-- List of files and subdirectories in the root directory
 
 ## Important Notes
 

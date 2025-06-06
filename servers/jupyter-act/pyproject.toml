@@ -1,7 +1,7 @@
 [project]
-name = "jupyter-code-execution"
+name = "jupyter-act"
 version = "0.1.0"
-description = "Jupyter MCP Server for Code Execution"
+description = "Jupyter MCP Server for Acting on Jupyter Notebooks"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
@@ -12,7 +12,7 @@ dependencies = [
 ]
 
 [project.scripts]
-mcp-jupyter-code-execution = "jupyter_code_execution:main"
+mcp-jupyter-act = "jupyter_act:main"
 
 [build-system]
 requires = ["hatchling"]

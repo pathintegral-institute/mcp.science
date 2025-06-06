@@ -1,14 +1,19 @@
-import os
 import logging
 import json
-from typing import Annotated, cast
+from typing import Annotated, cast, Literal
 from mcp.server import FastMCP
 from pydantic import Field
 from mcp.types import ImageContent, TextContent
-from jupyter_code_execution.schema import DirectoryContent, FileContent, NotebookContent
-from jupyter_code_execution.utils import add_new_cell_to_notebook, execute_and_capture_output, get_kernel_by_notebook_path, RemoteKernelClientManager, get_content
-
-DEFAULT_EXECUTION_WAIT_TIMEOUT = 60
+from jupyter_act.schema import DirectoryContent, FileContent, NotebookContent, Notebook, CodeCell, MarkdownCell, RawCell, CellMetadata
+from jupyter_act.utils import (
+    add_new_cell_to_notebook,
+    execute_code_with_client,
+    get_kernel_by_notebook_path,
+    get_content,
+    replace_cell_in_notebook,
+    locate_idx_for_cell_with_given_id
+)
+import uuid
 
 mcp = FastMCP(name="jupyter", description="Jupyter MCP Server for Code Execution")
 logger = logging.getLogger(__name__)
@@ -20,46 +25,33 @@ logger = logging.getLogger(__name__)
 def execute_code(
     notebook_path: Annotated[str, Field(..., description="A relative path to the notebook file")],
     code: Annotated[str, Field(..., description="Code to execute")],
-) -> list[TextContent]:
+) -> TextContent:
     """ Execute code in a notebook with specific notebook path """
     kernel_id = get_kernel_by_notebook_path(notebook_path)
     if kernel_id is None:
-        return [
-            TextContent(
+        return TextContent(
                 type="text",
                 text=f"Can not find kernel id with notebook path: {notebook_path}, please make sure the session is running on this notebook"
             )
-        ]
 
     # use context manager to manage client resources
-    with RemoteKernelClientManager(kernel_id) as client:
-        # execute code
-        code_cell, run_timeout = execute_and_capture_output(
-            client,
-            code,
-            read_channel_timeout=1,
-            execution_timeout=int(os.getenv("WAIT_EXECUTION_TIMEOUT", DEFAULT_EXECUTION_WAIT_TIMEOUT))
-        )
+    code_cell, run_timeout = execute_code_with_client(kernel_id, code)
 
     if run_timeout:
-        return [
-            TextContent(
+        return TextContent(
                 type="text",
                 text="Waiting execution result timed out. The kernel may still be running the code."
             )
-        ]
 
-    return [
-        TextContent(
+    return TextContent(
             type="text",
             text=code_cell.model_dump_json()
         )
-    ]
 
 
 @mcp.tool(
     name="add_cell_and_execute_code",
-    description="Add a cell to the notebook and execute it"
+    description="Add a code cell to the notebook and execute it"
 )
 def add_cell_and_execute_code(
     notebook_path: Annotated[str, Field(..., description="A relative path to the notebook file")],
@@ -76,14 +68,7 @@ def add_cell_and_execute_code(
         ]
 
     # use context manager to manage client resources
-    with RemoteKernelClientManager(kernel_id) as client:
-        # execute code
-        code_cell, run_timeout = execute_and_capture_output(
-            client,
-            code,
-            read_channel_timeout=1,
-            execution_timeout=int(os.getenv("WAIT_EXECUTION_TIMEOUT", DEFAULT_EXECUTION_WAIT_TIMEOUT))
-        )
+    code_cell, run_timeout = execute_code_with_client(kernel_id, code)
 
     if run_timeout:
         return [
@@ -112,7 +97,109 @@ def add_cell_and_execute_code(
     ]
 
 @mcp.tool(
-    name="read_file_from_jupyter_workdir",
+    name="add_cell",
+    description="""
+    Add a cell to the notebook. you can add a cell to the notebook with type: code, markdown and raw.
+    """
+)
+def add_cell(
+    cell_type: Annotated[Literal["code", "markdown", "raw"], Field(..., description="Cell type, should be 'code' or 'markdown' or 'raw'")],
+    notebook_path: Annotated[str, Field(..., description="A relative path to the notebook file")],
+    cell_content: Annotated[str, Field(..., description="the content to add to the cell")],
+) -> TextContent:
+    """ Add a cell to the notebook """
+    # Create a new cell based on cell_type
+    if cell_type == "code":
+        cell = CodeCell(
+            id=str(uuid.uuid4()),
+            cell_type="code",
+            metadata=CellMetadata(),
+            source=cell_content,
+            outputs=[],
+            execution_count=None
+        )
+    elif cell_type == "markdown":
+        cell = MarkdownCell(
+            id=str(uuid.uuid4()),
+            cell_type="markdown",
+            metadata=CellMetadata(),
+            source=cell_content
+        )
+    elif cell_type == "raw":
+        cell = RawCell(
+            id=str(uuid.uuid4()),
+            cell_type="raw",
+            metadata=CellMetadata(),
+            source=cell_content
+        )
+    else:
+        pass
+
+    try:
+        add_new_cell_to_notebook(notebook_path, cell)
+    except Exception as e:
+        return TextContent(
+                type="text",
+                text=f"Failed to add cell to notebook: {e}"
+            )
+
+    return TextContent(
+            type="text",
+            text="Cell added successfully"
+        )
+
+@mcp.tool(
+    name="replace_cell",
+    description="Replace the given cell in the notebook. WARNING: This is a high-risk operation that will modify the notebook content without user confirmation. Use with extreme caution and only when absolutely necessary. Ensure you have verified the cell ID and content before proceeding, as this action cannot be undone and may result in data loss if used incorrectly."
+)
+def replace_cell(
+    notebook_path: Annotated[str, Field(..., description="A relative path to the notebook file")],
+    cell_id_to_replace: Annotated[str, Field(..., description="The id of the cell to replace")],
+    cell_content: Annotated[str, Field(..., description="The Cell Content to replace")],
+) -> TextContent:
+
+    # create a code cell with the given content
+    cell = CodeCell(
+        id=str(uuid.uuid4()),
+        cell_type="code",
+        metadata=CellMetadata(),
+        source=cell_content,
+        outputs=[],
+        execution_count=None
+    )
+    # probably we should first validate that there do exists a cell with the given cell id
+    try:
+        notebook_content = get_content(notebook_path)
+    except Exception as e:
+        return TextContent(
+                type="text",
+                text=f"Failed to get notebook content: {e}"
+            )
+
+    notebook = cast(Notebook, notebook_content.root.content)
+    cell_idx = locate_idx_for_cell_with_given_id(notebook, cell_id_to_replace)
+    if cell_idx is None:
+        return TextContent(
+                type="text",
+                text=f"Can not find cell with id: {cell_id_to_replace}"
+            )
+    # replace cell
+    try:
+        replace_cell_in_notebook(notebook_path, notebook, cell, cell_idx)
+    except Exception as e:
+        return TextContent(
+                type="text",
+                text=f"Failed to replace cell: {e}"
+            )
+
+    return TextContent(
+            type="text",
+            text="Cell replaced successfully"
+        )
+
+
+@mcp.tool(
+    name="read_jupyter_file",
     description="Read file content. For regular files, returns the entire content; for .ipynb files, returns notebook cells in pages. Each read returns metadata containing cursor, has_more, and reverse values for subsequent reads. For example, if returned metadata is {\"cursor\": 10, \"has_more\": true}, the next read should use {\"cursor\": 10} as parameter."
 )
 def read_content(
@@ -316,11 +403,11 @@ def _handle_notebook_content(notebook_content: NotebookContent, cursor: int, cel
 
 
 @mcp.tool(
-    name="list_files_from_jupyter_workdir",
-    description="List files in the given file path. Use this tool to navigate and explore subdirectories after discovering the root directory structure. Provide a relative path to browse specific folders within the workspace."
+    name="list_jupyter_files",
+    description="List files in the Jupyter workspace. To list files in the root directory, provide an empty string as file_path. To explore subdirectories, provide a relative path (e.g., 'subfolder/'). This tool helps you navigate and explore the workspace structure. Start with an empty path to discover the root directory contents first, then use specific paths to browse subdirectories."
 )
-def list_files(
-     file_path: Annotated[str, Field(...,description="Relative path to the working directory")],
+def list_jupyter_files(
+     file_path: Annotated[str, Field(default="", description="Relative path to list files from. Use empty string for root directory, or a path like 'subfolder/' for subdirectories")],
  ) -> list[TextContent]:
     # Validate path to prevent directory traversal
     if ".." in file_path:
@@ -333,28 +420,6 @@ def list_files(
 
     try:
         contents = cast(DirectoryContent, get_content(file_path).root)
-    except Exception as e:
-        return [
-            TextContent(
-                type="text",
-                text=f"Failed to list files: {e}"
-            )
-        ]
-    return [
-        TextContent(
-            type="text",
-            text=content.model_dump_json()
-        ) for content in contents.content
-    ]
-
-
-@mcp.tool(
-    name="list_root_files_from_jupyter_workdir",
-    description="List files in the jupyter root directory. This should be used as the starting point for file exploration before navigating to specific subdirectories. Call this tool first to discover available files and directories in the workspace root."
-)
-def list_root_files() -> list[TextContent]:
-    try:
-        contents = cast(DirectoryContent, get_content("").root)
     except Exception as e:
         return [
             TextContent(
