@@ -1,0 +1,20 @@
+[project]
+name = "tinydb-server"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.6.0",
+    "tinydb>=4.0.0", # Using a more specific version constraint
+]
+
+[project.scripts]
+tinydb-server = "tinydb_server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0.0"]
