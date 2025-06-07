@@ -1,9 +1,10 @@
 from mcp.server.fastmcp import FastMCP
-from mcp.types import TextContent
+# TextContent import removed
 import logging
 import os
 import argparse # Added import
 import sys # Added import
+import json # Added import
 from tinydb import TinyDB, Query, where
 
 # Set up logging (ensure this is done before any logs are emitted if main is called as script)
@@ -59,7 +60,7 @@ def get_db(db_file_path_from_arg=None):
 mcp = FastMCP()
 
 @mcp.tool()
-def create_table(table_name: str) -> TextContent:
+def create_table(table_name: str) -> str:
     """Creates a new table in the database.
 
     Args:
@@ -70,10 +71,10 @@ def create_table(table_name: str) -> TextContent:
     """
     current_db = get_db()
     current_db.table(table_name)
-    return TextContent(text=f"Table '{table_name}' created successfully.")
+    return f"Table '{table_name}' created successfully."
 
 @mcp.tool()
-def insert_document(table_name: str, document: dict) -> TextContent:
+def insert_document(table_name: str, document: dict) -> str:
     """Inserts a document into the specified table.
 
     Args:
@@ -86,10 +87,10 @@ def insert_document(table_name: str, document: dict) -> TextContent:
     current_db = get_db()
     table = current_db.table(table_name)
     doc_id = table.insert(document)
-    return TextContent(text=str(doc_id))
+    return str(doc_id)
 
 @mcp.tool()
-def query_documents(table_name: str, query_params: dict = None) -> TextContent:
+def query_documents(table_name: str, query_params: dict = None) -> str:
     """Queries documents from the specified table.
 
     Args:
@@ -98,7 +99,7 @@ def query_documents(table_name: str, query_params: dict = None) -> TextContent:
                       Example: {"name": "John", "age": 30}
 
     Returns:
-        A list of matching documents.
+        A JSON string list of matching documents.
     """
     current_db = get_db()
     table = current_db.table(table_name)
@@ -118,10 +119,10 @@ def query_documents(table_name: str, query_params: dict = None) -> TextContent:
             results = table.all()
     else:
         results = table.all()
-    return TextContent(text=str(results))
+    return json.dumps(results)
 
 @mcp.tool()
-def update_documents(table_name: str, query_params: dict, update_data: dict) -> TextContent:
+def update_documents(table_name: str, query_params: dict, update_data: dict) -> str:
     """Updates documents in the specified table.
 
     Args:
@@ -144,13 +145,13 @@ def update_documents(table_name: str, query_params: dict, update_data: dict) -> 
     if condition is not None:
         updated_count = table.update(update_data, condition)
     else: # No query_params provided, should not happen based on signature but handle defensively
-        return TextContent(text="Error: query_params cannot be empty for update.")
+        return "Error: query_params cannot be empty for update."
 
-    return TextContent(text=str(len(updated_count)))
+    return str(len(updated_count))
 
 
 @mcp.tool()
-def delete_documents(table_name: str, query_params: dict) -> TextContent:
+def delete_documents(table_name: str, query_params: dict) -> str:
     """Deletes documents from the specified table.
 
     Args:
@@ -172,12 +173,12 @@ def delete_documents(table_name: str, query_params: dict) -> TextContent:
     if condition is not None:
         deleted_ids = table.remove(condition)
     else: # No query_params provided, should not happen based on signature but handle defensively
-        return TextContent(text="Error: query_params cannot be empty for delete.")
+        return "Error: query_params cannot be empty for delete."
 
-    return TextContent(text=str(len(deleted_ids)))
+    return str(len(deleted_ids))
 
 @mcp.tool()
-def purge_table(table_name: str) -> TextContent:
+def purge_table(table_name: str) -> str:
     """Removes all documents from the specified table.
 
     Args:
@@ -189,10 +190,10 @@ def purge_table(table_name: str) -> TextContent:
     current_db = get_db()
     table = current_db.table(table_name)
     table.truncate()
-    return TextContent(text=f"Table '{table_name}' purged successfully.")
+    return f"Table '{table_name}' purged successfully."
 
 @mcp.tool()
-def drop_table(table_name: str) -> TextContent:
+def drop_table(table_name: str) -> str:
     """Drops the specified table from the database.
 
     Args:
@@ -203,10 +204,10 @@ def drop_table(table_name: str) -> TextContent:
     """
     current_db = get_db()
     current_db.drop_table(table_name)
-    return TextContent(text=f"Table '{table_name}' dropped successfully.")
+    return f"Table '{table_name}' dropped successfully."
 
-# This is the main entry point for your server
-def main():
+# This is the main entry point for your server when run as a script
+def server_main():
     parser = argparse.ArgumentParser(description="MCP TinyDB Server")
     parser.add_argument(
         "--db-file",
@@ -231,4 +232,4 @@ def main():
     mcp.run('stdio')
 
 if __name__ == "__main__":
-    main()
+    server_main()
