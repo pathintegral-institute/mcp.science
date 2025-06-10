@@ -231,7 +231,7 @@ def perform_calculation_service(input_info: CalculationInfo,
         input_ckpt_file_path = getattr(input_info, 'ckpt_file_path', None)
         if not input_ckpt_file_path or not os.path.exists(input_ckpt_file_path):
             raise ValueError(
-                "Input ckpt_file_path is empty. A ckpt file with charge density isrequired for band calculation.")
+                "Input ckpt_file_path is empty. A ckpt file with charge density isrequired for band calculation. Maybe run relax or ground_state calculation first.")
         else:
             calc = GPAW(input_ckpt_file_path, txt=None)
             if not hasattr(calc, 'density') or calc.density is None:
