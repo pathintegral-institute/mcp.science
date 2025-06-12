@@ -216,7 +216,7 @@ def server_main():
         default="db.json",
         help="Path to the TinyDB JSON file (default: db.json)",
     )
-    args = parser.parse_args(sys.argv[1:]) # Use only arguments after script name
+    args = parser.parse_args() # Let argparse handle sys.argv automatically
 
     global _db_file_path_for_get_db
     _db_file_path_for_get_db = args.db_file
