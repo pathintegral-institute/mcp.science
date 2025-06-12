@@ -66,6 +66,26 @@ A versatile mcp server that allows AI assistants to fetch and process HTML, PDF,
 
 A specialized mcp server that enables AI assistants to perform academic and scholarly searches, general web searches, or automatically select the best search type based on the query. A TXYZ API key is required.
 
+#### [GPAW Computation](./servers/gpaw-computation/)
+
+A specialized mcp server that allows AI assistants to run density-functional theory (DFT) calculations using the GPAW code, making it possible to perform first-principles computations and analyse results directly from the chat.
+
+#### [Jupyter-Act](./servers/jupyter-act/)
+
+An mcp server that lets AI assistants connect to a running JupyterLab instance, execute code inside notebooks, and return results in notebook-compatible JSON format.
+
+#### [Mathematica Check](./servers/mathematica-check/)
+
+Enables AI assistants to execute Mathematica code via `wolframscript`, verify mathematical derivations, and return results in LaTeX, text or Mathematica formats.
+
+#### [NEMAD](./servers/nemad/)
+
+Provides search tools for the North East Materials Database (NEMAD), allowing AI assistants to query magnetic, thermoelectric, and superconductor materials data with an API key.
+
+#### [TinyDB Server](./servers/tinydb-server/)
+
+Demonstrates a lightweight TinyDB-backed mcp server for creating, querying, updating, and deleting JSON documents in local databases.
+
 ## How to integrate MCP servers into LLM
 
 If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-step-by-step.md)
