@@ -1,25 +1,21 @@
 from mcp.server.fastmcp import FastMCP
-# TextContent import removed
 import logging
 import os
-import argparse # Added import
-import sys # Added import
-import json # Added import
+import argparse
+import sys
+import json
 from tinydb import TinyDB, Query, where
 
-# Set up logging (ensure this is done before any logs are emitted if main is called as script)
-# By default, basicConfig sends logs to sys.stderr if 'stream' is not specified.
+# Set up logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(name)s - %(message)s'
-    # stream=sys.stderr # This is the default, explicitly stating it is optional
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
 )
 logger = logging.getLogger("tinydb-server")
 
-# Global db instance, will be initialized by get_db after parsing args.
+# Global db instance
 db = None
-# This will hold the db file path received from argparse or set by tests.
-# It's needed by get_db to know which file to (re)initialize.
+# This will hold the db file path received from argparse or set by tests
 _db_file_path_for_get_db = None
 
 
@@ -56,10 +52,8 @@ def get_db(db_file_path_from_arg=None):
         db = TinyDB(target_db_path)
     return db
 
-# Create the MCP server object
 mcp = FastMCP()
 
-# Helper function to build a TinyDB query from a dictionary of parameters
 def _build_query(query_params: dict) -> Query | None:
     """
     Builds a TinyDB Query object from a dictionary of parameters.
@@ -203,28 +197,22 @@ def drop_table(table_name: str) -> str:
     current_db.drop_table(table_name)
     return f"Table '{table_name}' dropped successfully."
 
-# This is the main entry point for your server when run as a script
 def server_main():
     parser = argparse.ArgumentParser(description="MCP TinyDB Server")
     parser.add_argument(
         "--db-file",
         type=str,
         default="db.json",
-        help="Path to the TinyDB JSON file (default: db.json)",
+        help="Path to the TinyDB JSON file.",
     )
-    args = parser.parse_args(sys.argv[1:]) # Use only arguments after script name
+    args = parser.parse_args(sys.argv[1:])  # Use only arguments after script name
 
     global _db_file_path_for_get_db
     _db_file_path_for_get_db = args.db_file
 
-    # Initialize logging (already done at module level, but good to be aware if it were conditional)
-    # logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(name)s - %(message)s')
-    # logger = logging.getLogger("tinydb-server") # Also already done
-
     logger.info(f"Starting tinydb-server. Database file: {args.db_file}")
 
-    # Initialize the database with the path from arguments
-    get_db(args.db_file) # This will set and use args.db_file
+    get_db(args.db_file)
 
     mcp.run('stdio')
 
