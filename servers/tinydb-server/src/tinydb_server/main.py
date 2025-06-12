@@ -46,14 +46,15 @@ def get_db(db_file_path_from_arg=None):
         _db_file_path_for_get_db = db_file_path_from_arg
 
     current_storage_path = None
-    if db and db._storage:
-        current_storage_path = db._storage.path
+    if db:
+        current_storage_path = _db_file_path_for_get_db
 
     if db is None or current_storage_path != target_db_path:
         if db:
             db.close()
         logger.info(f"Initializing TinyDB with file: {target_db_path}")
         db = TinyDB(target_db_path)
+        _db_file_path_for_get_db = target_db_path
     return db
 
 # Create the MCP server object
