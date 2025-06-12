@@ -66,6 +66,22 @@ A versatile mcp server that allows AI assistants to fetch and process HTML, PDF,
 
 A specialized mcp server that enables AI assistants to perform academic and scholarly searches, general web searches, or automatically select the best search type based on the query. A TXYZ API key is required.
 
+#### [GPAW Computation](./servers/gpaw-computation/)
+
+A MCP server that lets AI assistants run atomistic density-functional theory (DFT) calculations with the GPAW package—ideal for generating high-fidelity materials-property data.  Requires access to a compute node with GPAW installed and, optionally, a Materials Project API key for structure retrieval.
+
+#### [Jupyter Act](./servers/jupyter-act/)
+
+Expose an existing JupyterLab instance to AI assistants so they can execute Python code cells remotely and return notebook-compatible outputs.  Useful for interactive data-science workflows that rely on the rich Jupyter execution environment.
+
+#### [Mathematica Check](./servers/mathematica-check/)
+
+Bridge Wolfram Mathematica to MCP, enabling assistants to run `wolframscript` commands for symbolic computations and to verify mathematical derivations produced by LLMs.  Requires a local Mathematica installation.
+
+#### [NEMAD](./servers/nemad/)
+
+Provide programmatic access to the North East Materials Database (NEMAD) so assistants can search magnetic, thermoelectric, and superconducting materials datasets.  An NEMAD API key is required.
+
 ## How to integrate MCP servers into LLM
 
 If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-step-by-step.md)
