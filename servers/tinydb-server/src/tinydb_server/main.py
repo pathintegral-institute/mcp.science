@@ -46,19 +46,37 @@ def get_db(db_file_path_from_arg=None):
         _db_file_path_for_get_db = db_file_path_from_arg
 
     current_storage_path = None
-    if db:
-        current_storage_path = _db_file_path_for_get_db
+    if db and db._storage:
+        current_storage_path = db._storage.path
 
     if db is None or current_storage_path != target_db_path:
         if db:
             db.close()
         logger.info(f"Initializing TinyDB with file: {target_db_path}")
         db = TinyDB(target_db_path)
-        _db_file_path_for_get_db = target_db_path
     return db
 
 # Create the MCP server object
 mcp = FastMCP()
+
+# Helper function to build a TinyDB query from a dictionary of parameters
+def _build_query(query_params: dict) -> Query | None:
+    """
+    Builds a TinyDB Query object from a dictionary of parameters.
+    Combines parameters with logical AND.
+    Returns None if query_params is empty or None.
+    """
+    if not query_params:
+        return None
+
+    final_query: Query = None
+    for key, value in query_params.items():
+        current_condition = (Query()[key] == value)
+        if final_query is None:
+            final_query = current_condition
+        else:
+            final_query &= current_condition
+    return final_query
 
 @mcp.tool()
 def create_table(table_name: str) -> str:
@@ -104,20 +122,10 @@ def query_documents(table_name: str, query_params: dict = None) -> str:
     """
     current_db = get_db()
     table = current_db.table(table_name)
-    if query_params:
-        # Simple query construction for exact matches
-        # For more complex queries, this part would need to be more sophisticated
-        # and potentially use `where()` syntax more directly.
-        condition = None
-        for key, value in query_params.items():
-            if condition is None:
-                condition = (Query()[key] == value)
-            else:
-                condition &= (Query()[key] == value)
-        if condition is not None:
-            results = table.search(condition)
-        else: # query_params was empty
-            results = table.all()
+    db_query = _build_query(query_params)
+
+    if db_query is not None:
+        results = table.search(db_query)
     else:
         results = table.all()
     return json.dumps(results)
@@ -136,19 +144,13 @@ def update_documents(table_name: str, query_params: dict, update_data: dict) -> 
     """
     current_db = get_db()
     table = current_db.table(table_name)
-    condition = None
-    for key, value in query_params.items():
-        if condition is None:
-            condition = (Query()[key] == value)
-        else:
-            condition &= (Query()[key] == value)
+    db_query = _build_query(query_params)
 
-    if condition is not None:
-        updated_count = table.update(update_data, condition)
-    else: # No query_params provided, should not happen based on signature but handle defensively
-        return "Error: query_params cannot be empty for update."
+    if db_query is None:
+        return "Error: Query parameters are required for update operations."
 
-    return str(len(updated_count))
+    updated_ids = table.update(update_data, db_query)
+    return str(len(updated_ids))
 
 
 @mcp.tool()
@@ -164,18 +166,12 @@ def delete_documents(table_name: str, query_params: dict) -> str:
     """
     current_db = get_db()
     table = current_db.table(table_name)
-    condition = None
-    for key, value in query_params.items():
-        if condition is None:
-            condition = (Query()[key] == value)
-        else:
-            condition &= (Query()[key] == value)
+    db_query = _build_query(query_params)
 
-    if condition is not None:
-        deleted_ids = table.remove(condition)
-    else: # No query_params provided, should not happen based on signature but handle defensively
-        return "Error: query_params cannot be empty for delete."
+    if db_query is None:
+        return "Error: Query parameters are required for delete operations."
 
+    deleted_ids = table.remove(db_query)
     return str(len(deleted_ids))
 
 @mcp.tool()
@@ -216,7 +212,7 @@ def server_main():
         default="db.json",
         help="Path to the TinyDB JSON file (default: db.json)",
     )
-    args = parser.parse_args() # Let argparse handle sys.argv automatically
+    args = parser.parse_args(sys.argv[1:]) # Use only arguments after script name
 
     global _db_file_path_for_get_db
     _db_file_path_for_get_db = args.db_file
