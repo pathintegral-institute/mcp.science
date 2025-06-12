@@ -1,0 +1,26 @@
+[project]
+name = "jupyter-act"
+version = "0.1.0"
+description = "Jupyter MCP Server for Acting on Jupyter Notebooks"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "jupyter-client>=8.6.3",
+    "jupyter-server>=2.16.0",
+    "mcp[cli]>=1.9.0",
+    "requests>=2.32.3",
+]
+
+[project.scripts]
+mcp-jupyter-act = "jupyter_act:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.uv]
+dev-dependencies = [
+    "ipython>=9.2.0",
+    "pyright>=1.1.389",
+    "ruff>=0.7.3",
+]

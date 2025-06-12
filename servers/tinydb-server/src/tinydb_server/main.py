@@ -69,7 +69,7 @@ def _build_query(query_params: dict) -> Query | None:
     if not query_params:
         return None
 
-    final_query: Query | None = None
+    final_query: Query = None
     for key, value in query_params.items():
         current_condition = (Query()[key] == value)
         if final_query is None:

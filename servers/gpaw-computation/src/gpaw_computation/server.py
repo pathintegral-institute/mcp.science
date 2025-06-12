@@ -190,12 +190,15 @@ async def start_calculation(
         f"-c {output_calculation_id}"
     )
     logger.info(f"Executing command: {shell_command}")
-    execute_command_on_server(shell_command)
+    _, _, stderr = execute_command_on_server(shell_command)
+    stderr_content = stderr.read().decode("utf-8")
 
     result = {
         "calculation_id": output_calculation_id,
         "project_id": project_id,
     }
+    if stderr_content:
+        result["error_log"] = stderr_content
     logger.info(f"Result: {result}")
     return TextContent(type="text", text=json.dumps(result))
 
