@@ -1,105 +1,44 @@
 import json
 import os
 from enum import StrEnum
-from typing import Annotated
+from typing import Annotated, List
 
 import httpx
 from mcp.shared.exceptions import McpError
-from mcp.types import INTERNAL_ERROR, ErrorData, TextContent
+from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, ImageContent
 from pydantic import AnyUrl, Field
 from mcp.server import FastMCP
+import requests
+import base64
 
-from .utils import (
-    convert_html_to_markdown,
-    convert_pdf_to_plain_text,
-    extract_media_type,
-)
-
-DEFAULT_USER_AGENT = "ModelContextProtocol/1.0 (User-Specified; +https://github.com/modelcontextprotocol/servers)"
-
-
-class ResponseMediaType(StrEnum):
-    HTML = "text/html"
-    PDF = "application/pdf"
-    JSON = "application/json"
-
-
-async def async_fetch(
-    url: str, user_agent: str, timeout: float = 30.0, follow_redirects: bool = True
-) -> httpx.Response:
-    """
-    fetch web content
+async def fetch(url: str, jina_api_key: str) -> List[TextContent]:
+    """Fetch a URL and return the content.
 
     Args:
-        url: target url
-        timeout: timeout in seconds
-        follow_redirects: whether to follow redirects
-    Returns:
-        httpx.Response: HTTP response object
+        url: The URL to fetch
+        jina_api_key: Jina API key
 
-    Raises:
-        McpError: when request fails, contains detailed error information
+    Returns:
+        TextContent containing canvas information
     """
-    default_headers = {"User-Agent": user_agent}
+    llm_results = []
+
+    def crawl(url: str) -> str:
+        headers = {"Content-Type": "application/json", "X-Return-Format": "markdown", "X-With-Images-Summary": "true"}
+        if jina_api_key:
+            headers["Authorization"] = f"Bearer {jina_api_key}"
+
+        data = {"url": url}
+        response = requests.post("https://r.jina.ai/", headers=headers, json=data)
+        return response.text
 
     try:
-        async with httpx.AsyncClient(
-            timeout=httpx.Timeout(timeout), follow_redirects=follow_redirects
-        ) as client:
-            response = await client.get(url, headers=default_headers)
-            response.raise_for_status()
-            return response
-
-    except httpx.HTTPStatusError as e:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"HTTP Status Code Error {e.response.status_code}: {e.response.text}",
-            )
-        )
-
-    except httpx.TimeoutException:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR, message=f"HTTP Timeout Error for {timeout} seconds"
-            )
-        )
-
+        content = crawl(url)
+        llm_results.append(TextContent(type="text", text=content))
     except Exception as e:
-        raise McpError(
-            ErrorData(
-                code=INTERNAL_ERROR,
-                message=f"Unexpected Error During HTTP Request: {str(e)}",
-            )
-        )
+        llm_results.append(TextContent(type="text", text=f"Failed to fetch URL {url!r}: {e}"))
 
-
-async def fetch(
-    url: str, user_agent: str, force_raw: bool = False
-) -> list[TextContent]:
-    """Fetch URL and return content according to its content type."""
-    response: httpx.Response = await async_fetch(url, user_agent=user_agent)
-    if force_raw:
-        return [TextContent(text=response.text, type="text")]
-
-    media_type = extract_media_type(response.headers["Content-Type"])
-
-    match media_type:
-        case ResponseMediaType.HTML:
-            return [
-                TextContent(text=convert_html_to_markdown(response.text), type="text")
-            ]
-        case ResponseMediaType.JSON:
-            return [TextContent(text=json.dumps(response.json()), type="text")]
-        case ResponseMediaType.PDF:
-            return [
-                TextContent(
-                    text=convert_pdf_to_plain_text(response.content), type="text"
-                )
-            ]
-        case _:
-            # return raw content
-            return [TextContent(text=response.text, type="text")]
+    return llm_results
 
 
 mcp = FastMCP("mcp-web-fetch")
@@ -107,10 +46,61 @@ mcp = FastMCP("mcp-web-fetch")
 
 @mcp.tool(
     name="fetch-web",
-    description="Fetch URL and return content according to its content type.",
+    description="Fetch a URL and return the content. Images will be returned in ![]() format.",
 )
 async def fetch_web(
-    url: Annotated[AnyUrl, Field(description="URL to fetch")],
-    raw: Annotated[bool, Field(description="Return raw content", default=False)],
+    url: Annotated[AnyUrl, Field(description="URL to fetch")]
 ):
-    return await fetch(str(url), os.getenv("USER_AGENT", DEFAULT_USER_AGENT), raw)
+    return await fetch(str(url), os.getenv("JINA_API_KEY", ""))
+
+
+@mcp.tool(
+    name="read-image-url",
+    description="Read images from URLs, convert to LLM readable format.",
+)
+def read_image_url(image_urls: List[str]) -> List[ImageContent| TextContent]:
+    """Read images from URLs, convert to base64, and return the image content.
+
+    Args:
+        image_urls: List of URLs of the images to read
+        session_manager: SessionManager instance
+
+    Returns:
+        ImageContent containing the base64 encoded image data
+    """
+    llm_results: list[ImageContent | TextContent] = []
+    message_results: list[TextContent] = []
+
+    for image_url in image_urls:
+        # Convert to base64
+        try:
+            image_content = httpx.get(image_url).content
+        except Exception as e:
+            llm_results.append(TextContent(type="text", text=f"Failed to read image {image_url!r}: {e}"))
+            message_results.append(TextContent(type="text", text=f"Failed to read image {image_url!r}: {e}"))
+            continue
+        mime_type = "image/jpeg"
+        if image_content.startswith(b"\xff\xd8\xff"):
+            mime_type = "image/jpeg"
+        elif image_content.startswith(b"\x89PNG\r\n\x1a\n"):
+            mime_type = "image/png"
+        elif image_content.startswith(b"RIFF") and b"WEBP" in image_content[:12]:
+            mime_type = "image/webp"
+        else:
+            llm_results.append(
+                TextContent(
+                    type="text",
+                    text=f"Unsupported image type {mime_type!r} for {image_url!r}: , only jpeg, png, webp are supported",
+                )
+            )
+            message_results.append(
+                TextContent(
+                    type="text",
+                    text=f"Unsupported image type {mime_type!r} for {image_url!r}: , only jpeg, png, webp are supported",
+                )
+            )
+            continue
+        image_data = base64.standard_b64encode(image_content).decode("utf-8")
+        llm_results.append(ImageContent(type="image", data=image_data, mimeType=mime_type))
+
+    return llm_results
