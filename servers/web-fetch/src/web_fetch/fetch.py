@@ -46,7 +46,7 @@ mcp = FastMCP("mcp-web-fetch")
 
 @mcp.tool(
     name="fetch-web",
-    description="Fetch a URL and return the content. Images will be returned in ![]() format.",
+    description="Fetch a URL and return the content. Images will be returned in ![]() format. DO NOT FETCH image_urls, for images use read-image-url instead.",
 )
 async def fetch_web(
     url: Annotated[AnyUrl, Field(description="URL to fetch")]
@@ -63,7 +63,6 @@ def read_image_url(image_urls: List[str]) -> List[ImageContent| TextContent]:
 
     Args:
         image_urls: List of URLs of the images to read
-        session_manager: SessionManager instance
 
     Returns:
         ImageContent containing the base64 encoded image data
