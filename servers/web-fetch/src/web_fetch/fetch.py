@@ -90,7 +90,7 @@ def read_image_url(image_urls: List[str]) -> List[ImageContent| TextContent]:
             llm_results.append(
                 TextContent(
                     type="text",
-                    text=f"Unsupported image type {mime_type!r} for {image_url!r}: , only jpeg, png, webp are supported",
+                    text=f"Unsupported image type {mime_type!r} for {image_url!r}: only jpeg, png, webp are supported",
                 )
             )
             message_results.append(
