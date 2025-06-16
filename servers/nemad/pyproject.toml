@@ -1,18 +1,15 @@
 [project]
-name = "nemad"
+name = "nemad-server"
 version = "0.1.0"
 description = "NEMAD materials database MCP server"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "mcp[cli]>=1.6.0",
     "requests>=2.32.3",
     "pydantic>=2.0.0",
     "ruff>=0.11.13",
 ]
-
-[project.scripts]
-mcp-nemad = "nemad:main"
 
 [build-system]
 requires = ["hatchling"]

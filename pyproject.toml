@@ -1,14 +1,49 @@
 [project]
-name = "mcp-servers"
+name = "mcp-science"
 version = "0.1.0"
 description = "Open Source MCP Servers for Scientific Research"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "mcp>=1.6.0",
+    "example-server @ file:./servers/example-server",
+    "gpaw-computation-server @ file:./servers/gpaw-computation/server_package",
+    "jupyter-act @ file:./servers/jupyter-act",
+    "materials-project-server @ file:./servers/materials-project",
+    "mathematica-check @ file:./servers/mathematica-check",
+    "nemad-server @ file:./servers/nemad",
+    "python-code-execution-server @ file:./servers/python-code-execution",
+    "ssh-exec-server @ file:./servers/ssh-exec",
+    "tinydb-server @ file:./servers/tinydb-server",
+    "txyz-search @ file:./servers/txyz-search",
+    "web-fetch @ file:./servers/web-fetch",
 ]
 
+[project.optional-dependencies]
+example-server = ["example-server"]
+gpaw-computation = ["gpaw-computation-server"]
+jupyter-act = ["jupyter-act"]
+materials-project = ["materials-project-server"]
+mathematica-check = ["mathematica-check"]
+nemad = ["nemad-server"]
+python-code-execution = ["python-code-execution-server"]
+ssh-exec = ["ssh-exec-server"]
+tinydb-server = ["tinydb-server"]
+txyz-search = ["txyz-search"]
+web-fetch = ["web-fetch"]
+
 [project.scripts]
-mcp-servers = "mcp_servers:main"
+example-server = "example_server.main:main"
+gpaw-computation-server = "gpaw_computation_server.cli:main"
+jupyter-act = "jupyter_act.main:main"
+materials-project-server = "materials_project.main:main"
+mathematica-check = "mathematica_check.main:main"
+nemad-server = "nemad_server.main:main"
+python-code-execution-server = "python_code_execution_server.main:main"
+ssh-exec-server = "ssh_exec_server.main:main"
+tinydb-server = "tinydb_server.main:main"
+txyz-search = "txyz_search.main:main"
+web-fetch = "web_fetch.main:main"
 
 [build-system]
 requires = ["hatchling"]

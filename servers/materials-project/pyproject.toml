@@ -1,9 +1,9 @@
 [project]
-name = "materials-project"
+name = "materials-project-server"
 version = "0.1.0"
 description = "Materials Project MCP Server"
 readme = "README.md"
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 dependencies = [
     "ase>=3.24.0",
     "crystal-toolkit==2025.1.24rc0",
@@ -13,9 +13,6 @@ dependencies = [
     "pymatgen>=2025.3.10",
     "kaleido==0.2.1",
 ]
-
-[project.scripts]
-mcp-materials-project = "materials_project:main"
 
 [build-system]
 requires = ["hatchling"]
