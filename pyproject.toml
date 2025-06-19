@@ -57,6 +57,7 @@ web-fetch = [
 ]
 
 [project.scripts]
+mcp-science = "servers.__init__:main"
 example-server = "servers.example_server.main:main"
 gpaw-computation-server = "servers.gpaw_computation:main"
 jupyter-act = "servers.jupyter_act:main"
