@@ -1,6 +1,6 @@
 [project]
 name = "mcp.science"
-version = "0.1.0"
+version = "0.1.2"
 description = "Open Source MCP Servers for Scientific Research"
 readme = "README.md"
 requires-python = ">=3.12"
@@ -41,7 +41,7 @@ ssh-exec = [
     "python-dotenv>=1.0.0",
     "fastapi>=0.100.0",
 ]
-tinydb-server = ["mcp[cli]>=1.6.0", "tinydb>=4.8.0"]
+tinydb = ["mcp[cli]>=1.6.0", "tinydb>=4.8.0"]
 txyz-search = [
     "mcp[cli]>=1.6.0",
     "httpx>=0.28.1",
@@ -51,22 +51,22 @@ txyz-search = [
 web-fetch = [
     "mcp[cli]>=1.6.0",
     "httpx>=0.28.1",
-    "beautifulsoup4>=4.12.0",
     "click>=8.0.0",
+    "pydantic>=2.10.6",
     "requests>=2.31.0",
 ]
 
 [project.scripts]
 mcp-science = "servers.__init__:main"
 example-server = "servers.example_server.main:main"
-gpaw-computation-server = "servers.gpaw_computation:main"
+gpaw-computation = "servers.gpaw_computation:main"
 jupyter-act = "servers.jupyter_act:main"
-materials-project-server = "servers.materials_project:main"
+materials-project = "servers.materials_project:main"
 mathematica-check = "servers.mathematica_check:main"
-nemad-server = "servers.nemad:main"
-python-code-execution-server = "servers.python_code_execution:main"
-ssh-exec-server = "servers.ssh_exec:main"
-tinydb-server = "servers.tinydb_server:main"
+nemad = "servers.nemad:main"
+python-code-execution = "servers.python_code_execution:main"
+ssh-exec = "servers.ssh_exec:main"
+tinydb = "servers.tinydb_server:main"
 txyz-search = "servers.txyz_search:main"
 web-fetch = "servers.web_fetch:main"
 

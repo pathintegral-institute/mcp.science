@@ -1386,7 +1386,7 @@ cli = [
 
 [[package]]
 name = "mcp-science"
-version = "0.1.0"
+version = "0.1.2"
 source = { editable = "." }
 dependencies = [
     { name = "mcp", extra = ["cli"] },
@@ -1438,7 +1438,7 @@ ssh-exec = [
     { name = "paramiko" },
     { name = "python-dotenv" },
 ]
-tinydb-server = [
+tinydb = [
     { name = "mcp", extra = ["cli"] },
     { name = "tinydb" },
 ]
@@ -1449,10 +1449,11 @@ txyz-search = [
     { name = "pydantic" },
 ]
 web-fetch = [
-    { name = "beautifulsoup4" },
     { name = "click" },
     { name = "httpx" },
     { name = "mcp", extra = ["cli"] },
+    { name = "pydantic" },
+    { name = "requests" },
 ]
 
 [package.dev-dependencies]
@@ -1464,7 +1465,6 @@ dev = [
 requires-dist = [
     { name = "ase", marker = "extra == 'gpaw-computation'", specifier = ">=3.24.0" },
     { name = "ast", marker = "extra == 'python-code-execution'", specifier = ">=0.0.2" },
-    { name = "beautifulsoup4", marker = "extra == 'web-fetch'", specifier = ">=4.12.0" },
     { name = "click", marker = "extra == 'txyz-search'", specifier = ">=8.0.0" },
     { name = "click", marker = "extra == 'web-fetch'", specifier = ">=8.0.0" },
     { name = "emmet-core", marker = "extra == 'materials-project'", specifier = ">=0.70.0" },
@@ -1487,7 +1487,7 @@ requires-dist = [
     { name = "mcp", extras = ["cli"], marker = "extra == 'nemad'", specifier = ">=1.6.0" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'python-code-execution'", specifier = ">=1.6.0" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'ssh-exec'", specifier = ">=1.6.0" },
-    { name = "mcp", extras = ["cli"], marker = "extra == 'tinydb-server'", specifier = ">=1.6.0" },
+    { name = "mcp", extras = ["cli"], marker = "extra == 'tinydb'", specifier = ">=1.6.0" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'txyz-search'", specifier = ">=1.6.0" },
     { name = "mcp", extras = ["cli"], marker = "extra == 'web-fetch'", specifier = ">=1.6.0" },
     { name = "numpy", marker = "extra == 'gpaw-computation'", specifier = ">=1.24.0" },
@@ -1496,14 +1496,16 @@ requires-dist = [
     { name = "paramiko", marker = "extra == 'ssh-exec'", specifier = ">=3.0.0" },
     { name = "plotly", marker = "extra == 'gpaw-computation'", specifier = ">=5.0.0" },
     { name = "pydantic", marker = "extra == 'txyz-search'", specifier = ">=2.10.6" },
+    { name = "pydantic", marker = "extra == 'web-fetch'", specifier = ">=2.10.6" },
     { name = "pymatgen", marker = "extra == 'materials-project'", specifier = ">=2024.0.0" },
     { name = "python-dotenv", marker = "extra == 'ssh-exec'", specifier = ">=1.0.0" },
     { name = "requests", marker = "extra == 'nemad'", specifier = ">=2.31.0" },
+    { name = "requests", marker = "extra == 'web-fetch'", specifier = ">=2.31.0" },
     { name = "scipy", marker = "extra == 'nemad'", specifier = ">=1.11.0" },
-    { name = "tinydb", marker = "extra == 'tinydb-server'", specifier = ">=4.8.0" },
+    { name = "tinydb", marker = "extra == 'tinydb'", specifier = ">=4.8.0" },
     { name = "wolframclient", marker = "extra == 'mathematica-check'", specifier = ">=1.1.0" },
 ]
-provides-extras = ["example-server", "gpaw-computation", "jupyter-act", "materials-project", "mathematica-check", "nemad", "python-code-execution", "ssh-exec", "tinydb-server", "txyz-search", "web-fetch"]
+provides-extras = ["example-server", "gpaw-computation", "jupyter-act", "materials-project", "mathematica-check", "nemad", "python-code-execution", "ssh-exec", "tinydb", "txyz-search", "web-fetch"]
 
 [package.metadata.requires-dev]
 dev = [{ name = "twine", specifier = ">=6.1.0" }]
