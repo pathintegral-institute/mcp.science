@@ -13,6 +13,8 @@ logger = logging.getLogger(__name__)
 mcp = FastMCP()
 
 # Here’s where you define your tools (functions the AI can use)
+
+
 @mcp.tool()
 def add(a: int, b: int) -> TextContent:
     """Add two numbers.
@@ -20,13 +22,14 @@ def add(a: int, b: int) -> TextContent:
     Args:
         a: the first integer to be added
         b: the second integer to be added
-    
+
     Return:
         The sum of the two integers, as a string."""
     return TextContent(type="text", text=str(a + b))
 
 # The return format should be one of the types defined in mcp.types. The commonly used ones include TextContent, ImageContent, BlobResourceContents.
 # In the case of a string, you can also directly use `return str(a + b)` which is equivalent to `return TextContent(type="text", text=str(a + b))`
+
 
 @mcp.tool()
 def get_image_of_flower():
@@ -42,8 +45,9 @@ def get_image_of_flower():
 
 # This is the main entry point for your server
 def main():
-    logger.info('Starting your-new-server')
+    logger.info('Example server started')
     mcp.run('stdio')
+
 
 if __name__ == "__main__":
     main()
