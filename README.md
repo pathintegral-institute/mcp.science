@@ -12,6 +12,15 @@ _Join us in accelerating scientific discovery with AI and open-source tools!_
 
 </div>
 
+## Quick Start
+
+Running any server in this repository is as simple as a single command. For example, to start the `web-fetch` server:
+
+```bash
+uvx mcp-science web-fetch
+```
+
+This command handles everything from installation to execution. For more details on configuration and finding other servers, see the "[How to configure MCP servers for AI client apps](#how-to-configure-mcp-servers-for-ai-client-apps)" section below.
 ## Table of Contents
 
 - [About](#about)
@@ -91,9 +100,9 @@ NEMAD data-sets.
 Provides CRUD access to a lightweight JSON database backed by TinyDB so that an
 assistant can store and retrieve small pieces of structured data.
 
-## How to integrate MCP servers into LLM
+## How to configure MCP servers for AI client apps
 
-If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-step-by-step.md)
+If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to configure MCP servers for AI client apps](./docs/integrate-mcp-server-step-by-step.md)
 
 ### Prerequisites
 
@@ -106,10 +115,9 @@ If you're not familiar with these stuff, here is a step-by-step guide for you: [
 
 2. An MCP-enabled client application such as
    [Claude Desktop](https://claude.ai/download),
-   [Cursor](https://cursor.com),
-   [Windsurf](https://windsurf.com/editor),
-   [Chatwise](https://chatwise.app/) or
-   [Cherry Studio](https://cherry-ai.com/).
+   [VSCode](https://code.visualstudio.com/),
+   [Goose](https://block.github.io/goose/),
+   [5ire](https://5ire.app/).
 
 ### The short version – use `uvx`
 
@@ -120,16 +128,28 @@ pattern is:
 uvx mcp-science <server-name>
 ```
 
-For example, to start the `web-fetch` server on the default port (8000):
+For example, to start the `web-fetch` stdio server locally, configure the following command in your client:
 
 ```bash
 uvx mcp-science web-fetch
 ```
 
-The command will download the `mcp-science` package from PyPI (or build it from
-source if you are working from a checkout) and run the requested entry-point.
-Point your client at `http://localhost:8000` (or the port shown in the log
-output) and the tools provided by the server will be available.
+Which corresponds to this in claude desktop's json configuration:
+```json
+{
+  "mcpServers": {
+    "web-fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "web-fetch"
+      ]
+    }
+  }
+}
+```
+
+The command will download the `mcp-science` package from PyPI and run the requested entry-point.
 
 #### Find other servers
 
@@ -149,7 +169,7 @@ The basic workflow is:
 
 ```bash
 # Install mcpm first – it is a separate project
-pip install mcpm
+uv pip install mcpm
 
 mcpm client ls           # discover supported clients
 mcpm client set <name>   # pick the one you are using
