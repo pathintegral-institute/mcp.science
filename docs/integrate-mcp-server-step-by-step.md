@@ -130,9 +130,8 @@ replace the content of config file with:
     "example-server": {
       "command": "uvx",
       "args": [
-        "--from",
-        "git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server",
-        "mcp-example-server"
+        "mcp-science",
+        "example-server"
       ]
     }
   }
@@ -222,7 +221,7 @@ Enter 'Tools' tab in the sidebar, then click 'New' button on the upper right:
 Enter `example` in 'Tool Key' field, enter the following command in 'Command' field:
 
 ```bash
-uvx --from git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server mcp-example-server
+uvx mcp-science example-server
 ```
 
 The new tool configuration should be like this:
