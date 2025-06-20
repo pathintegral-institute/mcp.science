@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-tinydb-server = "tinydb_server:main"
+mcp-tinydb = "tinydb_server:main"
 
 [build-system]
 requires = ["hatchling"]
