@@ -182,3 +182,5 @@ CLAUDE.md
 
 .DS_Store
 secrets.toml
+
+.github/codex/home/sessions/

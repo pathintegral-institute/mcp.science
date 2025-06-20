@@ -12,6 +12,15 @@ _Join us in accelerating scientific discovery with AI and open-source tools!_
 
 </div>
 
+## Quick Start
+
+Running any server in this repository is as simple as a single command. For example, to start the `web-fetch` server:
+
+```bash
+uvx mcp-science web-fetch
+```
+
+This command handles everything from installation to execution. For more details on configuration and finding other servers, see the "[How to configure MCP servers for AI client apps](#how-to-configure-mcp-servers-for-ai-client-apps)" section below.
 ## Table of Contents
 
 - [About](#about)
@@ -42,81 +51,136 @@ This repository contains a collection of open source [MCP](https://modelcontextp
 
 ## Available servers in this repo
 
-#### [Example Server](./servers/example-server/)
+Below is a complete list of the MCP servers that live in this monorepo.  Every
+entry links to the sub-directory that contains the server’s source code and
+README so that you can find documentation and usage instructions quickly.
 
-A example mcp server that help understand how mcp server works.
+#### [Example Server](./servers/example-server/)
+An example MCP server that demonstrates the minimal pieces required for a
+server implementation.
 
 #### [Materials Project](./servers/materials-project/)
-
-A specialized mcp server that enables Al assistants to search, visualize, and manipulate materials science data from the Materials Project database. A Materials Project API key is required.
+A specialised MCP server that enables AI assistants to search, visualise and
+manipulate materials-science data from the Materials Project database.  A
+Materials Project API key is required.
 
 #### [Python Code Execution](./servers/python-code-execution/)
-
-A secure sandboxed environment that allows AI assistants to execute Python code snippets with controlled access to standard library modules, enabling data analysis and computation tasks without security risks.
+Runs Python code snippets in a secure, sandboxed environment with restricted
+standard-library access so that assistants can carry out analysis and
+computation without risking your system.
 
 #### [SSH Exec](./servers/ssh-exec/)
-
-A specialized mcp server that enables AI assistants to securely run validated commands on remote systems via SSH, with configurable restrictions and authentication options.
+Allows an assistant to run pre-validated commands on remote machines over SSH
+with configurable authentication and command whitelists.
 
 #### [Web Fetch](./servers/web-fetch/)
-
-A versatile mcp server that allows AI assistants to fetch and process HTML, PDF, and plain text content from websites, enabling information gathering from online sources.
+Fetches and processes HTML, PDF and plain-text content from the Web so that the
+assistant can quote or summarise it.
 
 #### [TXYZ Search](./servers/txyz-search/)
+Performs Web, academic and “best effort” searches via the TXYZ API.  A TXYZ API
+key is required.
 
-A specialized mcp server that enables AI assistants to perform academic and scholarly searches, general web searches, or automatically select the best search type based on the query. A TXYZ API key is required.
+#### [GPAW Computation](./servers/gpaw-computation/)
+Provides density-functional-theory (DFT) calculations through the GPAW package.
 
-## How to integrate MCP servers into LLM
+#### [Jupyter-Act](./servers/jupyter-act/)
+Lets an assistant interact with a running Jupyter kernel, executing notebook
+cells programmatically.
 
-If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to integrate MCP servers into LLM](./docs/integrate-mcp-server-step-by-step.md)
+#### [Mathematica-Check](./servers/mathematica-check/)
+Evaluates small snippets of Wolfram Language code through a headless
+Mathematica instance.
+
+#### [NEMAD](./servers/nemad/)
+Neuroscience Model Analysis Dashboard server that exposes tools for inspecting
+NEMAD data-sets.
+
+#### [TinyDB](./servers/tinydb/)
+Provides CRUD access to a lightweight JSON database backed by TinyDB so that an
+assistant can store and retrieve small pieces of structured data.
+
+## How to configure MCP servers for AI client apps
+
+If you're not familiar with these stuff, here is a step-by-step guide for you: [Step-by-step guide to configure MCP servers for AI client apps](./docs/integrate-mcp-server-step-by-step.md)
 
 ### Prerequisites
 
-- [MCPM](https://mcpm.sh/): a MCP manager developed by us, which is easy to use, open source, community-driven, forever free.
-- [uv](https://docs.astral.sh/uv/): An extremely fast Python package and project manager, written in Rust. You can install it by running:
-  ```bash
-  curl -sSf https://astral.sh/uv/install.sh | bash
-  ```
-- MCP client: e.g. [Claude Desktop](https://claude.ai/download) / [Cursor](https://cursor.com) / [Windsurf](https://windsurf.com/editor) / [Chatwise](https://chatwise.app/) / [Cherry Studio](https://cherry-ai.com/)
+1. [uv](https://docs.astral.sh/uv/) ­— a super-fast (Rust-powered) drop-in
+   replacement for pip + virtualenv.  Install it with:
 
-### Integrate MCP servers into your client
+   ```bash
+   curl -sSf https://astral.sh/uv/install.sh | bash
+   ```
 
-MCP servers can be integrated with any compatible client application. Here, we'll walk through the integration process using the [`web-fetch`](./servers/web-fetch/) mcp server (included in this repository) as an example.
+2. An MCP-enabled client application such as
+   [Claude Desktop](https://claude.ai/download),
+   [VSCode](https://code.visualstudio.com/),
+   [Goose](https://block.github.io/goose/),
+   [5ire](https://5ire.app/).
 
-#### Client Integration
+### The short version – use `uvx`
 
-With MCPM, you can easily integrate MCP servers into your client application.
-
-Before installing the server, you need to specify the client you want to add the server to.
-
-list available clients:
-
-```bash
-mcpm client ls
-```
-
-specify the client you want to add the server to:
+Any server in this repository can be launched with a single shell command.  The
+pattern is:
 
 ```bash
-mcpm client set <client-name>
+uvx mcp-science <server-name>
 ```
 
-then add the server:
+For example, to start the `web-fetch` stdio server locally, configure the following command in your client:
 
 ```bash
-mcpm add web-fetch
+uvx mcp-science web-fetch
 ```
 
-You may need to restart your client application for the changes to take effect.
+Which corresponds to this in claude desktop's json configuration:
+```json
+{
+  "mcpServers": {
+    "web-fetch": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "web-fetch"
+      ]
+    }
+  }
+}
+```
 
-Then you can validate whether the integration installed successfully by asking LLM to fetch web content:
-
-- "Can you fetch and summarize the content from https://modelcontextprotocol.io/?"
-- The `web-fetch` tool should be called and the content should be retrieved.
+The command will download the `mcp-science` package from PyPI and run the requested entry-point.
 
 #### Find other servers
 
-We would recommend you to check [Available Servers in this repo](#available-servers-in-this-repo) or [MCPM Registry](https://mcpm.sh/registry/) for more servers.
+Have a look at the [Available servers](#available-servers-in-this-repo) list —
+every entry in the table works with the pattern shown above.
+
+---
+
+### Optional: managing integrations with MCPM
+
+[MCPM](https://mcpm.sh/) is a convenience command-line tool that can automate
+the process of wiring servers into supported clients.  It is not required but
+can be useful if you frequently switch between clients or maintain a large
+number of servers.
+
+The basic workflow is:
+
+```bash
+# Install mcpm first – it is a separate project
+uv pip install mcpm
+
+mcpm client ls           # discover supported clients
+mcpm client set <name>   # pick the one you are using
+
+# Add a server (automatically installing it if needed)
+mcpm add web-fetch
+```
+
+After the command finishes, restart your client so that it reloads its tool
+configuration.  You can browse the [MCPM Registry](https://mcpm.sh/registry/)
+for additional community-maintained servers.
 
 ## How to build your own MCP server
 

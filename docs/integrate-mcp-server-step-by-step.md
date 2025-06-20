@@ -1,6 +1,6 @@
-# Step-by-step guide to integrate an MCP server into a LLM client locally
+# Step-by-step guide to configure MCP servers for AI client apps locally
 
-This guide provides step-by-step instructions to integrate an MCP server into a Large Language Model (LLM) client application and help you understand how MCP works.
+This guide provides step-by-step instructions to integrate an MCP server into an AI client application and help you understand how MCP works.
 
 Let's use `example-server` defined in this repo as an example.
 
@@ -13,7 +13,7 @@ Let's use `example-server` defined in this repo as an example.
 Let's make a quick summary of what you actually need to use MCP server locally:
 
 - A MCP server (e.g. `example-server` in this case) which contains multiple tools and resources inside.
-- A LLM client with MCP support, e.g.:
+- An AI client with MCP support, e.g.:
   - [Goose](https://block.github.io/goose/) (Open source, free)
   - [Claude Desktop](https://claude.ai/download) (Close source, by Claude, commercial)
 
@@ -29,7 +29,7 @@ inside our example servers. there are 3 tools:
 - `get_photo_of_flowers`: get a photo of jasmine
 - `reverse`: reverse a string
 
-**Tools** are defined to enable servers to expose executable functionality to clients. Through tools, LLMs can interact with external systems, perform computations, and take actions in the real world.
+**Tools** are defined to enable servers to expose executable functionality to clients. Through tools, AI can interact with external systems, perform computations, and take actions in the real world.
 
 For more details about architecture and core concepts, you can refer to [the official introduction](https://modelcontextprotocol.io/docs/concepts/architecture)
 
@@ -71,7 +71,7 @@ You can search for 'Powershell' in the Start menu (by pressing `Win` key and typ
 
 We choose 3 commonly used clients here as an example. You can choose any one or the other on demand (the configuration method is similar)
 
-### Claude Desktop (closed source, by Claude, free to use, no need for LLM API key)
+### Claude Desktop (closed source, by Claude, free to use, no need for AI API key)
 
 <details>
 <summary>👈 Click to see detailed instructions</summary>
@@ -130,9 +130,8 @@ replace the content of config file with:
     "example-server": {
       "command": "uvx",
       "args": [
-        "--from",
-        "git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server",
-        "mcp-example-server"
+        "mcp-science",
+        "example-server"
       ]
     }
   }
@@ -154,7 +153,7 @@ And now, you've successfully integrated the example server into Claude Desktop.
 
 </details>
 
-### 5ire (open source, need LLM API key, macOS / Linux / Windows)
+### 5ire (open source, need AI API key, macOS / Linux / Windows)
 
 <details>
 <summary>👈 Click to see detailed instructions</summary>
@@ -165,11 +164,11 @@ And now, you've successfully integrated the example server into Claude Desktop.
 
 - Download and install 5ire from [official website](https://5ire.app/)
 
-#### Get a LLM API key
+#### Get an AI API key
 
-If you don't have an LLM API key, we recommend obtaining one from [OpenRouter](https://openrouter.ai/), which offers a unified interface for popular large language models. With no subscription required, you can simply pay as you go.
+If you don't have an AI API key, we recommend obtaining one from [OpenRouter](https://openrouter.ai/), which offers a unified interface for popular large language models. With no subscription required, you can simply pay as you go.
 
-#### LLM provider configuration
+#### AI provider configuration
 
 Let's use `gpt-4o-mini` in this example.
 
@@ -199,7 +198,7 @@ The settings should be updated like this:
     </td>
   </tr>
   <tr>
-    <td><figcaption>LLM settings</figcaption></td>
+    <td><figcaption>AI settings</figcaption></td>
     <td><figcaption>Model mapping</figcaption></td>
   </tr>
 </table>
@@ -222,7 +221,7 @@ Enter 'Tools' tab in the sidebar, then click 'New' button on the upper right:
 Enter `example` in 'Tool Key' field, enter the following command in 'Command' field:
 
 ```bash
-uvx --from git+https://github.com/pathintegral-institute/mcp-science#subdirectory=servers/example-server mcp-example-server
+uvx mcp-science example-server
 ```
 
 The new tool configuration should be like this:
@@ -251,7 +250,7 @@ You should see a new tool called 'example' on the list. click the toggle button 
 
 </details>
 
-### Goose Desktop (open source, need LLM API key, macOS / Linux)
+### Goose Desktop (open source, need AI API key, macOS / Linux)
 
 <details>
 <summary>👈 Click to see detailed instructions</summary>
@@ -260,7 +259,7 @@ You should see a new tool called 'example' on the list. click the toggle button 
 
 - Download and install Goose Desktop from [official website](https://block.github.io/goose/)
 
-#### Configure LLM API key from provider
+#### Configure AI API key from provider
 
 This part is similar to 5ire, you can refer to the 5ire section.
 
@@ -320,8 +319,8 @@ So far, you should have successfully integrated the example server into your cli
 
 ### Number addition
 
-- Ask LLM: `Add 99 and 42`
-- LLM will call the `add` tool
+- Ask AI: `Add 99 and 42`
+- The AI will call the `add` tool
 - On Claude Desktop, you'll see a popup asking for confirmation during the call, click 'Allow for this chat' to allow the tool call:
 <table align="center">
   <tr>
@@ -344,8 +343,8 @@ So far, you should have successfully integrated the example server into your cli
 
 ### Get photo of flowers
 
-- Ask LLM: `show me the photo of flowers`
-- LLM should call the `get_photo_of_flowers` tool
+- Ask AI: `show me the photo of flowers`
+- The AI should call the `get_photo_of_flowers` tool
 - You'll see the image inside the result section:
 <table align="center">
   <tr>
@@ -358,8 +357,8 @@ So far, you should have successfully integrated the example server into your cli
 
 ### Reverse text
 
-- Ask LLM: `reverse the text 'hello world'`
-- LLM will call the `reverse` tool
+- Ask AI: `reverse the text 'hello world'`
+- The AI will call the `reverse` tool
 - You should get:
 <table align="center">
   <tr>
