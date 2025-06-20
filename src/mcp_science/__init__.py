@@ -22,10 +22,6 @@ available_servers = [
 ]
 
 @click.command()
-@click.argument(
-    'server_name',
-    type=click.Choice(available_servers),
-)
 @click.option(
     '-b',
     '--branch',
@@ -34,7 +30,12 @@ available_servers = [
     help='Branch to use for the MCP server',
     required=False,
 )
-def main(server_name: str, branch: str = "main") -> None:
+@click.argument(
+    'server_name',
+    type=click.Choice(available_servers),
+)
+@click.argument('args', nargs=-1)
+def main(server_name: str, branch: str = "main", args: list[str] = []) -> None:
     """Launch an MCP server by name, installing optional dependencies first."""
 
     # Build the uvx command
@@ -42,12 +43,10 @@ def main(server_name: str, branch: str = "main") -> None:
         "uvx",
         "--from", f"git+https://github.com/pathintegral-institute/mcp.science@{branch}#subdirectory=servers/{server_name}",
         f"mcp-{server_name}",
+        *args,
     ]
-    print(f"Running command: {uvx_cmd}")
 
-    # Add any additional arguments
-    if len(sys.argv) > 2:
-        uvx_cmd.extend(sys.argv[2:])
+    print(f"Running command: {uvx_cmd}")
 
     try:
         # Run the uvx command
