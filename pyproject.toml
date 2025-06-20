@@ -8,6 +8,13 @@ dependencies = [
     "click>=8.2.1",
 ]
 
+[tool.hatch.build.targets.wheel]
+include = ["src/mcp_science", "servers"]
+
+[tool.hatch.build.targets.wheel.sources]
+"src" = ""
+"servers" = "mcp_science/servers"
+
 [project.scripts]
 mcp-science = "mcp_science:main"
 

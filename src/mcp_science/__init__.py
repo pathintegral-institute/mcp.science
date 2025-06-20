@@ -6,45 +6,42 @@ MCP Science Servers Launcher
 import sys
 import subprocess
 import click
+from pathlib import Path
 
-available_servers = [
-    "example-server",
-    "gpaw-computation",
-    "jupyter-act",
-    "materials-project",
-    "mathematica-check",
-    "nemad",
-    "python-code-execution",
-    "ssh-exec",
-    "tinydb",
-    "txyz-search",
-    "web-fetch",
-]
+# First check if we're in development mode (servers are at project root level)
+DEV_SERVERS_PATH = (Path(__file__).parent / '../../servers').resolve()
+# Then check if we're in installed mode (servers would be in the package)
+INSTALLED_SERVERS_PATH = (Path(__file__).parent / 'servers').resolve()
 
-@click.command()
-@click.option(
-    '-b',
-    '--branch',
-    type=str,
-    default='main',
-    help='Branch to use for the MCP server',
-    required=False,
-)
-@click.argument(
-    'server_name',
-    type=click.Choice(available_servers),
-)
+# Use the development path if it exists, otherwise use the installed path
+SERVERS_PATH = DEV_SERVERS_PATH if DEV_SERVERS_PATH.exists() else INSTALLED_SERVERS_PATH
+available_servers = [d.name for d in SERVERS_PATH.iterdir() if d.is_dir()] if SERVERS_PATH.exists() else []
+
+@click.command(help="Launch an MCP server by name, installing optional dependencies first.\n\nAvailable servers: {}".format(', '.join(available_servers)))
+@click.option('-b', '--branch', type=str, default=None, help='Branch to use for the MCP server', required=False)
+@click.argument('server_name', type=str)
 @click.argument('args', nargs=-1)
-def main(server_name: str, branch: str = "main", args: list[str] = []) -> None:
+def main(server_name: str, branch: str | None = None, args: list[str] = []) -> None:
     """Launch an MCP server by name, installing optional dependencies first."""
+    if branch is None:
+        if server_name not in available_servers:
+            raise click.BadParameter(
+                f"server_name must be one of {available_servers} when --branch is not provided."
+            )
+        uvx_cmd = [
+            "uvx",
+            "--from", (SERVERS_PATH / server_name).resolve().as_posix(),
+            f"mcp-{server_name}",
+            *args,
+        ]
 
-    # Build the uvx command
-    uvx_cmd = [
-        "uvx",
-        "--from", f"git+https://github.com/pathintegral-institute/mcp.science@{branch}#subdirectory=servers/{server_name}",
-        f"mcp-{server_name}",
-        *args,
-    ]
+    else:
+        uvx_cmd = [
+            "uvx",
+            "--from", f"git+https://github.com/pathintegral-institute/mcp.science@{branch}#subdirectory=servers/{server_name}",
+            f"mcp-{server_name}",
+            *args,
+        ]
 
     print(f"Running command: {uvx_cmd}")
 
