@@ -1,17 +1,17 @@
 import click
-import os
-from .fetch import mcp
+from typing import Literal
+from web_fetch.fetch import mcp
 
 
 @click.command()
 @click.option(
     "-t",
     "--transport",
-    type=click.Choice(["stdio", "sse"]),
+    type=click.Choice(["stdio", "sse", "streamable-http"]),
     default="stdio",
     help="Transport to use for requests",
 )
-def main(transport: str):
+def main(transport: Literal["stdio", "sse", "streamable-http"]):
     import logging
 
     logger = logging.getLogger(__name__)

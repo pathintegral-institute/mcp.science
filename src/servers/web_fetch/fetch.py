@@ -1,15 +1,13 @@
-import json
 import os
-from enum import StrEnum
 from typing import Annotated, List
 
 import httpx
-from mcp.shared.exceptions import McpError
-from mcp.types import INTERNAL_ERROR, ErrorData, TextContent, ImageContent
+from mcp.types import TextContent, ImageContent
 from pydantic import AnyUrl, Field
 from mcp.server import FastMCP
 import requests
 import base64
+
 
 async def fetch(url: str, jina_api_key: str) -> List[TextContent]:
     """Fetch a URL and return the content.
@@ -46,7 +44,7 @@ mcp = FastMCP("mcp-web-fetch")
 
 @mcp.tool(
     name="fetch-web",
-    description="Fetch a URL and return the content. Images will be returned in ![]() format.",
+    description="Fetch a URL and return the content. Images will be returned in ![]() format. DO NOT FETCH image_urls, for images use read-image-url instead.",
 )
 async def fetch_web(
     url: Annotated[AnyUrl, Field(description="URL to fetch")]
@@ -63,7 +61,6 @@ def read_image_url(image_urls: List[str]) -> List[ImageContent| TextContent]:
 
     Args:
         image_urls: List of URLs of the images to read
-        session_manager: SessionManager instance
 
     Returns:
         ImageContent containing the base64 encoded image data
