@@ -56,9 +56,9 @@ mcp = FastMCP("mcp-timer")
     ),
 )
 async def wait(
-    ctx: Context,
     time_to_wait: Annotated[NonNegativeInt, Field(description="Total time to wait, **in milliseconds**")],
     notif_interval: Annotated[PositiveInt, Field(description="Interval between progress updates, **in milliseconds**")],
+    ctx: Context,
 ) -> str:
     """Block for *time_to_wait* while emitting progress notifications."""
 
