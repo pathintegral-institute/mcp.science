@@ -12,3 +12,6 @@ build-backend = "hatchling.build"
 [project.scripts]
 mcp-timer = "timer:main"
 
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/timer"]
