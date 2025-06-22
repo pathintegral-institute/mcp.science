@@ -11,8 +11,6 @@ The implementation purposefully depends only on the public MCP Python API
 light-weight and free of any additional runtime requirements.
 """
 
-from __future__ import annotations
-
 import asyncio
 import logging
 from typing import Annotated
