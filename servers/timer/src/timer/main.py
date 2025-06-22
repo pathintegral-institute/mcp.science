@@ -15,14 +15,13 @@ from __future__ import annotations
 
 import asyncio
 import logging
-from typing import Annotated, AsyncGenerator, List
+from typing import Annotated
 
 # The MCP Python SDK is expected to be available at runtime because this server
 # is executed via ``uvx ...`` which installs the declared optional
 # dependencies for the selected sub-package.  Import errors are intentionally
 # *not* swallowed so that problems surface early during startup.
-from mcp.server import FastMCP  # type: ignore
-from mcp.types import TextContent  # type: ignore
+from mcp.server.fastmcp import Context, FastMCP  # type: ignore
 from pydantic import Field, NonNegativeInt, PositiveInt
 
 # -----------------------------------------------------------------------------
@@ -57,53 +56,41 @@ mcp = FastMCP("mcp-timer")
     ),
 )
 async def wait(
+    ctx: Context,
     time_to_wait: Annotated[NonNegativeInt, Field(description="Total time to wait, **in milliseconds**")],
     notif_interval: Annotated[PositiveInt, Field(description="Interval between progress updates, **in milliseconds**")],
-) -> List[TextContent] | AsyncGenerator[TextContent, None]:
-    """Block for *time_to_wait* while emitting progress notifications.
-
-    The function chooses between a normal return value and an asynchronous
-    generator based on the provided parameters.  Using an *async generator*
-    allows the MCP framework to stream intermediate messages back to the
-    client without holding up the entire response until the very end.
-    """
+) -> str:
+    """Block for *time_to_wait* while emitting progress notifications."""
 
     # Fast-path: if ``time_to_wait`` is zero, finish immediately.
     if time_to_wait == 0:
-        return [TextContent(type="text", text="Done (no wait requested)")]
+        return "Done (no wait requested)"
 
     # Convert to seconds for ``asyncio.sleep``.
     total_seconds: float = time_to_wait / 1000.0
     interval_seconds: float = notif_interval / 1000.0
 
-    # Asynchronous *generator* that yields progress updates.
-    async def _ticker() -> AsyncGenerator[TextContent, None]:
-        elapsed: float = 0.0
-        # If the interval is equal to or larger than the total duration we can
-        # skip all intermediate notifications and just sleep once.
-        if notif_interval >= time_to_wait:
-            await asyncio.sleep(total_seconds)
-            yield TextContent(type="text", text="Done")
-            return
+    elapsed_seconds: float = 0.0
+    # If the interval is equal to or larger than the total duration we can
+    # skip all intermediate notifications and just sleep once.
+    if notif_interval >= time_to_wait:
+        await asyncio.sleep(total_seconds)
+        await ctx.report_progress(time_to_wait, time_to_wait)
+        return "Done"
 
-        # The more common case – emit progress updates periodically.
-        while elapsed + interval_seconds < total_seconds:
-            await asyncio.sleep(interval_seconds)
-            elapsed += interval_seconds
-            percent = int(round((elapsed / total_seconds) * 100))
-            remaining_ms = max(0, int((total_seconds - elapsed) * 1000))
-            yield TextContent(
-                type="text",
-                text=f"Progress: {percent}% (≈{remaining_ms} ms remaining)",
-            )
+    # The more common case – emit progress updates periodically.
+    while elapsed_seconds + interval_seconds < total_seconds:
+        await asyncio.sleep(interval_seconds)
+        elapsed_seconds += interval_seconds
+        elapsed_ms = int(elapsed_seconds * 1000)
+        await ctx.report_progress(elapsed_ms, time_to_wait)
 
-        # Final sleep for any leftover < interval.
-        if elapsed < total_seconds:
-            await asyncio.sleep(total_seconds - elapsed)
+    # Final sleep for any leftover < interval.
+    if elapsed_seconds < total_seconds:
+        await asyncio.sleep(total_seconds - elapsed_seconds)
 
-        yield TextContent(type="text", text="Done")
-
-    return _ticker()
+    await ctx.report_progress(time_to_wait, time_to_wait)
+    return "Done"
 
 
 # -----------------------------------------------------------------------------
