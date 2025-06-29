@@ -89,7 +89,10 @@ The evolution process:
    pip install -r requirements.txt
    ```
 
-3. **Configure Cursor MCP**:
+3. **Open project in Cursor**:
+   Open the `netket-mcp` project folder in Cursor IDE to enable local MCP tool installation and configuration.
+
+4. **Configure Cursor MCP**:
    Update the path in `.cursor/mcp.json` to your local directory:
    ```json
    {
@@ -112,9 +115,10 @@ The evolution process:
    }
    ```
 
-4. **Start using the tools**:
+5. **Start using the tools**:
    - Open Cursor
    - Enable agent mode
+   - **Tip**: First, let Cursor AI read through this README.md file to understand the framework context
    - Start with: "Please use the MCP tools to implement the SSH analysis task"
 
 ## Usage Example

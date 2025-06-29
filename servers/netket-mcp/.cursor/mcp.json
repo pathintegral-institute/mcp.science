@@ -16,7 +16,7 @@
                 "numpy",
                 "mcp",
                 "run",
-                "/Users/hwanda/Desktop/EdenCode/projects/MCP-hackathon/condensed-matter-mcp/MCP_NetKet/mcp_server.py"
+                "/Users/hwanda/Desktop/EdenCode/projects/mcp.science/servers/netket-mcp/mcp_server.py"
             ]
         }
     }
