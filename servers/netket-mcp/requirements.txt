@@ -1,0 +1,18 @@
+# Core MCP and server dependencies
+mcp>=1.0.0
+fastmcp>=0.1.0
+
+# Scientific computing libraries
+numpy>=1.21.0
+scipy>=1.7.0
+matplotlib>=3.5.0
+
+# NetKet quantum many-body physics
+netket>=3.17.1
+
+# Data handling and validation
+pydantic>=2.0.0
+
+# Additional utilities
+pathlib-ng>=1.0.0
+uuid-utils>=0.6.0 
