@@ -184,3 +184,5 @@ CLAUDE.md
 secrets.toml
 
 .github/codex/home/sessions/
+
+*.dxt
