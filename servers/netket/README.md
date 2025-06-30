@@ -1,205 +1,120 @@
-# Self-Evolving MCP Tools for Scientific Computing
+# NetKet MCP Server
 
-A framework for developing and iteratively improving Model Context Protocol (MCP) tools for scientific Python libraries through automated feedback loops.
+A Model Context Protocol (MCP) server for quantum many-body physics analysis using NetKet. This server provides natural language tools for creating, analyzing, and visualizing quantum systems.
 
-## Overview
+## What It Does
 
-This repository demonstrates a novel approach to building MCP tools that can self-evolve and improve through iterative testing against scientific computing tasks. Rather than manually crafting perfect tools from the start, this framework allows tools to grow and adapt based on real-world usage patterns and feedback.
+The NetKet MCP server enables you to:
+- **Create quantum systems** using natural language descriptions
+- **Analyze energy spectra** and phase transitions  
+- **Perform parameter sweeps** to study quantum phases
+- **Generate visualizations** of results automatically
+- **Manage complex workflows** with persistent state
 
-## Framework Architecture
 
-The framework consists of four core components that work together in a continuous improvement loop:
+## Usage Examples
 
-### 1. Memory Manager (`netket_jsons.py`)
-A persistent state manager that tracks scientific projects and workflows, serving as a "scratch paper" for complex multi-step analyses. It maintains:
-- System configurations and parameters
-- Intermediate results and computations  
-- Analysis history and metadata
-- File organization and storage
-
-### 2. Language Parser (`netket_schemas.py`)
-Natural language processing schemas that convert human descriptions into structured scientific objects:
-- Lattice geometries ("4x4 square lattice" → NetKet graph objects)
-- Physical systems ("10 fermions with spin-1/2" → Hilbert spaces)
-- Model specifications ("SSH model with t1=1, t2=0.2" → Hamiltonian operators)
-
-### 3. MCP Server (`mcp_server.py`)
-The main tool server providing scientific computing capabilities:
-- Quantum system creation and management
-- Energy spectrum calculations
-- Parameter sweeps and phase transitions
-- Data visualization and analysis
-- Results storage and retrieval
-
-### 4. Task Set (`task-set/`)
-Static reference implementations of common scientific computing tasks that serve as:
-- **Benchmarks**: Ground truth for validating tool outputs (never modified)
-- **Instructions**: Clear examples showing what the tools should accomplish
-- **Test cases**: Comprehensive coverage of scientific workflows to be replicated
-
-## Self-Evolution Loop
+### Basic Quantum System Analysis
 
 ```
-┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐    ┌───────────┐
-│ Task Set  │───▶│ AI Agent  │───▶│   Tool    │───▶│ Compare & │───▶│  Update   │
-│ (Static)  │    │ Use Tools │    │ Results   │    │ Feedback  │    │   Tools   │
-└───────────┘    └───────────┘    └───────────┘    └───────────┘    └───────────┘
-     │                                   │              ▲                 │
-     │                                   │              │                 │
-     ▼                                   ▼              │                 │
-┌───────────┐    ┌───────────┐         ┌─┴──────────────┴─┐               │
-│  Python   │───▶│Reference  │────────▶│     Match?       │               │
-│ Scripts   │    │ Results   │         │   ✓ Done         │               │
-└───────────┘    └───────────┘         │   ✗ Iterate  ────┼───────────────┘
-                                       └──────────────────┘
+"Analyze the SSH model for a 24-site chain with t1=1.0 and t2=0.2"
 ```
 
-The evolution process:
-1. **Apply Tools**: AI agent uses MCP tools to replicate task workflows from the static task set
-2. **Generate Ground Truth**: Directly execute the Python scripts to get reference results
-3. **Compare**: Tool results vs direct Python execution results (plots, data, analysis)
-4. **Analyze Gaps**: Identify differences, errors, and missing capabilities in the tools
-5. **Update Tools**: Modify MCP tools (schemas, server functions, logic) to close gaps
-6. **Iterate**: Repeat until MCP tools can perfectly replicate Python script results
+This will:
+1. Create a new quantum system
+2. Set up a 24-site chain lattice
+3. Configure the Hilbert space for 1 spinless fermion
+4. Build the SSH Hamiltonian with specified parameters
+5. Compute the energy spectrum
+6. Analyze edge states and localization
+7. Generate visualization plots
 
-## Key Principles
-
-- **Generalizability**: Build minimal, reusable building blocks rather than task-specific solutions
-- **Iterative Improvement**: Tools evolve through usage, not upfront design
-- **Scientific Accuracy**: Maintain correctness while improving usability
-- **Natural Language Interface**: Enable intuitive interaction with complex scientific concepts
-
-## Getting Started
-
-### Prerequisites
-- [Cursor](https://cursor.com/) IDE with MCP support
-- Python 3.10+
-- Required scientific libraries (see `requirements.txt`)
-
-### Local Setup
-
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd MCP_NetKet
-   ```
-
-2. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Open project in Cursor**:
-   Open the `netket-mcp` project folder in Cursor IDE to enable local MCP tool installation and configuration.
-
-4. **Configure Cursor MCP**:
-   Update the path in `.cursor/mcp.json` to your local directory:
-   ```json
-   {
-     "mcpServers": {
-       "netket": {
-         "command": "uv",
-         "args": [
-           "run",
-           "--with", "mcp[cli]",
-           "--with", "matplotlib",
-           "--with", "scipy", 
-           "--with", "netket",
-           "--with", "numpy",
-           "mcp",
-           "run",
-           "/path/to/your/local/MCP_NetKet/mcp_server.py"
-         ]
-       }
-     }
-   }
-   ```
-
-5. **Start using the tools**:
-   - Open Cursor
-   - Enable agent mode
-   - **Tip**: First, let Cursor AI read through this README.md file to understand the framework context
-   - Start with: "Please use the MCP tools to implement the SSH analysis task"
-
-## Usage Example
-
-The framework enables natural language interactions with complex scientific computations:
+### Parameter Sweeps
 
 ```
-Human: "Analyze the SSH model edge states for a 24-site chain with t1=1.0, t2=0.2"
-
-AI Agent: 
-1. Creates quantum system
-2. Sets up 24-site chain lattice  
-3. Configures 1 spinless fermion
-4. Builds SSH Hamiltonian
-5. Computes full energy spectrum
-6. Analyzes zero-energy edge states
-7. Generates visualization plots
+"Study the SSH phase transition by sweeping t2 from 0.1 to 2.0 while keeping t1=1.0"
 ```
 
-## Contributing
+This performs a parameter sweep to identify quantum phase transitions.
 
-### Quick Start: Your First Evolution Loop
+### Custom Analysis
 
-Get started contributing in 5 minutes:
+```
+"Create a 4x4 square lattice with spin-1/2 particles and analyze the Heisenberg model with J=1.0"
+```
 
-1. **Setup Environment**:
-   ```bash
-   git clone <repo-url> && cd MCP_NetKet
-   pip install -r requirements.txt
-   # Update .cursor/mcp.json with your local path
-   ```
+Natural language descriptions are converted to precise quantum system specifications.
 
-2. **Run Reference Task**:
-   ```bash
-   python task-set/analyze_ssh.py
-   # ✓ Generates ground truth results in /tmp/quantum_systems/
-   ```
+## Current Support Matrix
 
-3. **Try with MCP Tools** - Open Cursor, enable agent mode, and prompt:
-   ```
-   "Use the MCP tools to analyze the SSH model for a 24-site chain with t1=1.0, t2=0.2, 
-   comparing your results to task-set/analyze_ssh.py"
-   ```
+The MCP server currently supports flexible combinations of lattices, particle types, and Hamiltonian models:
 
-4. **Compare Results**:
-   - **Reference**: Check `/tmp/quantum_systems/system_*/ssh_full_spectrum.png`
-   - **Your Tools**: Did you get the same energy spectrum and edge state localization?
-   - **Gaps Found**: Missing features? Wrong values? Poor visualizations?
+### Lattice Geometries
+- **1D**: Chain
+- **2D**: Square, triangular, kagome, honeycomb  
+- **3D**: Cube, FCC, BCC, pyrochlore
+- **Higher-D**: Hypercube
 
-5. **Evolve**: Update the MCP tools based on what you learned, then repeat until perfect match!
+### Particle Types (Hilbert Spaces)
+- **Spins**: Configurable spin values (spin-1/2, spin-1, etc.)
+- **Fermions**: Spinless or with spin, fixed particle number
+- **Bosons**: Fixed particle number, configurable modes
 
-**Expected First Run**: Tools will likely miss some capabilities. That's the point - now you know exactly what to improve.
+### Hamiltonian Models
+- **SSH Model** (`t1`, `t2`): Su-Schrieffer-Heeger chain for topological phases
+- **Hubbard Model** (`t`, `U`): Fermionic systems with on-site interactions  
+- **Fermion Hopping** (`t`, `B`): General fermionic hopping with magnetic field
+- **Heisenberg Model** (`J`): Spin systems with exchange interactions
+- **Ising Model** (`Jz`, `hx`, `hz`): Spin systems with Ising interactions
+- **Kitaev Model** (`Jx`, `Jy`, `Jz`): Anisotropic spin interactions
 
-### Advanced Contributing
+### Compatible Combinations
+- **Fermionic models** (SSH, Hubbard, Fermion Hopping) work with fermion Hilbert spaces
+- **Spin models** (Heisenberg, Ising, Kitaev) work with spin Hilbert spaces  
+- **All lattice geometries** are compatible with all particle types
+- **Parameter sweeps** are supported for any model parameter
 
-To improve the MCP tools further:
+## Analysis Capabilities
 
-1. **Add new tasks**: Create reference implementations in `task-set/`
-2. **Run evolution loop**: Use Cursor agent mode with the prompt:
-   > "Please use the tools to implement each task in the task set, using the python code as instruction and benchmark. Try to develop general tools to optimize the mcp_server and seed tools so that all tasks can be conquered. Don't build task-specific tools, always find general solutions. Iterate until the tools can perfectly solve all tasks."
+- **Energy Spectra**: Exact diagonalization for eigenvalues and eigenvectors
+- **Ground State Properties**: Correlation functions, order parameters
+- **Parameter Sweeps**: Automated exploration of phase diagrams  
+- **Localization Analysis**: Edge states, Anderson localization
+- **Visualization**: Automatic plot generation and display
 
-3. **Test generalization**: Ensure new capabilities work across multiple scientific domains
-4. **Document improvements**: Update schemas and tool descriptions
+## Natural Language Interface
 
-## Current Capabilities
+The server uses natural language processing to convert descriptions into structured quantum objects:
 
-- **Quantum Many-Body Physics**: SSH model, Hubbard model, Heisenberg chains
-- **Lattice Systems**: 1D chains, 2D square/triangular lattices, 3D cubic lattices  
-- **Analysis Tools**: Energy spectra, phase transitions, parameter sweeps
-- **Visualization**: Automatic plot generation and result display
-- **State Management**: Persistent storage of complex scientific workflows
+| Description | Result |
+|-------------|---------|
+| "24-site chain" | 1D lattice with 24 sites |
+| "1 spinless fermion" | Fermionic Hilbert space, N=1 |
+| "SSH model with t1=1, t2=0.2" | SSH Hamiltonian with specified hopping |
+| "4x4 square lattice" | 2D square lattice, 16 sites |
+| "spin-1/2 on each site" | Spin-1/2 Hilbert space |
 
-## Future Directions
+## Output and Results
 
-This framework can be extended to other scientific domains:
-- **Molecular Dynamics**: Protein folding, drug discovery
-- **Materials Science**: Electronic structure, phonon calculations  
-- **Astrophysics**: N-body simulations, cosmological models
-- **Bioinformatics**: Sequence analysis, structural biology
+All analysis results are automatically saved with organized file structure:
+- **Energy spectra**: Eigenvalues and eigenvectors
+- **Plots**: High-quality visualizations (PNG format)
+- **Data**: Numerical results in accessible formats
+- **Metadata**: System parameters and analysis history
 
-The self-evolution approach ensures tools adapt to the specific needs and workflows of each scientific field while maintaining general applicability.
+Results are stored in `/tmp/quantum_systems/` with unique system IDs for easy retrieval.
+
+
+## Development and Contributing
+
+This NetKet MCP server is built using a **self-evolving framework** that continuously improves through iterative testing against scientific computing tasks. The tools grow and adapt based on real-world usage patterns rather than manual optimization.
+
+### For Contributors and Developers
+- **Framework Architecture**: Learn about the self-evolution loop, memory management, and natural language parsing
+- **Contributing Guide**: Quick start evolution loops and advanced development workflows  
+- **Task-Based Development**: How reference implementations drive tool improvement
+
+👉 **See [DEVELOP.md](DEVELOP.md)** for complete development documentation, architecture details, and contribution guidelines.
 
 ## License
 
