@@ -191,6 +191,16 @@ python task-set/analyze_ssh.py
 python task-set/analyze_ising.py
 ```
 
+## Related Work
+
+Our self-evolving MCP framework shares conceptual similarities with other projects exploring AI agent improvement and iterative development:
+
+- **[Roo Code](https://github.com/RooCodeInc/Roo-Code)**: Provides "a whole dev team of AI agents in your code editor" that can autonomously work on development tasks. Like our framework, it focuses on agents that can evolve and improve their capabilities through usage.
+
+- **[mint-bench](https://xwang.dev/mint-bench/)**: A benchmarking framework for evaluating and improving AI tools through systematic testing against reference tasks, similar to our task-set approach for driving tool evolution.
+
+These projects demonstrate the broader trend toward self-improving AI systems that learn from real-world usage patterns rather than static training.
+
 ## Future Directions
 
 This framework can be extended to other scientific domains:
