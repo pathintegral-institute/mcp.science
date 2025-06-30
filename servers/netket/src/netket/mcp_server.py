@@ -198,53 +198,116 @@ def compute_energy_spectrum(system_id: str, num_eigenvalues: int = 10, which: st
             "num_eigenvalues": 5
           }
     '''
-    system = json_manager.systems[system_id]
-    
-    # Check if all required components are present
-    if not system.lattice or not system.hilbert or not system.hamiltonian:
-        raise ValueError("System must have lattice, Hilbert space, and Hamiltonian defined. "
-                        "Use set_lattice(), set_hilbert_space(), and set_hamiltonian() first.")
-    
-    # Build Hamiltonian from specification
-    H, hi, graph = _build_hamiltonian_from_spec(system)
-    
-    # Function for exact diagonalization
-    def ED(H, k=num_eigenvalues, which=which):
-        if hi.n_states > 1e3:  # sparse matrix
-            sp_h = H.to_sparse()
-            eig_vals, eig_vecs = eigsh(sp_h, k=k, which=which)
-            sort_idx = np.argsort(eig_vals)
-            eig_vals_sorted = eig_vals[sort_idx]
-            eig_vecs_sorted = eig_vecs[:, sort_idx]
-        else:
-            eig_vals_sorted, eig_vecs_sorted = np.linalg.eigh(H.to_dense())
-            if k < len(eig_vals_sorted):
-                eig_vals_sorted = eig_vals_sorted[:k]
-                eig_vecs_sorted = eig_vecs_sorted[:, :k]
-        return eig_vals_sorted, eig_vecs_sorted
-    
-    eigvals, eigvecs = ED(H)
-    
-    # Store results
-    system.results["energy_spectrum"] = {
-        "eigenvalues": eigvals.tolist(),
-        "eigenvectors": eigvecs.tolist(),
-        "ground_state_energy": float(eigvals[0]),
-        "energy_gap": float(eigvals[1] - eigvals[0]) if len(eigvals) > 1 else 0.0
-    }
-    system.results["model_type"] = system.hamiltonian.model_type
-    system.results["parameters"] = system.hamiltonian.get_parameters()
-    json_manager.save_system(system_id)
-    
-    return {
-        "system_id": system_id,
-        "eigenvalues": eigvals.tolist(),
-        "ground_state_energy": float(eigvals[0]),
-        "energy_gap": float(eigvals[1] - eigvals[0]) if len(eigvals) > 1 else 0.0,
-        "num_eigenvalues": len(eigvals),
-        "model_type": system.hamiltonian.model_type.upper(),
-        "parameters": system.hamiltonian.get_parameters()
-    }
+    try:
+        # Validate system_id
+        if system_id not in json_manager.systems:
+            raise ValueError(f"System '{system_id}' not found. Use create_quantum_system() first.")
+        
+        system = json_manager.systems[system_id]
+        
+        # Validate input parameters
+        if num_eigenvalues <= 0:
+            raise ValueError(f"num_eigenvalues must be positive, got {num_eigenvalues}")
+        
+        if which not in ["SA", "LA", "SM", "LM"]:
+            raise ValueError(f"Invalid 'which' parameter: {which}. Must be 'SA', 'LA', 'SM', or 'LM'")
+        
+        # Check if all required components are present
+        if not system.lattice or not system.hilbert or not system.hamiltonian:
+            missing = []
+            if not system.lattice: missing.append("lattice")
+            if not system.hilbert: missing.append("Hilbert space")
+            if not system.hamiltonian: missing.append("Hamiltonian")
+            raise ValueError(f"System missing required components: {', '.join(missing)}. "
+                           "Use set_lattice(), set_hilbert_space(), and set_hamiltonian() first.")
+        
+        # Build Hamiltonian from specification
+        try:
+            H, hi, graph = _build_hamiltonian_from_spec(system)
+        except Exception as e:
+            raise ValueError(f"Failed to build quantum system: {str(e)}. "
+                           "Check lattice, Hilbert space, and Hamiltonian compatibility.")
+        
+        # Check system size constraints
+        if hi.n_states > 1e6:
+            raise ValueError(f"System too large: {hi.n_states} states. "
+                           "Consider reducing system size or using approximate methods.")
+        
+
+        
+        # Function for exact diagonalization with error handling
+        def ED(H, k=num_eigenvalues, which=which):
+            try:
+                if hi.n_states > 1e3:  # sparse matrix approach
+                    try:
+                        sp_h = H.to_sparse()
+                        eig_vals, eig_vecs = eigsh(sp_h, k=k, which=which)
+                        sort_idx = np.argsort(eig_vals)
+                        eig_vals_sorted = eig_vals[sort_idx]
+                        eig_vecs_sorted = eig_vecs[:, sort_idx]
+                    except Exception as e:
+                        raise RuntimeError(f"Sparse eigenvalue computation failed: {str(e)}. "
+                                         "Try reducing system size or num_eigenvalues.")
+                else:  # dense matrix approach
+                    try:
+                        dense_h = H.to_dense()
+                        eig_vals_sorted, eig_vecs_sorted = np.linalg.eigh(dense_h)
+                        if k < len(eig_vals_sorted):
+                            eig_vals_sorted = eig_vals_sorted[:k]
+                            eig_vecs_sorted = eig_vecs_sorted[:, :k]
+                    except np.linalg.LinAlgError as e:
+                        raise RuntimeError(f"Dense eigenvalue computation failed: {str(e)}. "
+                                         "The Hamiltonian matrix may be ill-conditioned.")
+                    except MemoryError:
+                        raise RuntimeError("Not enough memory for dense matrix diagonalization. "
+                                         "Try reducing system size.")
+                
+                return eig_vals_sorted, eig_vecs_sorted
+                
+            except Exception as e:
+                raise RuntimeError(f"Eigenvalue computation failed: {str(e)}")
+        
+        # Perform eigenvalue computation
+        eigvals, eigvecs = ED(H)
+        
+        # Validate results
+        if len(eigvals) == 0:
+            raise RuntimeError("No eigenvalues computed. Check system parameters.")
+        
+        # Store results with error handling
+        try:
+            system.results["energy_spectrum"] = {
+                "eigenvalues": eigvals.tolist(),
+                "eigenvectors": eigvecs.tolist(),
+                "ground_state_energy": float(eigvals[0]),
+                "energy_gap": float(eigvals[1] - eigvals[0]) if len(eigvals) > 1 else 0.0
+            }
+            system.results["model_type"] = system.hamiltonian.model_type
+            system.results["parameters"] = system.hamiltonian.get_parameters()
+            json_manager.save_system(system_id)
+        except Exception as e:
+            print(f"Warning: Failed to save results: {str(e)}")
+        
+        return {
+            "system_id": system_id,
+            "eigenvalues": eigvals.tolist(),
+            "ground_state_energy": float(eigvals[0]),
+            "energy_gap": float(eigvals[1] - eigvals[0]) if len(eigvals) > 1 else 0.0,
+            "num_eigenvalues": len(eigvals),
+            "model_type": system.hamiltonian.model_type.upper(),
+            "parameters": system.hamiltonian.get_parameters()
+        }
+        
+    except ValueError as e:
+        # User input errors - clear error message
+        raise ValueError(str(e))
+    except RuntimeError as e:
+        # Computation errors - clear error message 
+        raise RuntimeError(str(e))
+    except Exception as e:
+        # Unexpected errors - provide debugging info
+        raise RuntimeError(f"Unexpected error in compute_energy_spectrum: {str(e)}. "
+                         f"System: {system_id}, Parameters: num_eigenvalues={num_eigenvalues}, which={which}")
 
 @mcp.tool()
 def analyze_ground_state(system_id: str) -> Dict[str, Any]:
@@ -290,110 +353,175 @@ def parameter_sweep(system_id: str, parameter_name: str,
             "energy_gaps": [0.5, 0.8, 0.0, 0.8, 0.5]
           }
     '''
-    system = json_manager.systems[system_id]
-    
-    # Check if all required components are present
-    if not system.lattice or not system.hilbert or not system.hamiltonian:
-        raise ValueError("System must have lattice, Hilbert space, and Hamiltonian defined. "
-                        "Use set_lattice(), set_hilbert_space(), and set_hamiltonian() first.")
-    
-    # Get parameter range from Hamiltonian specification if not provided
-    if parameter_range is None:
-        if system.hamiltonian.parameter_ranges and parameter_name in system.hamiltonian.parameter_ranges:
-            parameter_range = system.hamiltonian.parameter_ranges[parameter_name]
-        else:
-            raise ValueError(f"No parameter range provided and no range found in Hamiltonian specification for '{parameter_name}'. "
-                           "Either provide parameter_range or set it in set_hamiltonian() with parameter_ranges.")
-    
-    # Create NetKet objects
-    graph = system.lattice.to_netket_graph()
-    hi = system.hilbert.to_netket_hilbert(graph)
-    
-    # Function for exact diagonalization
-    def ED(H, k=5, which="SA"):
-        if hi.n_states > 1e3:  # sparse matrix
-            sp_h = H.to_sparse()
-            eig_vals, eig_vecs = eigsh(sp_h, k=k, which=which)
-            sort_idx = np.argsort(eig_vals)
-            eig_vals_sorted = eig_vals[sort_idx]
-            eig_vecs_sorted = eig_vecs[:, sort_idx]
-        else:
-            eig_vals_sorted, eig_vecs_sorted = np.linalg.eigh(H.to_dense())
-        return eig_vals_sorted, eig_vecs_sorted
-    
-    ground_state_energies = []
-    energy_gaps = []
-    spectra_data = {}
-    all_eigenvalues = []  # Store all eigenvalues for each parameter value
-    
-    # Get base parameters from Hamiltonian specification
-    base_params = system.hamiltonian.get_parameters()
-    model_type = system.hamiltonian.model_type
-    
-    for param_value in parameter_range:
-        # Create a temporary Hamiltonian with the new parameter value
-        temp_params = base_params.copy()
-        temp_params[parameter_name] = param_value
+    try:
+        # Validate system_id
+        if system_id not in json_manager.systems:
+            raise ValueError(f"System '{system_id}' not found. Use create_quantum_system() first.")
         
-        # Create a temporary HamiltonianSchema
-        temp_hamiltonian = HamiltonianSchema(
-            model_type=model_type,
-            parameters=temp_params
-        )
+        system = json_manager.systems[system_id]
         
-        # Build Hamiltonian using the schema's method
-        H = temp_hamiltonian.build_netket_hamiltonian(hi, graph, system_hilbert=system.hilbert)
+        # Validate parameter_name
+        if not parameter_name or not isinstance(parameter_name, str):
+            raise ValueError("parameter_name must be a non-empty string")
         
-        # Compute spectrum
-        eigvals, eigvecs = ED(H, k=hi.n_states if hi.n_states <= 100 else 10)
-        ground_state_energies.append(float(eigvals[0]))
+        # Check if all required components are present
+        if not system.lattice or not system.hilbert or not system.hamiltonian:
+            missing = []
+            if not system.lattice: missing.append("lattice")
+            if not system.hilbert: missing.append("Hilbert space")
+            if not system.hamiltonian: missing.append("Hamiltonian")
+            raise ValueError(f"System missing required components: {', '.join(missing)}. "
+                           "Use set_lattice(), set_hilbert_space(), and set_hamiltonian() first.")
         
-        # Calculate the physical excitation gap, accounting for degeneracy
-        if len(eigvals) > 1:
-            E0 = eigvals[0]
-            # Find the first eigenvalue that is not degenerate with the ground state
-            first_excited_val = E0
-            for e_val in eigvals[1:]:
-                if not np.isclose(e_val, E0, atol=1e-6): # Use tolerance for numerical degeneracy
-                    first_excited_val = e_val
-                    break
-            
-            # If all computed eigenvalues are degenerate, the gap is 0
-            if np.isclose(first_excited_val, E0, atol=1e-6):
-                gap = 0.0
+        # Get parameter range from Hamiltonian specification if not provided
+        if parameter_range is None:
+            if system.hamiltonian.parameter_ranges and parameter_name in system.hamiltonian.parameter_ranges:
+                parameter_range = system.hamiltonian.parameter_ranges[parameter_name]
             else:
-                gap = first_excited_val - E0
-            energy_gaps.append(float(gap))
-        else:
-            energy_gaps.append(0.0)
+                raise ValueError(f"No parameter range provided and no range found in Hamiltonian specification for '{parameter_name}'. "
+                               "Either provide parameter_range or set it in set_hamiltonian() with parameter_ranges.")
+        
+        # Validate parameter_range
+        if not parameter_range or not isinstance(parameter_range, list):
+            raise ValueError("parameter_range must be a non-empty list")
+        
+        if len(parameter_range) < 2:
+            raise ValueError("parameter_range must contain at least 2 values")
+        
+        # Check if parameter exists in Hamiltonian
+        base_params = system.hamiltonian.get_parameters()
+        if parameter_name not in base_params:
+            available_params = list(base_params.keys())
+            raise ValueError(f"Parameter '{parameter_name}' not found in Hamiltonian. "
+                           f"Available parameters: {available_params}")
+    
+    except ValueError:
+        raise
+    except Exception as e:
+        raise RuntimeError(f"Error validating parameter sweep inputs: {str(e)}")
+    
+    try:
+        # Create NetKet objects
+        graph = system.lattice.to_netket_graph()
+        hi = system.hilbert.to_netket_hilbert(graph)
+        
+        # Check system size constraints
+        if hi.n_states > 1e5:
+            raise ValueError(f"System too large for parameter sweep: {hi.n_states} states. "
+                           "Consider reducing system size.")
+        
+        # Function for exact diagonalization with error handling
+        def ED(H, k=5, which="SA"):
+            try:
+                if hi.n_states > 1e3:  # sparse matrix
+                    sp_h = H.to_sparse()
+                    eig_vals, eig_vecs = eigsh(sp_h, k=k, which=which)
+                    sort_idx = np.argsort(eig_vals)
+                    eig_vals_sorted = eig_vals[sort_idx]
+                    eig_vecs_sorted = eig_vecs[:, sort_idx]
+                else:
+                    eig_vals_sorted, eig_vecs_sorted = np.linalg.eigh(H.to_dense())
+                return eig_vals_sorted, eig_vecs_sorted
+            except Exception as e:
+                raise RuntimeError(f"Eigenvalue computation failed: {str(e)}")
+        
+        ground_state_energies = []
+        energy_gaps = []
+        spectra_data = {}
+        all_eigenvalues = []  # Store all eigenvalues for each parameter value
+        
+        # Get base parameters from Hamiltonian specification
+        base_params = system.hamiltonian.get_parameters()
+        model_type = system.hamiltonian.model_type
+        
+        # Main computation loop with error handling
+        for i, param_value in enumerate(parameter_range):
+            try:
+                # Create a temporary Hamiltonian with the new parameter value
+                temp_params = base_params.copy()
+                temp_params[parameter_name] = param_value
+                
+                # Create a temporary HamiltonianSchema
+                temp_hamiltonian = HamiltonianSchema(
+                    model_type=model_type,
+                    parameters=temp_params
+                )
+                
+                # Build Hamiltonian using the schema's method
+                H = temp_hamiltonian.build_netket_hamiltonian(hi, graph, system_hilbert=system.hilbert)
+                
+                # Compute spectrum
+                eigvals, eigvecs = ED(H, k=hi.n_states if hi.n_states <= 100 else 10)
+                
+                if len(eigvals) == 0:
+                    raise RuntimeError(f"No eigenvalues computed for {parameter_name}={param_value}")
+                
+                ground_state_energies.append(float(eigvals[0]))
+                
+                # Calculate the physical excitation gap, accounting for degeneracy
+                if len(eigvals) > 1:
+                    E0 = eigvals[0]
+                    # Find the first eigenvalue that is not degenerate with the ground state
+                    first_excited_val = E0
+                    for e_val in eigvals[1:]:
+                        if not np.isclose(e_val, E0, atol=1e-6): # Use tolerance for numerical degeneracy
+                            first_excited_val = e_val
+                            break
+                    
+                    # If all computed eigenvalues are degenerate, the gap is 0
+                    if np.isclose(first_excited_val, E0, atol=1e-6):
+                        gap = 0.0
+                    else:
+                        gap = first_excited_val - E0
+                    energy_gaps.append(float(gap))
+                else:
+                    energy_gaps.append(0.0)
 
-        spectra_data[f"{parameter_name}_{param_value}"] = eigvals.tolist()
-        all_eigenvalues.append(eigvals.tolist())
-    
-    # Store results
-    system.results["parameter_sweep"] = {
-        "parameter_name": parameter_name,
-        "parameter_range": parameter_range,
-        "ground_state_energies": ground_state_energies,
-        "energy_gaps": energy_gaps,
-        "spectra_data": spectra_data,
-        "all_eigenvalues": all_eigenvalues,
-        "model_type": model_type,
-        "base_parameters": base_params
-    }
-    # Do NOT store any NetKet objects in results
-    json_manager.save_system(system_id)
-    
-    return {
-        "system_id": system_id,
-        "parameter_name": parameter_name,
-        "parameter_range": parameter_range,
-        "ground_state_energies": ground_state_energies,
-        "energy_gaps": energy_gaps,
-        "all_eigenvalues": all_eigenvalues,
-        "model_type": model_type.upper(),
-        "base_parameters": base_params
-    }
+                spectra_data[f"{parameter_name}_{param_value}"] = eigvals.tolist()
+                all_eigenvalues.append(eigvals.tolist())
+                
+            except Exception as e:
+                raise RuntimeError(f"Error computing spectrum for {parameter_name}={param_value}: {str(e)}")
+        
+        # Validate results
+        if not ground_state_energies:
+            raise RuntimeError("No valid results computed in parameter sweep")
+        
+        # Store results with error handling
+        try:
+            system.results["parameter_sweep"] = {
+                "parameter_name": parameter_name,
+                "parameter_range": parameter_range,
+                "ground_state_energies": ground_state_energies,
+                "energy_gaps": energy_gaps,
+                "spectra_data": spectra_data,
+                "all_eigenvalues": all_eigenvalues,
+                "model_type": model_type,
+                "base_parameters": base_params
+            }
+            # Do NOT store any NetKet objects in results
+            json_manager.save_system(system_id)
+        except Exception as e:
+            print(f"Warning: Failed to save parameter sweep results: {str(e)}")
+        
+        return {
+            "system_id": system_id,
+            "parameter_name": parameter_name,
+            "parameter_range": parameter_range,
+            "ground_state_energies": ground_state_energies,
+            "energy_gaps": energy_gaps,
+            "all_eigenvalues": all_eigenvalues,
+            "model_type": model_type.upper(),
+            "base_parameters": base_params
+        }
+        
+    except ValueError as e:
+        raise ValueError(str(e))
+    except RuntimeError as e:
+        raise RuntimeError(str(e))
+    except Exception as e:
+        raise RuntimeError(f"Unexpected error in parameter_sweep: {str(e)}. "
+                         f"System: {system_id}, Parameter: {parameter_name}")
 
 @mcp.tool()
 def plot_xy(system_id: str, x_data: List[float], y_data: List[float], 
@@ -462,91 +590,164 @@ def generate_plot(system_id: str, plot_type: str, file_path: Optional[str] = Non
             "description": "Parameter sweep plot saved to file"
           }
     '''
-    system = json_manager.systems[system_id]
-    
-    if plot_type == "spectrum" and "energy_spectrum" in system.results:
-        # Plot energy spectrum
-        spectrum = system.results["energy_spectrum"]
-        eigvals = spectrum["eigenvalues"]
+    try:
+        # Validate system_id
+        if system_id not in json_manager.systems:
+            raise ValueError(f"System '{system_id}' not found. Use create_quantum_system() first.")
         
-        plt.figure(figsize=(8, 6))
-        plt.plot(range(len(eigvals)), eigvals, 'o-', markersize=6)
-        plt.xlabel("Eigenvalue index", fontsize=12)
-        plt.ylabel("Energy", fontsize=12)
-        plt.title(f"Energy Spectrum: {system.results.get('model_type', 'Unknown')} Model", fontsize=14)
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
+        system = json_manager.systems[system_id]
         
-    elif plot_type == "ground_state" and "ground_state_analysis" in system.results:
-        # Plot ground state spatial profile
-        gs_analysis = system.results["ground_state_analysis"]
-        spatial_profile = gs_analysis["spatial_profile"]
+        # Validate plot_type
+        valid_plot_types = ["spectrum", "ground_state", "parameter_sweep"]
+        if plot_type not in valid_plot_types:
+            raise ValueError(f"Invalid plot_type '{plot_type}'. Must be one of: {valid_plot_types}")
         
-        plt.figure(figsize=(8, 5))
-        plt.plot(range(len(spatial_profile)), spatial_profile, 'o-', markersize=4)
-        plt.xlabel("Site index", fontsize=12)
-        plt.ylabel("|ψ(i)|²", fontsize=12)
-        plt.title(f"Ground State Profile: {system.results.get('model_type', 'Unknown')} Model", fontsize=14)
-        plt.grid(True, alpha=0.3)
-        plt.tight_layout()
+        # Clear any existing plots to avoid conflicts
+        plt.close('all')
         
-    elif plot_type == "parameter_sweep" and "parameter_sweep" in system.results:
-        # Plot parameter sweep results
-        sweep = system.results["parameter_sweep"]
-        param_range = sweep["parameter_range"]
-        gs_energies = sweep["ground_state_energies"]
-        energy_gaps = sweep["energy_gaps"]
+        # Generate plots based on type with error handling
+        if plot_type == "spectrum":
+            if "energy_spectrum" not in system.results:
+                raise ValueError("No energy spectrum data available. Run compute_energy_spectrum() first.")
+            
+            try:
+                spectrum = system.results["energy_spectrum"]
+                eigvals = spectrum["eigenvalues"]
+                
+                if not eigvals:
+                    raise ValueError("Empty eigenvalue data")
+                
+                plt.figure(figsize=(8, 6))
+                plt.plot(range(len(eigvals)), eigvals, 'o-', markersize=6)
+                plt.xlabel("Eigenvalue index", fontsize=12)
+                plt.ylabel("Energy", fontsize=12)
+                plt.title(f"Energy Spectrum: {system.results.get('model_type', 'Unknown')} Model", fontsize=14)
+                plt.grid(True, alpha=0.3)
+                plt.tight_layout()
+            except Exception as e:
+                raise RuntimeError(f"Failed to create energy spectrum plot: {str(e)}")
+                
+        elif plot_type == "ground_state":
+            if "ground_state_analysis" not in system.results:
+                raise ValueError("No ground state data available. Run analyze_ground_state() first.")
+            
+            try:
+                gs_analysis = system.results["ground_state_analysis"]
+                spatial_profile = gs_analysis["spatial_profile"]
+                
+                if not spatial_profile:
+                    raise ValueError("Empty spatial profile data")
+                
+                plt.figure(figsize=(8, 5))
+                plt.plot(range(len(spatial_profile)), spatial_profile, 'o-', markersize=4)
+                plt.xlabel("Site index", fontsize=12)
+                plt.ylabel("|ψ(i)|²", fontsize=12)
+                plt.title(f"Ground State Profile: {system.results.get('model_type', 'Unknown')} Model", fontsize=14)
+                plt.grid(True, alpha=0.3)
+                plt.tight_layout()
+            except Exception as e:
+                raise RuntimeError(f"Failed to create ground state plot: {str(e)}")
+                
+        elif plot_type == "parameter_sweep":
+            if "parameter_sweep" not in system.results:
+                raise ValueError("No parameter sweep data available. Run parameter_sweep() first.")
+            
+            try:
+                sweep = system.results["parameter_sweep"]
+                param_range = sweep["parameter_range"]
+                gs_energies = sweep["ground_state_energies"]
+                energy_gaps = sweep["energy_gaps"]
+                
+                if not param_range or not gs_energies or not energy_gaps:
+                    raise ValueError("Incomplete parameter sweep data")
+                
+                if len(param_range) != len(gs_energies) or len(param_range) != len(energy_gaps):
+                    raise ValueError("Inconsistent parameter sweep data lengths")
+                
+                fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
+                
+                # Ground state energy
+                ax1.plot(param_range, gs_energies, 'o-', markersize=6)
+                ax1.set_xlabel(sweep["parameter_name"], fontsize=12)
+                ax1.set_ylabel("Ground State Energy", fontsize=12)
+                ax1.set_title("Ground State Energy", fontsize=14)
+                ax1.grid(True, alpha=0.3)
+                
+                # Energy gap
+                ax2.plot(param_range, energy_gaps, 'o-', markersize=6, color='red')
+                ax2.set_xlabel(sweep["parameter_name"], fontsize=12)
+                ax2.set_ylabel("Energy Gap", fontsize=12)
+                ax2.set_title("Energy Gap", fontsize=14)
+                ax2.grid(True, alpha=0.3)
+                
+                plt.tight_layout()
+            except Exception as e:
+                raise RuntimeError(f"Failed to create parameter sweep plot: {str(e)}")
         
-        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-        
-        # Ground state energy
-        ax1.plot(param_range, gs_energies, 'o-', markersize=6)
-        ax1.set_xlabel(sweep["parameter_name"], fontsize=12)
-        ax1.set_ylabel("Ground State Energy", fontsize=12)
-        ax1.set_title("Ground State Energy", fontsize=14)
-        ax1.grid(True, alpha=0.3)
-        
-        # Energy gap
-        ax2.plot(param_range, energy_gaps, 'o-', markersize=6, color='red')
-        ax2.set_xlabel(sweep["parameter_name"], fontsize=12)
-        ax2.set_ylabel("Energy Gap", fontsize=12)
-        ax2.set_title("Energy Gap", fontsize=14)
-        ax2.grid(True, alpha=0.3)
-        
-        plt.tight_layout()
-        
-    else:
-        raise ValueError(f"No data available for plot type: {plot_type}")
-    
-    if file_path:
-        # Save plot to file inside the system's directory
-        system_dir = json_manager.storage_dir / system_id
-        system_dir.mkdir(exist_ok=True)
-        full_path = system_dir / file_path
-        
-        plt.savefig(full_path, dpi=150, bbox_inches='tight')
-        plt.close()
-        
-        return {
-            "system_id": system_id,
-            "plot_type": plot_type,
-            "file_path": str(full_path),
-            "description": f"{plot_type.replace('_', ' ').title()} plot saved to file"
-        }
-    else:
-        # Return plot as base64
-        buf = io.BytesIO()
-        plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
-        buf.seek(0)
-        plot_data = base64.b64encode(buf.getvalue()).decode()
-        plt.close()
-        
-        return {
-            "system_id": system_id,
-            "plot_type": plot_type,
-            "plot_data": plot_data,
-            "description": f"{plot_type.replace('_', ' ').title()} plot as base64"
-        }
+        # Handle file saving or base64 encoding
+        if file_path:
+            try:
+                # Validate file path
+                if not file_path.endswith(('.png', '.jpg', '.jpeg', '.pdf', '.svg')):
+                    file_path += '.png'  # Default to PNG
+                
+                # Save plot to file inside the system's directory
+                system_dir = json_manager.storage_dir / system_id
+                system_dir.mkdir(exist_ok=True)
+                full_path = system_dir / file_path
+                
+                plt.savefig(full_path, dpi=150, bbox_inches='tight')
+                
+                # Verify file was created
+                if not full_path.exists():
+                    raise RuntimeError("Plot file was not created successfully")
+                
+                plt.close()
+                
+                return {
+                    "system_id": system_id,
+                    "plot_type": plot_type,
+                    "file_path": str(full_path),
+                    "description": f"{plot_type.replace('_', ' ').title()} plot saved to file"
+                }
+                
+            except Exception as e:
+                plt.close()  # Clean up
+                raise RuntimeError(f"Failed to save plot to file: {str(e)}")
+        else:
+            try:
+                # Return plot as base64
+                buf = io.BytesIO()
+                plt.savefig(buf, format='png', dpi=150, bbox_inches='tight')
+                buf.seek(0)
+                plot_data = base64.b64encode(buf.getvalue()).decode()
+                plt.close()
+                
+                if not plot_data:
+                    raise RuntimeError("Failed to generate plot data")
+                
+                return {
+                    "system_id": system_id,
+                    "plot_type": plot_type,
+                    "plot_data": plot_data,
+                    "description": f"{plot_type.replace('_', ' ').title()} plot as base64"
+                }
+                
+            except Exception as e:
+                plt.close()  # Clean up
+                raise RuntimeError(f"Failed to encode plot as base64: {str(e)}")
+                
+    except ValueError as e:
+        # Clean up matplotlib resources
+        plt.close('all')
+        raise ValueError(str(e))
+    except RuntimeError as e:
+        plt.close('all')
+        raise RuntimeError(str(e))
+    except Exception as e:
+        plt.close('all')
+        raise RuntimeError(f"Unexpected error in generate_plot: {str(e)}. "
+                         f"System: {system_id}, Plot type: {plot_type}")
 
 @mcp.tool()
 def list_quantum_systems() -> List[Dict[str, Any]]:
@@ -669,17 +870,39 @@ def delete_quantum_system(system_id: str) -> Dict[str, Any]:
 
 def _build_hamiltonian_from_spec(system) -> Any:
     """Helper function to build NetKet Hamiltonian from system specification."""
-    if not system.lattice or not system.hilbert or not system.hamiltonian:
-        raise ValueError("System must have lattice, Hilbert space, and Hamiltonian defined")
-    
-    # Create NetKet objects
-    graph = system.lattice.to_netket_graph()
-    hi = system.hilbert.to_netket_hilbert(graph)
-    
-    # Build Hamiltonian using the schema's method, passing the Hilbert space schema
-    H = system.hamiltonian.build_netket_hamiltonian(hi, graph, system_hilbert=system.hilbert)
-    
-    return H, hi, graph
+    try:
+        if not system.lattice or not system.hilbert or not system.hamiltonian:
+            raise ValueError("System must have lattice, Hilbert space, and Hamiltonian defined")
+        
+        # Create NetKet objects with error handling
+        try:
+            graph = system.lattice.to_netket_graph()
+        except Exception as e:
+            raise ValueError(f"Failed to create lattice graph: {str(e)}. Check lattice specification.")
+        
+        try:
+            hi = system.hilbert.to_netket_hilbert(graph)
+        except Exception as e:
+            raise ValueError(f"Failed to create Hilbert space: {str(e)}. Check Hilbert space compatibility with lattice.")
+        
+        # Validate Hilbert space size
+        if hi.n_states <= 0:
+            raise ValueError("Invalid Hilbert space: zero states")
+        
+        # Build Hamiltonian using the schema's method, passing the Hilbert space schema
+        try:
+            H = system.hamiltonian.build_netket_hamiltonian(hi, graph, system_hilbert=system.hilbert)
+        except Exception as e:
+            raise ValueError(f"Failed to build Hamiltonian: {str(e)}. Check Hamiltonian compatibility with lattice and Hilbert space.")
+        
+        return H, hi, graph
+        
+    except ValueError:
+        # Re-raise ValueError with original message
+        raise
+    except Exception as e:
+        # Wrap unexpected errors
+        raise RuntimeError(f"Unexpected error building quantum system: {str(e)}")
 
 @mcp.tool()
 def analyze_eigenstate(system_id: str, eigenstate_index: int) -> Dict[str, Any]:
