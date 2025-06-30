@@ -19,7 +19,7 @@ mcp = FastMCP('NetKet Quantum Many-Body Physics Server')
 # Create a JSON manager
 json_manager = NetKetJSONManager()
 
-# @mcp.tool()
+# @mcp.tool() # This is a test tool
 # def add(a: int, b: int) -> int:
 #     return a + b
 
@@ -788,6 +788,8 @@ def analyze_eigenstate(system_id: str, eigenstate_index: int) -> Dict[str, Any]:
         "parameters": system.hamiltonian.get_parameters()
     }
 
-# # This is the main entry point for your server
-# if __name__ == "__main__":
-#     mcp.run() 
+def main():
+    mcp.run('stdio')
+
+if __name__ == "__main__":
+    main() 
