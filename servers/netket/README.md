@@ -1,6 +1,8 @@
 # NetKet MCP Server
 
-A Model Context Protocol (MCP) server for quantum many-body physics analysis using NetKet. This server provides natural language tools for creating, analyzing, and visualizing quantum systems.
+A Model Context Protocol (MCP) server for quantum many-body physics analysis using [NetKet](https://www.netket.org/). This server provides natural language tools for creating, analyzing, and visualizing quantum systems.
+
+> **Built on NetKet**: This MCP server leverages [NetKet](https://www.netket.org/), the machine-learning toolbox for quantum physics, to provide accessible quantum many-body analysis through natural language interfaces.
 
 ## What It Does
 
