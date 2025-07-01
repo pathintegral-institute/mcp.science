@@ -16,7 +16,9 @@
         "mcp-science",
         "materials-project"
       ],
-      "env": {}
+      "env": {
+        "MP_API_KEY": "${user_config.mp_api_key}"
+      }
     }
   },
   "tools": [
@@ -53,5 +55,14 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/pathintegral-institute/mcp.science"
+  },
+  "user_config": {
+    "mp_api_key": {
+      "type": "string",
+      "title": "Materials Project API Key",
+      "description": "Your API key for authentication to the Materials Project API",
+      "sensitive": true,
+      "required": true
+    }
   }
 }
