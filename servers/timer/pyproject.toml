@@ -1,0 +1,17 @@
+[project]
+name = "mcp-timer"
+version = "0.0.1"
+description = "A simple MCP timer server that streams progress updates."
+requires-python = ">=3.10"
+dependencies = ["mcp[cli]", "pydantic"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project.scripts]
+mcp-timer = "timer:main"
+
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/timer"]
