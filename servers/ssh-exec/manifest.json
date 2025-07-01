@@ -16,7 +16,17 @@
         "mcp-science",
         "ssh-exec"
       ],
-      "env": {}
+      "env": {
+        "SSH_HOST": "${user_config.ssh_host}",
+        "SSH_PORT": "${user_config.ssh_port}",
+        "SSH_USERNAME": "${user_config.ssh_username}",
+        "SSH_PRIVATE_KEY": "${user_config.ssh_private_key}",
+        "SSH_PASSWORD": "${user_config.ssh_password}",
+        "SSH_ALLOWED_COMMANDS": "${user_config.ssh_allowed_commands}",
+        "SSH_ALLOWED_PATHS": "${user_config.ssh_allowed_paths}",
+        "SSH_COMMANDS_BLACKLIST": "${user_config.ssh_commands_blacklist}",
+        "SSH_ARGUMENTS_BLACKLIST": "${user_config.ssh_arguments_blacklist}"
+      }
     }
   },
   "tools": [
@@ -29,5 +39,63 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/pathintegral-institute/mcp.science"
+  },
+  "user_config": {
+    "ssh_host": {
+      "type": "string",
+      "title": "SSH Host",
+      "description": "The hostname or IP address of the remote system to connect to.",
+      "required": true
+    },
+    "ssh_port": {
+      "type": "number",
+      "title": "SSH Port",
+      "description": "The port number to use for the SSH connection.",
+      "default": 22
+    },
+    "ssh_username": {
+      "type": "string",
+      "title": "SSH Username",
+      "description": "The username to use for SSH authentication.",
+      "required": true
+    },
+    "ssh_private_key": {
+      "type": "string",
+      "title": "SSH Private Key",
+      "description": "The private key content for SSH authentication (optional).",
+      "sensitive": true,
+      "default": ""
+    },
+    "ssh_password": {
+      "type": "string",
+      "title": "SSH Password",
+      "description": "The password for SSH authentication (optional).",
+      "sensitive": true,
+      "default": ""
+    },
+    "ssh_allowed_commands": {
+      "type": "string",
+      "title": "Allowed Commands",
+      "description": "Comma-separated list of commands that are allowed to be executed (optional).",
+      "default": ""
+    },
+    "ssh_allowed_paths": {
+      "type": "string",
+      "title": "Allowed Paths",
+      "description": "Comma-separated list of paths that are allowed to be accessed (optional).",
+      "default": ""
+    },
+    "ssh_commands_blacklist": {
+      "type": "string",
+      "title": "Commands Blacklist",
+      "description": "Comma-separated list of commands that are not allowed to be executed.",
+      "default": "rm,mv,dd,mkfs,fdisk,format"
+    },
+    "ssh_arguments_blacklist": {
+      "type": "string",
+      "title": "Arguments Blacklist",
+      "description": "Comma-separated list of arguments that are not allowed to be used.",
+      "default": "-rf,-fr,--force"
+    }
   }
 }

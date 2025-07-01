@@ -16,7 +16,10 @@
         "mcp-science",
         "jupyter-act"
       ],
-      "env": {}
+      "env": {
+        "JUPYTER_SERVER_URL": "${user_config.jupyter_server_url}",
+        "JUPYTER_SERVER_TOKEN": "${user_config.jupyter_server_token}"
+      }
     }
   },
   "tools": [
@@ -49,5 +52,19 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/pathintegral-institute/mcp.science"
+  },
+  "user_config": {
+    "jupyter_server_url": {
+      "type": "string",
+      "title": "Jupyter Server URL",
+      "description": "The URL of the Jupyter server to connect to.",
+      "required": true
+    },
+    "jupyter_server_token": {
+      "type": "string",
+      "title": "Jupyter Server Token",
+      "description": "The token of the Jupyter server to connect to.",
+      "required": true
+    }
   }
 }
