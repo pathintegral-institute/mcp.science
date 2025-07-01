@@ -1,0 +1,53 @@
+{
+  "dxt_version": "0.1",
+  "name": "jupyter-act",
+  "display_name": "Jupyter Action Server",
+  "version": "1.0.0",
+  "description": "MCP server for interacting with Jupyter notebooks, executing code, and managing notebook content.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "jupyter-act"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "execute_code",
+      "description": "Execute code in a notebook with specific notebook path"
+    },
+    {
+      "name": "add_cell_and_execute_code",
+      "description": "Add a code cell to the notebook and execute it"
+    },
+    {
+      "name": "add_cell",
+      "description": "Add a cell to the notebook. You can add a cell to the notebook with type: code, markdown and raw."
+    },
+    {
+      "name": "replace_cell",
+      "description": "Replace the given cell in the notebook. WARNING: This is a high-risk operation that will modify the notebook content without user confirmation."
+    },
+    {
+      "name": "read_jupyter_file",
+      "description": "Read file content. For regular files, returns the entire content; for .ipynb files, returns notebook cells in pages."
+    },
+    {
+      "name": "list_jupyter_files",
+      "description": "List files in the Jupyter workspace. To list files in the root directory, provide an empty string as file_path."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

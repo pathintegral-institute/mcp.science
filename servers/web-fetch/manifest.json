@@ -1,0 +1,37 @@
+{
+  "dxt_version": "0.1",
+  "name": "web-fetch",
+  "display_name": "Web Fetch Server",
+  "version": "1.0.0",
+  "description": "MCP server for fetching webpages including html/pdf/plain text and image type content.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "web-fetch"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "fetch-web",
+      "description": "Fetch a URL and return the content. Images will be returned in ![]() format. DO NOT FETCH image_urls, for images use read-image-url instead."
+    },
+    {
+      "name": "read-image-url",
+      "description": "Read images from URLs, convert to LLM readable format."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}
