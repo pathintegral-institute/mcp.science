@@ -1,0 +1,24 @@
+[project]
+name = "mcp-science-netket"
+version = "0.1.0"
+description = "MCP Server for NetKet Quantum Many-Body Physics Analysis"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp[cli]>=1.6.0",
+    "fastmcp>=0.1.0",
+    "numpy>=1.21.0",
+    "scipy>=1.7.0",
+    "matplotlib>=3.5.0",
+    "netket>=3.17.1",
+    "pydantic>=2.0.0",
+    "pathlib-ng>=1.0.0",
+    "uuid-utils>=0.6.0",
+]
+
+[project.scripts]
+mcp-science-netket = "netket:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build" 
