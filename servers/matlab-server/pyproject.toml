@@ -1,0 +1,16 @@
+[project]
+name = "matlab-server"
+version = "0.1.0"
+requires-python = ">=3.11"
+description = "A Python MCP server for interacting with MATLAB."
+authors = [{ name = "Jules", email = "jules@example.com" }] # Placeholder
+license = { text = "MIT" }
+
+dependencies = ["mcp[cli]>=1.0.0"]
+
+[project.scripts]
+mcp-matlab-server = "matlab_server.server:main"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
