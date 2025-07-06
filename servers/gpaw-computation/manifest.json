@@ -1,0 +1,45 @@
+{
+  "dxt_version": "0.1",
+  "name": "gpaw-computation",
+  "display_name": "GPAW Computation Server",
+  "version": "1.0.0",
+  "description": "MCP server for running DFT calculations using GPAW on remote computation servers.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "gpaw-computation"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "create_new_project",
+      "description": "Create a new project based on a given structure."
+    },
+    {
+      "name": "start_calculation",
+      "description": "Start a DFT calculation on a remote computation server."
+    },
+    {
+      "name": "check_calculation_result",
+      "description": "Check the result of a DFT computation."
+    },
+    {
+      "name": "get_project_summary",
+      "description": "Get a summary of a project including all calculations and their status."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

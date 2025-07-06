@@ -1,0 +1,57 @@
+{
+  "dxt_version": "0.1",
+  "name": "materials-project",
+  "display_name": "Materials Project Server",
+  "version": "1.0.0",
+  "description": "MCP server for accessing the Materials Project database and working with crystal structures.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "materials-project"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "search_materials_by_formula",
+      "description": "Search for materials in the MPRester database by chemical formula."
+    },
+    {
+      "name": "select_material_by_id",
+      "description": "Select a material from a list of structure_info objects by material_id."
+    },
+    {
+      "name": "get_structure_data",
+      "description": "Obtain the structure data (coordinates of atoms and other properties of the bulk or supercell crystal structure)."
+    },
+    {
+      "name": "create_structure_from_poscar",
+      "description": "Create a new structure from a poscar string."
+    },
+    {
+      "name": "plot_structure",
+      "description": "Plot the structure of a material."
+    },
+    {
+      "name": "build_supercell",
+      "description": "Starting from a bulk_structure in structure_info, build a supercell structure and store it into a new structure_info."
+    },
+    {
+      "name": "moire_homobilayer",
+      "description": "Generate a moire superstructure of a 2D homobilayer and save it to folder, retrievable by a structure_uri."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

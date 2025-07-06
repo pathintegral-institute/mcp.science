@@ -1,7 +1,6 @@
 import base64
-from typing import Annotated, Literal
+from typing import Annotated, Literal, List
 
-from emmet.core.bonds import List
 from emmet.core.summary import SummaryDoc
 from loguru import logger
 from mcp.server.fastmcp import FastMCP

@@ -1,0 +1,33 @@
+{
+  "dxt_version": "0.1",
+  "name": "ssh-exec",
+  "display_name": "SSH Execution Server",
+  "version": "1.0.0",
+  "description": "MCP server for executing commands on remote systems via SSH with security restrictions.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "ssh-exec"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "ssh_exec",
+      "description": "Execute a command on the remote system via SSH."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

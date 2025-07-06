@@ -1,0 +1,57 @@
+{
+  "dxt_version": "0.1",
+  "name": "tinydb",
+  "display_name": "tinydb",
+  "version": "1.0.0",
+  "description": "MCP server for working with TinyDB, a lightweight document database.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "tinydb"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "create_table",
+      "description": "Creates a new table in the database."
+    },
+    {
+      "name": "insert_document",
+      "description": "Inserts a document into the specified table."
+    },
+    {
+      "name": "query_documents",
+      "description": "Queries documents from the specified table."
+    },
+    {
+      "name": "update_documents",
+      "description": "Updates documents in the specified table."
+    },
+    {
+      "name": "delete_documents",
+      "description": "Deletes documents from the specified table."
+    },
+    {
+      "name": "purge_table",
+      "description": "Removes all documents from the specified table."
+    },
+    {
+      "name": "drop_table",
+      "description": "Drops the specified table from the database."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}
