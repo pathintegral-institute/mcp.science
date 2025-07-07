@@ -163,13 +163,13 @@ async def plot_structure(
     return [
         ImageContent(
             type="image", data=img_base64, mimeType="image/png"),
-        EmbeddedResource(
-            type="resource",
-            resource=TextResourceContents(
-                uri=structure_uri, text=fig.to_json(), mimeType="application/json"),
-            # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
-            extra_type="plotly",  # type: ignore
-        ),
+        # EmbeddedResource(
+        #     type="resource",
+        #     resource=TextResourceContents(
+        #         uri=structure_uri, text=fig.to_json(), mimeType="application/json"),
+        #     # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
+        #     extra_type="plotly",  # type: ignore
+        # ),
     ]
 
 

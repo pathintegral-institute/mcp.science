@@ -265,16 +265,16 @@ async def check_calculation_result(
         img_base64 = base64.b64encode(img_bytes).decode("utf-8")
         response.append(ImageContent(
             type="image", data=img_base64, mimeType="image/png"))
-        response.append(
-            EmbeddedResource(
-                type="resource",
-                resource=TextResourceContents(
-                    uri=project_uri, text=cast(str, fig.to_json()), mimeType="application/json"
-                ),
-                # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
-                extra_type="plotly",
-            )
-        )
+        # response.append(
+        #     EmbeddedResource(
+        #         type="resource",
+        #         resource=TextResourceContents(
+        #             uri=project_uri, text=cast(str, fig.to_json()), mimeType="application/json"
+        #         ),
+        #         # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
+        #         extra_type="plotly",
+        #     )
+        # )
     return response
 
 
