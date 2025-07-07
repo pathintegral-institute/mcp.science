@@ -6,6 +6,7 @@ from loguru import logger
 from mcp.server.fastmcp import FastMCP
 from mcp.types import EmbeddedResource, ImageContent, TextContent, TextResourceContents
 from pymatgen.io.ase import AseAtomsAdaptor
+from pymatgen.core.structure import Structure
 
 from .data_class import StructureData, SupercellParameters
 from .structure_helper import (
@@ -132,6 +133,33 @@ async def create_structure_from_poscar(
     response.append(TextContent(type="text", text=structure_data.description))
     return response
 
+@mcp.tool(
+    name="create_structure_from_cif",
+    description="Create a new structure from a cif string",
+)
+async def create_structure_from_cif(
+    cif_str: Annotated[str, "The cif string of the structure"],
+) -> list[TextContent]:
+    """
+    Create a new structure from a cif string
+
+    Args:
+        cif_str: the cif string of the structure
+
+    Returns:
+        A list that contains a single element. The element is a TextContent
+        that contains the description of the new structure.
+    """
+    structure = Structure.from_str(cif_str, fmt="cif")
+    structure_data = StructureData(structure=structure)
+    structure_id = structure_data.structure_id
+    structure_uri = f"structure://{structure_id}"
+    structure_folder_path = get_structure_folder_path(structure_uri)
+    structure_data.to_folder(structure_folder_path)
+    response = [TextContent(
+        type="text", text=f"A new structure is created with the structure uri: {structure_uri}")]
+    response.append(TextContent(type="text", text=structure_data.description))
+    return response
 
 @mcp.tool(
     name="plot_structure",
