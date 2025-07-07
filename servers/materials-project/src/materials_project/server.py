@@ -120,8 +120,9 @@ async def create_structure_from_poscar(
         poscar_str: the poscar string of the structure
 
     Returns:
-        A list that contains a single element. The element is a TextContent
-        that contains the description of the new structure.
+        A list that contains two elements. The first element is a TextContent
+        that contains the uri of the new structure. The second element is a TextContent
+        that contains the description of the new structure. 
     """
     structure_data = StructureData(structure=poscar_str)
     structure_id = structure_data.structure_id
@@ -147,8 +148,9 @@ async def create_structure_from_cif(
         cif_str: the cif string of the structure
 
     Returns:
-        A list that contains a single element. The element is a TextContent
-        that contains the description of the new structure.
+        A list that contains two elements. The first element is a TextContent
+        that contains the uri of the new structure. The second element is a TextContent
+        that contains the description of the new structure. 
     """
     structure = Structure.from_str(cif_str, fmt="cif")
     structure_data = StructureData(structure=structure)
