@@ -1,0 +1,41 @@
+{
+  "dxt_version": "0.1",
+  "name": "txyz-search",
+  "display_name": "txyz-search",
+  "version": "1.0.0",
+  "description": "MCP server for searching academic and web content using the TXYZ API.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "txyz-search"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "txyz_search_scholar",
+      "description": "Focused, specialized search for academic and scholarly materials, the results are could be papers, articles etc."
+    },
+    {
+      "name": "txyz_search_web",
+      "description": "Perform a web search for general purpose information, the results would be resources from web pages."
+    },
+    {
+      "name": "txyz_search_smart",
+      "description": "AI-powered Smart Search handles all the necessary work to deliver the best results. The results may include either scholarly materials or web pages."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

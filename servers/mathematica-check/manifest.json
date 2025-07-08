@@ -1,0 +1,37 @@
+{
+  "dxt_version": "0.1",
+  "name": "mathematica-check",
+  "display_name": "Mathematica Check Server",
+  "version": "1.0.0",
+  "description": "MCP server for executing local Mathematica (Wolfram Script) code and returning the output.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "mathematica-check"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "execute_mathematica",
+      "description": "Execute Mathematica code and return the result. Each code block should be self-contained and complete."
+    },
+    {
+      "name": "verify_derivation",
+      "description": "Verify a mathematical derivation by checking equivalence between steps."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

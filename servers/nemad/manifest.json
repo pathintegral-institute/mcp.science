@@ -1,0 +1,45 @@
+{
+  "dxt_version": "0.1",
+  "name": "nemad",
+  "display_name": "NEMAD Server",
+  "version": "1.0.0",
+  "description": "MCP server for accessing the NEMAD (Novel Electronic Materials Database) for magnetic, thermoelectric, and superconductor materials.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "nemad"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "nemad_search",
+      "description": "Search for materials by elements in NEMAD database."
+    },
+    {
+      "name": "nemad_formula_search",
+      "description": "Search for materials by exact chemical formula in NEMAD database."
+    },
+    {
+      "name": "nemad_read_results",
+      "description": "Read specific range of cached search results."
+    },
+    {
+      "name": "nemad_list_cache",
+      "description": "List all available cache keys from previous searches."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

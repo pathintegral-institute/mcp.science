@@ -1,0 +1,37 @@
+{
+  "dxt_version": "0.1",
+  "name": "example-server",
+  "display_name": "example-server",
+  "version": "1.0.0",
+  "description": "A Model Context Protocol (MCP) server for example.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "example-server"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "add",
+      "description": "Add two numbers and return the sum."
+    },
+    {
+      "name": "get_image_of_flower",
+      "description": "Get an image of a flower in PNG format."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "dxt_version": "0.1",
+  "name": "python-code-execution",
+  "display_name": "Python Code Execution Server",
+  "version": "1.0.0",
+  "description": "MCP server for executing Python code in a sandboxed environment with security restrictions.",
+  "author": {
+    "name": "Path Integral Institute"
+  },
+  "server": {
+    "type": "python",
+    "entry_point": "",
+    "mcp_config": {
+      "command": "uvx",
+      "args": [
+        "mcp-science",
+        "python-code-execution"
+      ],
+      "env": {}
+    }
+  },
+  "tools": [
+    {
+      "name": "python_code_execution",
+      "description": "Execute the generated python code in a sandboxed environment with security restrictions."
+    }
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pathintegral-institute/mcp.science"
+  }
+}
