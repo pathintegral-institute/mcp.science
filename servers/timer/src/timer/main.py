@@ -48,16 +48,17 @@ mcp = FastMCP("mcp-timer")
 @mcp.tool(
     name="wait",
     description=(
-        "Wait for `time_to_wait` milliseconds, sending progress-update "
-        "notifications every `notif_interval` milliseconds before returning "
-        "`Done`.  If `notif_interval` is greater than `time_to_wait` then the "
-        "tool will send **no** intermediate progress updates."
+        "A timer tool that waits for a specified duration while providing "
+        "progress updates. Useful for simulating delays, testing async operations, "
+        "or demonstrating progress reporting. The tool will block for the specified "
+        "time and send periodic progress notifications to track completion status. "
+        "Returns 'Done' when the wait period is complete."
     ),
 )
 async def wait(
-    time_to_wait: Annotated[NonNegativeInt, Field(description="Total time to wait, **in milliseconds**")],
+    time_to_wait: Annotated[NonNegativeInt, Field(description="Total duration to wait in milliseconds (e.g., 5000 for 5 seconds)")],
     ctx: Context,
-    notif_interval: Annotated[PositiveInt, Field(description="Interval between progress updates, **in milliseconds**")] = 10000,
+    notif_interval: Annotated[PositiveInt, Field(description="Optional interval in milliseconds between progress notifications. Defaults to 10000 (10 seconds) if not specified. Use smaller values for more frequent updates.")] = 10000,
 ) -> str:
     """Block for *time_to_wait* while emitting progress notifications."""
 
