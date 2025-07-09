@@ -8,6 +8,7 @@ from typing import TypedDict
 from pymatgen.core.structure import Structure
 from pymatgen.io.vasp.inputs import Poscar
 from pymatgen.symmetry.analyzer import SpacegroupAnalyzer
+from pymatgen.symmetry.bandstructure import HighSymmKpath  
 
 from .plot_helper import plot_structure
 from .rester import mp_rester
@@ -113,13 +114,42 @@ class StructureData:
         return self.get_description()
 
     def get_description(self) -> str:
-        description = "Bulk Structure Information\n\n"
+        kpath = HighSymmKpath(self.structure)
+        special_k_points_str = ""
+        try:
+            special_k_points_str = 'Special k points:\n ' + ', '.join(kpath.kpath["kpoints"].keys())
+            # replace \Gamma by G and F_1 by F1
+            special_k_points_str = special_k_points_str.replace("\\Gamma", "G").replace("_", "")
+        except Exception:
+            pass
+
+        description = "Structure Information\n\n"
+        
+        # Try to get spacegroup info, but handle gracefully if it fails
+        spg_info = ""
+        try:
+            spg_analyzer = SpacegroupAnalyzer(self.structure)
+            spg_symbol = spg_analyzer.get_space_group_symbol()
+            spg_number = spg_analyzer.get_space_group_number()
+            crystal_system = spg_analyzer.get_crystal_system()
+            
+            spg_info = f"""
+Spacegroup: {spg_symbol} (#{spg_number})
+Crystal System: {crystal_system}
+"""
+        except Exception:
+            # If spacegroup analysis fails, we just skip this information
+            pass
 
         description += f"""
 Material id: {self.material_id if 'material_id' in self.__dict__ else 'N/A'}
 
-Species:
-{self.structure.species}
+Formula:
+{self.structure.composition.formula}
+
+{spg_info}
+
+{special_k_points_str}
 
 Lattice Parameters:
 a={self.structure.lattice.a:.4f}

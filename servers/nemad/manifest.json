@@ -16,7 +16,9 @@
         "mcp-science",
         "nemad"
       ],
-      "env": {}
+      "env": {
+        "NEMAD_API_KEY": "${user_config.nemad_api_key}"
+      }
     }
   },
   "tools": [
@@ -41,5 +43,13 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/pathintegral-institute/mcp.science"
+  },
+  "user_config": {
+    "nemad_api_key": {
+      "type": "string",
+      "title": "NEMAD API Key",
+      "description": "The API key for the NEMAD database.",
+      "required": true
+    }
   }
 }
