@@ -13,6 +13,7 @@ light-weight and free of any additional runtime requirements.
 
 import asyncio
 import logging
+import os
 from typing import Annotated
 
 # The MCP Python SDK is expected to be available at runtime because this server
@@ -27,7 +28,7 @@ from pydantic import Field, NonNegativeInt, PositiveInt
 # -----------------------------------------------------------------------------
 
 logging.basicConfig(
-    level=logging.INFO,
+    level=getattr(logging, os.getenv("LOG_LEVEL", "INFO").upper()),
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
@@ -55,8 +56,8 @@ mcp = FastMCP("mcp-timer")
 )
 async def wait(
     time_to_wait: Annotated[NonNegativeInt, Field(description="Total time to wait, **in milliseconds**")],
-    notif_interval: Annotated[PositiveInt, Field(description="Interval between progress updates, **in milliseconds**")],
     ctx: Context,
+    notif_interval: Annotated[PositiveInt, Field(description="Interval between progress updates, **in milliseconds**")] = 10000,
 ) -> str:
     """Block for *time_to_wait* while emitting progress notifications."""
 
@@ -73,6 +74,7 @@ async def wait(
     # skip all intermediate notifications and just sleep once.
     if notif_interval >= time_to_wait:
         await asyncio.sleep(total_seconds)
+        logger.debug(f"Sending final progress notification: {time_to_wait}/{time_to_wait} ms")
         await ctx.report_progress(time_to_wait, time_to_wait)
         return "Done"
 
@@ -81,12 +83,14 @@ async def wait(
         await asyncio.sleep(interval_seconds)
         elapsed_seconds += interval_seconds
         elapsed_ms = int(elapsed_seconds * 1000)
+        logger.debug(f"Sending progress notification: {elapsed_ms}/{time_to_wait} ms")
         await ctx.report_progress(elapsed_ms, time_to_wait)
 
     # Final sleep for any leftover < interval.
     if elapsed_seconds < total_seconds:
         await asyncio.sleep(total_seconds - elapsed_seconds)
 
+    logger.debug(f"Sending final progress notification: {time_to_wait}/{time_to_wait} ms")
     await ctx.report_progress(time_to_wait, time_to_wait)
     return "Done"
 
