@@ -81,6 +81,10 @@ assistant can quote or summarise it.
 Performs Web, academic and “best effort” searches via the TXYZ API.  A TXYZ API
 key is required.
 
+#### [Timer](./servers/timer/)
+A minimal countdown timer that streams progress updates to demonstrate MCP
+notifications.
+
 #### [GPAW Computation](./servers/gpaw-computation/)
 Provides density-functional-theory (DFT) calculations through the GPAW package.
 
