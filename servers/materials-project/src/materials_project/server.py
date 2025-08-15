@@ -18,7 +18,7 @@ from .rester import mp_rester
 from .moire_helper import homobilayer_twist
 
 
-mcp = FastMCP("mcp-materials-project")
+mcp = FastMCP("mcp-materials-project", port=8002)
 
 
 @mcp.tool(
@@ -39,8 +39,7 @@ async def search_materials_by_formula(
         description of a structure with the given chemical formula
     """
 
-    search_results: list[SummaryDoc] = mp_rester.summary.search(
-        formula=chemical_formula)
+    search_results: list[SummaryDoc] = mp_rester.summary.search(formula=chemical_formula)
     structure_description_list: list[str] = []
     for search_result in search_results:
         structure_data = StructureData(material_id=search_result.material_id)
@@ -70,8 +69,7 @@ async def select_material_by_id(
     structure_data = get_structure_from_material_id(material_id)
     structure_uri = f"structure://{structure_data.structure_id}"
     response = [TextContent(type="text", text=structure_data.description)]
-    response.append(TextContent(
-        type="text", text="structure uri: " + structure_uri))
+    response.append(TextContent(type="text", text="structure uri: " + structure_uri))
     return response
 
 
@@ -81,8 +79,7 @@ async def select_material_by_id(
 )
 async def get_structure_data(
     structure_uri: Annotated[str, "The uri of the structure"],
-    format: Annotated[Literal["cif", "poscar"],
-                      "The format of the structure file"] = "poscar",
+    format: Annotated[Literal["cif", "poscar"], "The format of the structure file"] = "poscar",
 ) -> list[TextContent]:
     """
     Obtain the structure data (coordinates of atoms and other properties of the bulk or supercell crystal structure)
@@ -122,17 +119,21 @@ async def create_structure_from_poscar(
     Returns:
         A list that contains two elements. The first element is a TextContent
         that contains the uri of the new structure. The second element is a TextContent
-        that contains the description of the new structure. 
+        that contains the description of the new structure.
     """
     structure_data = StructureData(structure=poscar_str)
     structure_id = structure_data.structure_id
     structure_uri = f"structure://{structure_id}"
     structure_folder_path = get_structure_folder_path(structure_uri)
     structure_data.to_folder(structure_folder_path)
-    response = [TextContent(
-        type="text", text=f"A new structure is created with the structure uri: {structure_uri}")]
+    response = [
+        TextContent(
+            type="text", text=f"A new structure is created with the structure uri: {structure_uri}"
+        )
+    ]
     response.append(TextContent(type="text", text=structure_data.description))
     return response
+
 
 @mcp.tool(
     name="create_structure_from_cif",
@@ -150,7 +151,7 @@ async def create_structure_from_cif(
     Returns:
         A list that contains two elements. The first element is a TextContent
         that contains the uri of the new structure. The second element is a TextContent
-        that contains the description of the new structure. 
+        that contains the description of the new structure.
     """
     structure = Structure.from_str(cif_str, fmt="cif")
     structure_data = StructureData(structure=structure)
@@ -158,10 +159,14 @@ async def create_structure_from_cif(
     structure_uri = f"structure://{structure_id}"
     structure_folder_path = get_structure_folder_path(structure_uri)
     structure_data.to_folder(structure_folder_path)
-    response = [TextContent(
-        type="text", text=f"A new structure is created with the structure uri: {structure_uri}")]
+    response = [
+        TextContent(
+            type="text", text=f"A new structure is created with the structure uri: {structure_uri}"
+        )
+    ]
     response.append(TextContent(type="text", text=structure_data.description))
     return response
+
 
 @mcp.tool(
     name="plot_structure",
@@ -169,8 +174,10 @@ async def create_structure_from_cif(
 )
 async def plot_structure(
     structure_uri: Annotated[str, "The uri of the structure"],
-    duplication: Annotated[list[int],
-                           "The duplication of the structure in the plot, specified by a list of three integers along a,b,c axis."] = [1, 1, 1]
+    duplication: Annotated[
+        list[int],
+        "The duplication of the structure in the plot, specified by a list of three integers along a,b,c axis.",
+    ] = [1, 1, 1],
 ) -> list[ImageContent | TextContent | EmbeddedResource]:
     """
     Plot the structure of a material
@@ -191,12 +198,12 @@ async def plot_structure(
     img_base64 = base64.b64encode(img_bytes).decode("utf-8")
 
     return [
-        ImageContent(
-            type="image", data=img_base64, mimeType="image/png"),
+        ImageContent(type="image", data=img_base64, mimeType="image/png"),
         EmbeddedResource(
             type="resource",
             resource=TextResourceContents(
-                uri=structure_uri, text=fig.to_json(), mimeType="application/json"),
+                uri=structure_uri, text=fig.to_json(), mimeType="application/json"
+            ),
             # EmbeddedResource has enabled extra fields, so add an extra_type to indicate it's a plotly figure
             extra_type="plotly",  # type: ignore
         ),
@@ -209,8 +216,9 @@ async def plot_structure(
 )
 async def build_supercell(
     bulk_structure_uri: Annotated[str, "The uri of the bulk structure"],
-    supercell_parameters: Annotated[SupercellParameters,
-                                    "A dictionary containing the supercell parameters"],
+    supercell_parameters: Annotated[
+        SupercellParameters, "A dictionary containing the supercell parameters"
+    ],
 ) -> list[TextContent]:
     """
     Starting from a bulk_structure in structure_info, build a supercell structure and store it into a new structure_info
@@ -231,16 +239,18 @@ async def build_supercell(
     )
     # save the updated structure info in the folder
     supercell_structure_uri = f"structure://{supercell_structure_data.structure_id}"
-    supercell_structure_folder_path = get_structure_folder_path(
-        supercell_structure_uri)
+    supercell_structure_folder_path = get_structure_folder_path(supercell_structure_uri)
     supercell_structure_data.to_folder(supercell_structure_folder_path)
 
     return [
         TextContent(
-            type="text", text=f"Supercell structure is created with the structure uri: {supercell_structure_uri}"
+            type="text",
+            text=f"Supercell structure is created with the structure uri: {supercell_structure_uri}",
         ),
         TextContent(
-            type="text", text=f"Description of the supercell structure: {supercell_structure_data.description}")
+            type="text",
+            text=f"Description of the supercell structure: {supercell_structure_data.description}",
+        ),
     ]
 
 
@@ -249,14 +259,17 @@ async def build_supercell(
     description="Generate a moire superstructure of a 2D homobilayer and save it to folder, retrievable by a structure_uri",
 )
 async def moire_homobilayer(
-    bulk_structure_uri: Annotated[str, "The uri of the bulk structure used to build the moire bilayer"],
-    interlayer_spacing: Annotated[float, "The interlayer spacing between the two layers, in angstrom"],
-    max_num_atoms: Annotated[int,
-                             "The maximum number of atoms in the moire superstructure"] = 10,
-    twist_angle: Annotated[float,
-                           "The twist angle of the moire superstructure, in degrees"] = 0.0,
-    vacuum_thickness: Annotated[float,
-                                "The vacuum thickness in the z direction, in angstrom"] = 15.0,
+    bulk_structure_uri: Annotated[
+        str, "The uri of the bulk structure used to build the moire bilayer"
+    ],
+    interlayer_spacing: Annotated[
+        float, "The interlayer spacing between the two layers, in angstrom"
+    ],
+    max_num_atoms: Annotated[int, "The maximum number of atoms in the moire superstructure"] = 10,
+    twist_angle: Annotated[float, "The twist angle of the moire superstructure, in degrees"] = 0.0,
+    vacuum_thickness: Annotated[
+        float, "The vacuum thickness in the z direction, in angstrom"
+    ] = 15.0,
 ) -> List[TextContent]:
     """
     Generate a moire superstructure of a 2D homobilayer and save it to folder, retrievable by a structure_uri
@@ -284,7 +297,11 @@ async def moire_homobilayer(
     moire_structure_data = StructureData(structure=moire_structure)
     moire_structure_data.parent_ids = [bulk_structure_data.structure_id]
     moire_structure_uri = f"structure://{moire_structure_data.structure_id}"
-    moire_structure_folder_path = get_structure_folder_path(
-        moire_structure_uri)
+    moire_structure_folder_path = get_structure_folder_path(moire_structure_uri)
     moire_structure_data.to_folder(moire_structure_folder_path)
-    return [TextContent(type="text", text=f"Moire structure is created with the structure uri: {moire_structure_uri}")]
+    return [
+        TextContent(
+            type="text",
+            text=f"Moire structure is created with the structure uri: {moire_structure_uri}",
+        )
+    ]

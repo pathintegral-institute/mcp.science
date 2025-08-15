@@ -5,7 +5,7 @@ from .server import mcp
 def main():
     """Entry point for the Materials Project MCP server"""
     logger.info("starting materials project server...")
-    mcp.run(transport="stdio")
+    mcp.run(transport="streamable-http")
 
 
 if __name__ == "__main__":
