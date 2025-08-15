@@ -1,0 +1,96 @@
+name: Auto-Submit to MCPM Registry
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'servers/**'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  detect-new-servers:
+    runs-on: ubuntu-latest
+    outputs:
+      new-servers: ${{ steps.detect.outputs.new-servers }}
+      has-new-servers: ${{ steps.detect.outputs.has-new-servers }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Detect new servers
+        id: detect
+        run: |
+          # Get all changed files in servers directory
+          CHANGED_FILES=$(git diff --name-only HEAD~1 HEAD -- servers/ || true)
+          
+          if [ -z "$CHANGED_FILES" ]; then
+            echo "No changes detected in servers directory"
+            echo "has-new-servers=false" >> $GITHUB_OUTPUT
+            echo "new-servers=[]" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          
+          echo "Changed files in servers directory:"
+          echo "$CHANGED_FILES"
+          
+          # Extract unique server directory names and check if they are new
+          NEW_SERVERS="[]"
+          for file in $CHANGED_FILES; do
+            # Extract server directory name (servers/server-name/...)
+            SERVER_NAME=$(echo "$file" | cut -d'/' -f2)
+            
+            # Skip if we already processed this server
+            if echo "$NEW_SERVERS" | jq -e --arg server "$SERVER_NAME" 'index($server)' > /dev/null; then
+              continue
+            fi
+            
+            # Check if this server directory existed in the previous commit
+            if ! git ls-tree HEAD~1 servers/$SERVER_NAME >/dev/null 2>&1; then
+              echo "Found new server: $SERVER_NAME"
+              NEW_SERVERS=$(echo "$NEW_SERVERS" | jq --arg server "$SERVER_NAME" '. + [$server]')
+            else
+              echo "Skipping existing server: $SERVER_NAME (modified, not new)"
+            fi
+          done
+          
+          echo "new-servers=$NEW_SERVERS" >> $GITHUB_OUTPUT
+          if [ "$NEW_SERVERS" != "[]" ]; then
+            echo "has-new-servers=true" >> $GITHUB_OUTPUT
+          else
+            echo "has-new-servers=false" >> $GITHUB_OUTPUT
+          fi
+
+  trigger-mcpm-workflow:
+    needs: detect-new-servers
+    if: needs.detect-new-servers.outputs.has-new-servers == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger MCPM registry workflow
+        run: |
+          # Build comma-separated server URLs for each detected server
+          SERVER_URLS=$(echo '${{ needs.detect-new-servers.outputs.new-servers }}' | jq -r 'map("https://github.com/${{ github.repository }}/tree/main/servers/" + .) | join(",")')
+          
+          # Trigger the external workflow in mcpm.sh repository
+          gh workflow run generate-manifest.yml \
+            --repo pathintegral-institute/mcpm.sh \
+            --field server_urls="$SERVER_URLS" \
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  summary:
+    needs: [detect-new-servers, trigger-mcpm-workflow]
+    if: always() && needs.detect-new-servers.outputs.has-new-servers == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summary
+        run: |
+          echo "## Auto-submission Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully detected servers: ${{ needs.detect-new-servers.outputs.new-servers }}" >> $GITHUB_STEP_SUMMARY
+          echo "Triggered workflow in mcpm.sh repository for registry submission." >> $GITHUB_STEP_SUMMARY
