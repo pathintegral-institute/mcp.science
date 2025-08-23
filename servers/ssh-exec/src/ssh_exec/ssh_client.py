@@ -13,28 +13,29 @@ class SSHClient:
     def __init__(
         self,
         host: str,
-        port: int,
-        username: str,
-        private_key: Optional[str] = None,
+        port: int = 22,
+        username: Optional[str] = None,
+        private_key_file: Optional[str] = None,
         password: Optional[str] = None,
     ):
         """Initialize SSH client
 
         Args:
             host: SSH host to connect to
-            port: SSH port
-            username: SSH username
-            private_key: SSH private key content (not path)
+            port: SSH port (defaults to 22)
+            username: SSH username (optional if specified in SSH config)
+            private_key_file: SSH private key file path
             password: SSH password
 
         Note:
-            If neither private_key nor password is provided, the client will attempt
+            If neither private_key, private_key_file, nor password is provided, the client will attempt
             to use the system's SSH configuration (e.g., keys in ~/.ssh/)
+            If both private_key and private_key_file are provided, private_key_file takes precedence
         """
         self.host = host
         self.port = port
         self.username = username
-        self.private_key = private_key
+        self.private_key_file = private_key_file
         self.password = password
         self.client = None
 
@@ -59,12 +60,26 @@ class SSHClient:
                 "username": self.username,
             }
 
-            if self.private_key:
-                key_file = io.StringIO(self.private_key)
-                private_key = paramiko.RSAKey.from_private_key(key_file)
-                connect_kwargs["pkey"] = private_key
-            elif self.password:
-                connect_kwargs["password"] = self.password
+            if self.private_key_file:
+                # Use private key file path - supports OpenSSH format
+                # Try different key types in order
+                private_key = None
+                key_types = [
+                    paramiko.RSAKey,
+                    paramiko.Ed25519Key,
+                    paramiko.ECDSAKey,
+                ]
+                
+                for key_type in key_types:
+                    try:
+                        private_key = key_type.from_private_key_file(self.private_key_file)
+                        break
+                    except (paramiko.SSHException, ValueError):
+                        continue
+                
+                if not private_key:
+                    # Fall back to system authentication
+                    self._set_system_auth(connect_kwargs)
             else:
                 # If neither private_key nor password is provided, use system SSH config
                 # This will use keys from ~/.ssh/ if available

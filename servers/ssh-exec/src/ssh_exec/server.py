@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 SSH_HOST = None
 SSH_PORT = 22
 SSH_USERNAME = None
-SSH_PRIVATE_KEY = None
+SSH_PRIVATE_KEY_FILE = None
 SSH_PASSWORD = None
 ALLOWED_COMMANDS = []
 ALLOWED_PATHS = []
@@ -30,7 +30,7 @@ ARGUMENTS_BLACKLIST = []
 def load_env():
     """Load environment variables"""
     global SSH_HOST, SSH_PORT, SSH_USERNAME
-    global SSH_PRIVATE_KEY, SSH_PASSWORD
+    global SSH_PRIVATE_KEY_FILE, SSH_PASSWORD
     global ALLOWED_COMMANDS, ALLOWED_PATHS
     global COMMANDS_BLACKLIST, ARGUMENTS_BLACKLIST
 
@@ -38,7 +38,8 @@ def load_env():
     SSH_HOST = os.environ.get("SSH_HOST")
     SSH_PORT = int(os.environ.get("SSH_PORT", "22"))
     SSH_USERNAME = os.environ.get("SSH_USERNAME")
-    SSH_PRIVATE_KEY = os.environ.get("SSH_PRIVATE_KEY")
+
+    SSH_PRIVATE_KEY_FILE = os.environ.get("SSH_PRIVATE_KEY_FILE")
     SSH_PASSWORD = os.environ.get("SSH_PASSWORD")
 
     # Get security configuration from environment variables
@@ -57,11 +58,12 @@ def load_env():
     logger.info("SSH exec MCP server configuration:")
     logger.info("SSH host: %s", SSH_HOST)
     logger.info("SSH port: %s", SSH_PORT)
-    logger.info("SSH username: %s", SSH_USERNAME)
-    logger.info("Using private key: %s", bool(SSH_PRIVATE_KEY))
+    logger.info("SSH username: %s%s", SSH_USERNAME or "not_set", 
+                " (will use SSH config)" if not SSH_USERNAME else "")
+    logger.info("Using private key file: %s", bool(SSH_PRIVATE_KEY_FILE))
     logger.info("Using password: %s", bool(SSH_PASSWORD))
     logger.info(
-        "Using system SSH config: %s", not SSH_PRIVATE_KEY and not SSH_PASSWORD)
+        "Using SSH config fallback: %s", not SSH_PRIVATE_KEY_FILE and not SSH_PASSWORD)
     logger.info("Allowed commands: %s", ALLOWED_COMMANDS)
     logger.info("Allowed paths: %s", ALLOWED_PATHS)
     logger.info("Commands blacklist: %s", COMMANDS_BLACKLIST)
@@ -111,7 +113,7 @@ def get_ssh_client() -> Optional[SSHClient]:
             host=SSH_HOST,
             port=SSH_PORT,
             username=SSH_USERNAME,
-            private_key=SSH_PRIVATE_KEY,
+            private_key_file=SSH_PRIVATE_KEY_FILE,
             password=SSH_PASSWORD
         )
         logger.info(

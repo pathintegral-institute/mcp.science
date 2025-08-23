@@ -33,9 +33,10 @@ For security reasons, SSH credentials should be provided via environment variabl
 - `SSH_PORT`: SSH port (default: 22)
 - `SSH_USERNAME`: SSH username (required)
 - `SSH_PRIVATE_KEY`: SSH private key content (not path)
+- `SSH_PRIVATE_KEY_FILE`: SSH private key file path (supports OpenSSH format)
 - `SSH_PASSWORD`: SSH password
 
-Either `SSH_PRIVATE_KEY` or `SSH_PASSWORD` must be provided, or the system will attempt to use your SSH config.
+Either `SSH_PRIVATE_KEY`, `SSH_PRIVATE_KEY_FILE`, or `SSH_PASSWORD` must be provided, or the system will attempt to use your SSH config. If both `SSH_PRIVATE_KEY` and `SSH_PRIVATE_KEY_FILE` are provided, `SSH_PRIVATE_KEY_FILE` takes precedence.
 
 Optional environment variables for security configuration:
 - `SSH_ALLOWED_COMMANDS`: Comma-separated list of commands that are allowed to be executed
@@ -63,7 +64,10 @@ Optional environment variables for security configuration:
 export SSH_HOST=example.com
 export SSH_PORT=22
 export SSH_USERNAME=user
-export SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)"
+# Option 1: Use private key file path (recommended for OpenSSH format keys)
+export SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa
+# Option 2: Use private key content
+# export SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)"
 export SSH_ALLOWED_COMMANDS="ls,ps,cat"
 export SSH_ALLOWED_PATHS="/tmp,/home"
 export SSH_COMMANDS_BLACKLIST=rm,mv,dd,mkfs,fdisk,format
@@ -93,7 +97,7 @@ Use this option if you have the code checked out locally and want to run it dire
         "SSH_HOST": "example.com",
         "SSH_PORT": "22",
         "SSH_USERNAME": "user",
-        "SSH_PRIVATE_KEY": "$(cat ~/.ssh/id_rsa)",
+        "SSH_PRIVATE_KEY_FILE": "~/.ssh/id_rsa",
         "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
         "SSH_ALLOWED_PATHS": "/tmp,/home",
         "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
@@ -122,7 +126,7 @@ Use this option to automatically fetch and run the latest version from GitHub:
         "SSH_HOST": "example.com",
         "SSH_PORT": "22",
         "SSH_USERNAME": "user",
-        "SSH_PRIVATE_KEY": "$(cat ~/.ssh/id_rsa)",
+        "SSH_PRIVATE_KEY_FILE": "~/.ssh/id_rsa",
         "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
         "SSH_ALLOWED_PATHS": "/tmp,/home",
         "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
