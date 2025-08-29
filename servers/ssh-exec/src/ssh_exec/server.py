@@ -36,6 +36,9 @@ def load_env():
 
     # Get SSH configuration from environment variables
     SSH_HOST = os.environ.get("SSH_HOST")
+    if not SSH_HOST:
+        raise Exception("ssh host is not set!")
+
     SSH_PORT = int(os.environ.get("SSH_PORT", "22"))
     SSH_USERNAME = os.environ.get("SSH_USERNAME")
 
@@ -92,10 +95,8 @@ def validate_ssh_config() -> None:
     """
     if not SSH_HOST:
         raise ValueError("SSH_HOST environment variable is not set")
-    if not SSH_USERNAME:
-        raise ValueError("SSH_USERNAME environment variable is not set")
-    # Private key and password are now optional
-    # If neither is provided, system SSH configuration will be used
+    # Username is now optional if SSH config is available
+    # Private key and password are optional - will use SSH config or system defaults
 
 
 # Get or create SSH client
@@ -116,9 +117,10 @@ def get_ssh_client() -> Optional[SSHClient]:
             private_key_file=SSH_PRIVATE_KEY_FILE,
             password=SSH_PASSWORD
         )
+        username_display = SSH_USERNAME or "from_ssh_config"
         logger.info(
             "Created SSH client for %s@%s:%s",
-            SSH_USERNAME, SSH_HOST, SSH_PORT)
+            username_display, SSH_HOST, SSH_PORT)
         return ssh_client
     except paramiko.SSHException as e:
         logger.error("Failed to create SSH client: %s", str(e))
