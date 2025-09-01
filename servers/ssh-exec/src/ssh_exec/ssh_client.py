@@ -49,11 +49,7 @@ class SSHClient:
 
     def _get_default_ssh_config_path(self) -> Optional[str]:
         """Get the default SSH config file path for the current platform."""
-        if os.name == 'nt':  # Windows
-            # Windows SSH config is typically in %USERPROFILE%\.ssh\config
-            config_path = Path.home() / '.ssh' / 'config'
-        else:  # Unix-like (Linux, macOS)
-            config_path = Path.home() / '.ssh' / 'config'
+        config_path = Path.home() / '.ssh' / 'config'
         
         return str(config_path) if config_path.exists() else None
 

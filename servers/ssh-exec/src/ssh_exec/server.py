@@ -20,6 +20,7 @@ SSH_HOST = None
 SSH_PORT = 22
 SSH_USERNAME = None
 SSH_PRIVATE_KEY_FILE = None
+SSH_CONFIG_FILE = None
 SSH_PASSWORD = None
 ALLOWED_COMMANDS = []
 ALLOWED_PATHS = []
@@ -30,7 +31,7 @@ ARGUMENTS_BLACKLIST = []
 def load_env():
     """Load environment variables"""
     global SSH_HOST, SSH_PORT, SSH_USERNAME
-    global SSH_PRIVATE_KEY_FILE, SSH_PASSWORD
+    global SSH_PRIVATE_KEY_FILE, SSH_PASSWORD, SSH_CONFIG_FILE
     global ALLOWED_COMMANDS, ALLOWED_PATHS
     global COMMANDS_BLACKLIST, ARGUMENTS_BLACKLIST
 
@@ -44,6 +45,8 @@ def load_env():
 
     SSH_PRIVATE_KEY_FILE = os.environ.get("SSH_PRIVATE_KEY_FILE")
     SSH_PASSWORD = os.environ.get("SSH_PASSWORD")
+
+    SSH_CONFIG_FILE = os.environ.get("SSH_CONFIG_FILE")
 
     # Get security configuration from environment variables
     ALLOWED_COMMANDS = [
@@ -115,7 +118,8 @@ def get_ssh_client() -> Optional[SSHClient]:
             port=SSH_PORT,
             username=SSH_USERNAME,
             private_key_file=SSH_PRIVATE_KEY_FILE,
-            password=SSH_PASSWORD
+            password=SSH_PASSWORD,
+            ssh_config_file=SSH_CONFIG_FILE,
         )
         username_display = SSH_USERNAME or "from_ssh_config"
         logger.info(
@@ -136,7 +140,7 @@ async def ssh_exec(
         description="Arguments to pass to the command")] = None,
     timeout: Annotated[Optional[int], Field(
         description="Timeout in seconds for command execution")] = None
-) -> Tuple[int, str, str]:
+) -> TextContent:
     """Execute a command on the remote system
 
     Args:
