@@ -375,44 +375,6 @@ cli = [
 ]
 
 [[package]]
-name = "mcp-ssh-exec"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "fastapi" },
-    { name = "mcp", extra = ["cli"] },
-    { name = "paramiko" },
-    { name = "pydantic" },
-    { name = "python-dotenv" },
-    { name = "ruff" },
-    { name = "uvicorn" },
-]
-
-[package.optional-dependencies]
-dev = [
-    { name = "black" },
-    { name = "isort" },
-    { name = "pyright" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "black", marker = "extra == 'dev'", specifier = ">=23.9.1" },
-    { name = "fastapi", specifier = ">=0.104.0" },
-    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
-    { name = "mcp", extras = ["cli"], specifier = ">=1.5.0" },
-    { name = "paramiko", specifier = ">=3.4.0" },
-    { name = "pydantic", specifier = ">=2.5.0" },
-    { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.389" },
-    { name = "python-dotenv", specifier = ">=1.0.0" },
-    { name = "ruff", specifier = ">=0.11.2" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7.3" },
-    { name = "uvicorn", specifier = ">=0.23.0" },
-]
-provides-extras = ["dev"]
-
-[[package]]
 name = "mdurl"
 version = "0.1.2"
 source = { registry = "https://pypi.org/simple" }
@@ -724,6 +686,44 @@ sdist = { url = "https://files.pythonhosted.org/packages/71/a4/80d2a11af59fe75b4
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d9/e0/5b8bd393f27f4a62461c5cf2479c75a2cc2ffa330976f9f00f5f6e4f50eb/sse_starlette-2.2.1-py3-none-any.whl", hash = "sha256:6410a3d3ba0c89e7675d4c273a301d64649c03a5ef1ca101f10b47f895fd0e99", size = 10120 },
 ]
+
+[[package]]
+name = "ssh-exec"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "fastapi" },
+    { name = "mcp", extra = ["cli"] },
+    { name = "paramiko" },
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "ruff" },
+    { name = "uvicorn" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "black" },
+    { name = "isort" },
+    { name = "pyright" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "black", marker = "extra == 'dev'", specifier = ">=23.9.1" },
+    { name = "fastapi", specifier = ">=0.104.0" },
+    { name = "isort", marker = "extra == 'dev'", specifier = ">=5.12.0" },
+    { name = "mcp", extras = ["cli"], specifier = ">=1.5.0" },
+    { name = "paramiko", specifier = ">=3.4.0" },
+    { name = "pydantic", specifier = ">=2.5.0" },
+    { name = "pyright", marker = "extra == 'dev'", specifier = ">=1.1.389" },
+    { name = "python-dotenv", specifier = ">=1.0.0" },
+    { name = "ruff", specifier = ">=0.11.2" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.7.3" },
+    { name = "uvicorn", specifier = ">=0.23.0" },
+]
+provides-extras = ["dev"]
 
 [[package]]
 name = "starlette"

@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 SSH_HOST = None
 SSH_PORT = 22
 SSH_USERNAME = None
-SSH_PRIVATE_KEY = None
+SSH_PRIVATE_KEY_FILE = None
+SSH_CONFIG_FILE = None
 SSH_PASSWORD = None
 ALLOWED_COMMANDS = []
 ALLOWED_PATHS = []
@@ -30,16 +31,22 @@ ARGUMENTS_BLACKLIST = []
 def load_env():
     """Load environment variables"""
     global SSH_HOST, SSH_PORT, SSH_USERNAME
-    global SSH_PRIVATE_KEY, SSH_PASSWORD
+    global SSH_PRIVATE_KEY_FILE, SSH_PASSWORD, SSH_CONFIG_FILE
     global ALLOWED_COMMANDS, ALLOWED_PATHS
     global COMMANDS_BLACKLIST, ARGUMENTS_BLACKLIST
 
     # Get SSH configuration from environment variables
     SSH_HOST = os.environ.get("SSH_HOST")
+    if not SSH_HOST:
+        raise Exception("ssh host is not set!")
+
     SSH_PORT = int(os.environ.get("SSH_PORT", "22"))
     SSH_USERNAME = os.environ.get("SSH_USERNAME")
-    SSH_PRIVATE_KEY = os.environ.get("SSH_PRIVATE_KEY")
+
+    SSH_PRIVATE_KEY_FILE = os.environ.get("SSH_PRIVATE_KEY_FILE")
     SSH_PASSWORD = os.environ.get("SSH_PASSWORD")
+
+    SSH_CONFIG_FILE = os.environ.get("SSH_CONFIG_FILE")
 
     # Get security configuration from environment variables
     ALLOWED_COMMANDS = [
@@ -57,11 +64,12 @@ def load_env():
     logger.info("SSH exec MCP server configuration:")
     logger.info("SSH host: %s", SSH_HOST)
     logger.info("SSH port: %s", SSH_PORT)
-    logger.info("SSH username: %s", SSH_USERNAME)
-    logger.info("Using private key: %s", bool(SSH_PRIVATE_KEY))
+    logger.info("SSH username: %s%s", SSH_USERNAME or "not_set", 
+                " (will use SSH config)" if not SSH_USERNAME else "")
+    logger.info("Using private key file: %s", bool(SSH_PRIVATE_KEY_FILE))
     logger.info("Using password: %s", bool(SSH_PASSWORD))
     logger.info(
-        "Using system SSH config: %s", not SSH_PRIVATE_KEY and not SSH_PASSWORD)
+        "Using SSH config fallback: %s", not SSH_PRIVATE_KEY_FILE and not SSH_PASSWORD)
     logger.info("Allowed commands: %s", ALLOWED_COMMANDS)
     logger.info("Allowed paths: %s", ALLOWED_PATHS)
     logger.info("Commands blacklist: %s", COMMANDS_BLACKLIST)
@@ -90,10 +98,8 @@ def validate_ssh_config() -> None:
     """
     if not SSH_HOST:
         raise ValueError("SSH_HOST environment variable is not set")
-    if not SSH_USERNAME:
-        raise ValueError("SSH_USERNAME environment variable is not set")
-    # Private key and password are now optional
-    # If neither is provided, system SSH configuration will be used
+    # Username is now optional if SSH config is available
+    # Private key and password are optional - will use SSH config or system defaults
 
 
 # Get or create SSH client
@@ -111,12 +117,14 @@ def get_ssh_client() -> Optional[SSHClient]:
             host=SSH_HOST,
             port=SSH_PORT,
             username=SSH_USERNAME,
-            private_key=SSH_PRIVATE_KEY,
-            password=SSH_PASSWORD
+            private_key_file=SSH_PRIVATE_KEY_FILE,
+            password=SSH_PASSWORD,
+            ssh_config_file=SSH_CONFIG_FILE,
         )
+        username_display = SSH_USERNAME or "from_ssh_config"
         logger.info(
             "Created SSH client for %s@%s:%s",
-            SSH_USERNAME, SSH_HOST, SSH_PORT)
+            username_display, SSH_HOST, SSH_PORT)
         return ssh_client
     except paramiko.SSHException as e:
         logger.error("Failed to create SSH client: %s", str(e))
@@ -132,7 +140,7 @@ async def ssh_exec(
         description="Arguments to pass to the command")] = None,
     timeout: Annotated[Optional[int], Field(
         description="Timeout in seconds for command execution")] = None
-) -> Tuple[int, str, str]:
+) -> TextContent:
     """Execute a command on the remote system
 
     Args:
