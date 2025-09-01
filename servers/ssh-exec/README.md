@@ -7,7 +7,9 @@ A Model Context Protocol (MCP) server for executing command-line operations on r
 - Secure SSH command execution on remote systems
 - Command and argument validation for security
 - Path restriction to prevent unauthorized access
-- Support for both password and key-based authentication
+- Support for password, key-based, and SSH config authentication
+- Automatic SSH config file support (~/.ssh/config)
+- Cross-platform compatibility (Windows, Linux, macOS)
 - FastAPI-based MCP server with Uvicorn
 
 ## Installation
@@ -31,12 +33,21 @@ For security reasons, SSH credentials should be provided via environment variabl
 
 - `SSH_HOST`: SSH host to connect to (required)
 - `SSH_PORT`: SSH port (default: 22)
-- `SSH_USERNAME`: SSH username (required)
-- `SSH_PRIVATE_KEY`: SSH private key content (not path)
+- `SSH_USERNAME`: SSH username (optional if specified in SSH config)
 - `SSH_PRIVATE_KEY_FILE`: SSH private key file path (supports OpenSSH format)
 - `SSH_PASSWORD`: SSH password
+- `SSH_CONFIG_FILE`: Custom SSH config file path (optional, defaults to ~/.ssh/config)
 
-Either `SSH_PRIVATE_KEY`, `SSH_PRIVATE_KEY_FILE`, or `SSH_PASSWORD` must be provided, or the system will attempt to use your SSH config. If both `SSH_PRIVATE_KEY` and `SSH_PRIVATE_KEY_FILE` are provided, `SSH_PRIVATE_KEY_FILE` takes precedence.
+**Authentication priority (first available is used):**
+1. `SSH_PRIVATE_KEY_FILE` - Explicit private key file
+2. `SSH_PASSWORD` - Password authentication  
+3. SSH config identity files (from ~/.ssh/config)
+4. System SSH agent and default keys
+
+**SSH Config Support:**
+- Automatically loads `~/.ssh/config` (or custom path via `SSH_CONFIG_FILE`)
+- Supports hostname aliases, port overrides, username defaults, and identity files
+- Makes deployment simpler - only `SSH_HOST` required if properly configured
 
 Optional environment variables for security configuration:
 - `SSH_ALLOWED_COMMANDS`: Comma-separated list of commands that are allowed to be executed
@@ -58,20 +69,44 @@ Optional environment variables for security configuration:
 
 ## Usage
 
-### Export required environment variables
+### Configuration Examples
+
+#### Option 1: Simple SSH Config (Recommended)
+If you have SSH config properly set up in `~/.ssh/config`:
+
+```bash
+# ~/.ssh/config
+Host myserver
+    HostName example.com
+    User myuser
+    Port 2222
+    IdentityFile ~/.ssh/id_rsa
+    
+# Only SSH_HOST needed!
+export SSH_HOST=myserver
+export SSH_ALLOWED_COMMANDS="ls,ps,cat"
+export SSH_ALLOWED_PATHS="/tmp,/home"
+```
+
+#### Option 2: Explicit Environment Variables
 
 ```bash
 export SSH_HOST=example.com
 export SSH_PORT=22
 export SSH_USERNAME=user
-# Option 1: Use private key file path (recommended for OpenSSH format keys)
 export SSH_PRIVATE_KEY_FILE=~/.ssh/id_rsa
-# Option 2: Use private key content
-# export SSH_PRIVATE_KEY="$(cat ~/.ssh/id_rsa)"
 export SSH_ALLOWED_COMMANDS="ls,ps,cat"
 export SSH_ALLOWED_PATHS="/tmp,/home"
 export SSH_COMMANDS_BLACKLIST=rm,mv,dd,mkfs,fdisk,format
 export SSH_ARGUMENTS_BLACKLIST=-rf,-fr,--force
+```
+
+#### Option 3: Custom SSH Config File
+
+```bash
+export SSH_HOST=myserver
+export SSH_CONFIG_FILE=/path/to/custom/ssh_config
+export SSH_ALLOWED_COMMANDS="ls,ps,cat"
 ```
 
 ### Configuration for MCP Client
@@ -89,7 +124,30 @@ Use this option if you have the code checked out locally and want to run it dire
       "command": "uv",
       "args": [
         "--directory",
-        "/path/to/mcp-servers",  // Replace with actual path to your local repository
+        "/path/to/mcp-servers",
+        "run",
+        "mcp-ssh-exec"
+      ],
+      "env": {
+        "SSH_HOST": "myserver",
+        "SSH_ALLOWED_COMMANDS": "ls,ps,cat,df,free",
+        "SSH_ALLOWED_PATHS": "/tmp,/home,/var/log"
+      }
+    }
+  }
+}
+```
+
+**Note:** This minimal configuration assumes you have SSH config properly set up. For explicit configuration:
+
+```json
+{
+  "mcpServers": {
+    "mcp-ssh-exec": {
+      "command": "uv",
+      "args": [
+        "--directory",
+        "/path/to/mcp-servers",
         "run",
         "mcp-ssh-exec"
       ],
@@ -98,8 +156,8 @@ Use this option if you have the code checked out locally and want to run it dire
         "SSH_PORT": "22",
         "SSH_USERNAME": "user",
         "SSH_PRIVATE_KEY_FILE": "~/.ssh/id_rsa",
-        "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
-        "SSH_ALLOWED_PATHS": "/tmp,/home",
+        "SSH_ALLOWED_COMMANDS": "ls,ps,cat,df,free",
+        "SSH_ALLOWED_PATHS": "/tmp,/home,/var/log",
         "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
         "SSH_ARGUMENTS_BLACKLIST": "-rf,-fr,--force"
       }
@@ -120,21 +178,58 @@ Use this option to automatically fetch and run the latest version from GitHub:
       "args": [
         "--from",
         "git+https://github.com/pathintegral-institute/mcp.science#subdirectory=servers/ssh-exec",
-        "mcp-ssh-exec",
+        "mcp-ssh-exec"
       ],
       "env": {
-        "SSH_HOST": "example.com",
-        "SSH_PORT": "22",
-        "SSH_USERNAME": "user",
-        "SSH_PRIVATE_KEY_FILE": "~/.ssh/id_rsa",
-        "SSH_ALLOWED_COMMANDS": "ls,ps,cat",
-        "SSH_ALLOWED_PATHS": "/tmp,/home",
-        "SSH_COMMANDS_BLACKLIST": "rm,mv,dd,mkfs,fdisk,format",
-        "SSH_ARGUMENTS_BLACKLIST": "-rf,-fr,--force"
+        "SSH_HOST": "myserver",
+        "SSH_ALLOWED_COMMANDS": "ls,ps,cat,df,free",
+        "SSH_ALLOWED_PATHS": "/tmp,/home,/var/log"
       }
     }
   }
 }
+```
+
+## SSH Config Examples
+
+### Basic SSH Config
+```bash
+# ~/.ssh/config
+Host myserver
+    HostName example.com
+    User myuser
+    Port 2222
+    IdentityFile ~/.ssh/id_rsa
+```
+
+### Advanced SSH Config with Aliases
+```bash
+# ~/.ssh/config
+Host prod
+    HostName production.example.com
+    User deploy
+    Port 22
+    IdentityFile ~/.ssh/prod_key
+
+Host staging  
+    HostName staging.example.com
+    User deploy
+    Port 2222
+    IdentityFile ~/.ssh/staging_key
+    
+# Use either "prod" or "staging" as SSH_HOST
+```
+
+### Multiple Identity Files
+```bash
+# ~/.ssh/config  
+Host myserver
+    HostName example.com
+    User myuser
+    IdentityFile ~/.ssh/id_rsa
+    IdentityFile ~/.ssh/id_ed25519
+    IdentitiesOnly yes
+```
 
 ## MCP Tools
 
